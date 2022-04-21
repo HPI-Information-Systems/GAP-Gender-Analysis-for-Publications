@@ -1,33 +1,32 @@
 # GAP: Gender Analysis for Publications
 
-### The Web App
+## The Web App
 Run app with `streamlit run prototype.py`.
 
+## Setting up the Data Source
+### Prepare the Environment
+1. Install python virtualenv: `pip3.9 install virtualenv`
+2. Create a virtual environment: `python3.9 -m virtualenv gap_env`
+3. Activate the virtual environment: `source gap_env/bin/activate`
+4. Install the dependencies: `pip3.9 install -r requirements.txt`
 
-### The DBLP xml parser
+### Parse the dblp xml
 csv files of all [level-1 elements of dblp.xml](https://dblp.org/faq/16154937.html) can be parsed with this component.
 To do so, perform the following steps:
 
-Install python virtualenv:
-```
-pip3.9 install virtualenv 
-```
-Create a virtual environment:
-```
-python3.9 -m virtualenv gap_env
-```
-Activate the virtual environment:
-```
-source gap_env/bin/activate
-mkdir dblp
-```
-Download the dblp.xml and the relevant dblp-20xx-xx-xx.dtd file from the [dblp xml dump](https://dblp.org/xml/). 
-Store the downloaded files in the 'dblp' directory.
-Install all the relevant dependencies:
-```
-pip3.9 install -r requirements.txt
-```
-Run the parser to generate the csv files to be stored in `csv/`:
-```
-python3.9 dblp_parser.py
-```
+0. 
+   1. [Prepare the Environment](#prepare-the-environment) if not already done.
+   2. Activate the virtual environment: `source gap_env/bin/activate` if not already done in (i).
+1. Create a directory for the dblp dump: `mkdir dblp`
+2. Download the dblp.xml and the relevant dblp-20xx-xx-xx.dtd file from the [dblp xml dump](https://dblp.org/xml/).
+3. Store the downloaded files in the 'dblp' directory.
+4. Run the parser to generate the csv files to be stored in `csv/`: `python3.9 dblp_parser.py`
+
+### Propagate data to the database
+
+0. 
+   1. [Prepare the Environment](#prepare-the-environment) if not already done.
+   2. Activate the virtual environment: `source gap_env/bin/activate` if not already done in (i).
+   3. [Parse the dblp xml](#parse-the-dblp-xml) if not already done.
+1. Run the database script to fill the database and also save the tables as readable csv files under `csv/db/`:
+`python3.9 database.py`
