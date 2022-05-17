@@ -1,19 +1,11 @@
 from lxml import etree
-from datetime import datetime
 import re
 import os
 import pandas as pd
+from utils import log
 
 if not os.path.exists('csv'):
     os.makedirs('csv')
-
-
-def log(message):
-    """
-    Print log message to stdout with current time.
-    :param message: string
-    """
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message)
 
 
 def extract_title(title_element):
