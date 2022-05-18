@@ -14,8 +14,9 @@ python3.9 -m virtualenv gap_env
 Activate the virtual environment:
 ```
 source gap_env/bin/activate
-
+```
 Install all the relevant dependencies:
+
 ```
 pip3.9 install -r requirements.txt
 ```
