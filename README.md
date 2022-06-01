@@ -20,5 +20,6 @@ Install all the relevant dependencies:
 ```
 pip3.9 install -r requirements.txt
 ```
-Create dummy data with `python3.9 create_data.py`
+Create dummy data with `python3.9 create_data.py`.
+
 Run app with `streamlit run prototype.py`.
