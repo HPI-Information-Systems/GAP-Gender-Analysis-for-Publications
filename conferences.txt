@@ -1,0 +1,328 @@
+1. General
+
+    FCRC - Federated Computing Research Conference
+
+2. Algorithms and theory (Theoretical computer science)
+
+a. Theoretical computer science
+
+theoretical computer science, algorithms, data structures, computability, computational complexity, automata theory, formal languages:
+
+    CCC - Computational Complexity Conference
+    FCT - International Symposium on Fundamentals of Computation Theory
+    FOCS - IEEE Symposium on Foundations of Computer Science
+    ICALP - International Colloquium on Automata, Languages and Programming
+    ISAAC - International Symposium on Algorithms and Computation
+    MFCS - International Symposium on Mathematical Foundations of Computer Science
+    STACS - Symposium on Theoretical Aspects of Computer Science
+    STOC - ACM Symposium on Theory of Computing
+    WoLLIC - Workshop on Logic, Language, Information and Computation
+
+b. Algorithms
+
+algorithms and data structures
+
+    ESA - European Symposium on Algorithms
+    SODA - ACM–SIAM Symposium on Discrete Algorithms
+    SWAT - Scandinavian Symposium and Workshops on Algorithm Theory
+    WADS - Algorithms and Data Structures Symposium
+    WAOA - Workshop on Approximation and Online Algorithms
+
+c. Geometric algorithms
+
+computational geometry, graph drawing, geometric computing:
+
+    GD - International Symposium on Graph Drawing
+    SoCG - ACM Symposium on Computational Geometry
+
+d. Logic
+Formal methods, Automated reasoning
+
+    LICS - ACM–IEEE Symposium on Logic in Computer Science
+    RTA - International Conference on Rewriting Techniques and Applications
+
+e. Other specialized subtopics
+
+    CIAA - International Conference on Implementation and Application of Automata
+    CCC - Computational Complexity Conference
+    DCFS - International Workshop on Descriptional Complexity of Formal Systems
+    DLT - International Conference on Developments in Language Theory
+    ISSAC - International Symposium on Symbolic and Algebraic Computation
+    Petri Nets - International Conference on Applications and Theory of Petri Nets and Concurrency
+    SEA - Symposium on Experimental Algorithms
+
+3. Languages and software
+a. Programming languages
+
+programming languages, programming language theory, compilers:
+
+    CC International Conference on Compiler Construction
+    ECOOP - AITO European Conference on Object–Oriented Programming
+    ESOP - ETAPS European Symposium on Programming
+    HOPL - ACM SIGPLAN History of Programming Languages Conference
+    ICFP - ACM SIGPLAN International Conference on Functional Programming
+    ICLP - ALP International Conference on Logic Programming
+    ISMM - ACM SIGPLAN International Symposium on Memory Management
+    OOPSLA - ACM SIGPLAN Conference on Object–Oriented Programming, Systems, Languages, and Applications
+    POPL - ACM SIGPLAN–SIGACT Symposium on Principles of Programming Languages
+    PLDI - ACM SIGPLAN Conference on Programming Language Design and Implementation
+
+b. Software engineering
+
+software engineering:
+
+    ASE - IEEE/ACM International Conference on Automated Software Engineering
+    ICSE - International Conference on Software Engineering
+    ICSR - International Conference on Software Reuse
+    TACAS - ETAPS International Conference on Tools and Algorithms for the Construction and Analysis of Systems
+    FoSSaCS - ETAPS International Conference on Foundations of Software Science and Computation Structures
+    FASE - ETAPS International Conference on Fundamental Approaches to Software Engineering
+
+c. Formal methods
+
+logic and automated reasoning, formal methods in software engineering, formal specification, formal verification, static code analysis:
+
+    CAV - Computer Aided Verification
+    FORTE - IFIP International Conference on Formal Techniques for Networked and Distributed Systems
+
+4. Concurrent, distributed and parallel computing
+
+a. distributed and parallel computing
+
+computer networking,fault–tolerant systems, dependable systems:
+
+    CONCUR - International Conference on Concurrency Theory
+    DEBS - ACM International Conference on Distributed Event–Based Systems
+    DISC - International Symposium on Distributed Computing
+    DSN - International Conference on Dependable Systems and Networks
+    ICDCS - IEEE International Conference on Distributed Computing Systems
+    ICPADS - IEEE International Conference on Parallel and Distributed Systems
+    IPDPS - IEEE International Parallel and Distributed Processing Symposium
+    PODC - ACM Symposium on Principles of Distributed Computing
+    PPoPP - ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming
+    SIROCCO - International Colloquium on Structural Information and Communication Complexity
+    SPAA - ACM Symposium on Parallelism in Algorithms and Architectures
+    SRDS - IEEE International Symposium on Reliable Distributed Systems
+
+b. High–performance computing
+
+high–performance computing, cluster computing, and grid computing:
+
+    HiPC - International Conference on High Performance Computing
+    SC - ACM/IEEE Supercomputing Conference
+    CCGRID - Cluster, Cloud and Grid Computing
+
+5. Operating systems
+
+operating systems, storage systems and middleware
+
+    ATC - USENIX Annual Technical Conference
+    FAST - USENIX Conference on File and Storage Technologies
+    Middleware - ACM/IFIP/USENIX International Middleware Conference
+    SOSP - ACM Symposium on Operating Systems Principles
+    SYSTOR - ACM International Systems and Storage Conference
+
+6. Computer architecture
+
+a. Computer architecture
+
+    ASPLOS - International Conference on Architectural Support for Programming Languages and Operating Systems
+    ISCA - International Symposium on Computer Architecture
+    MICRO - IEEE/ACM International Symposium on Microarchitecture
+
+b. Computer hardware
+
+    ISCAS - IEEE International Symposium on Circuits and Systems
+
+c. Computer–aided design
+
+computer–aided design, electronic design automation:
+
+    ASP–DAC - Asia and South Pacific Design Automation Conference
+    DAC - Design Automation Conference
+    DATE - Design, Automation, and Test in Europe
+    ICCAD - International Conference on Computer–Aided Design
+    ISPD - International Symposium on Physical Design
+
+7. Computer networking
+
+a. Computer networking:
+
+    GlobeCom - IEEE Global Communications Conference
+    ICC - IEEE International Conference on Communications
+    ICSOC - International Conference on Service Oriented Computing
+    INFOCOM - IEEE Conference on Computer Communications
+    SIGCOMM - ACM SIGCOMM Conference
+    SIGMETRICS - ACM SIGMETRICS
+    WINE - The Workshop on Internet & Network Economics
+
+b. Wireless networks and mobile computing
+
+Wireless networks and mobile computing, ubiquitous and pervasive computing, wireless ad hoc networks, wireless sensor networks:
+
+    EWSN - European Conference on Wireless Sensor Networks
+    IPSN - ACM/IEEE International Conference on Information Processing in Sensor Networks
+    ISWC - International Symposium on Wearable Computers
+    MobiHoc - ACM International Symposium on Mobile Ad Hoc Networking and Computing
+    SenSys - ACM Conference on Embedded Networked Sensor Systems
+
+8. Security and privacy
+
+a. Computer security and privacy
+
+    DSN - International Conference on Dependable Systems and Networks
+    USENIX Security Symposium
+
+b. Cryptography
+
+cryptography:
+
+    ACNS - Applied Cryptography and Network Security
+    ANTS - Algorithmic Number Theory Symposium
+    ASIACRYPT - International Conference on the Theory and Application of Cryptology and Information Security
+    CHES - Workshop on Cryptographic Hardware and Embedded Systems
+    CRYPTO - International Cryptology Conference
+    EUROCRYPT - International Conference on the Theory and Applications of Cryptographic Techniques
+    FSE - Fast Software Encryption Workshop
+    PKC - International Workshop on Practice and Theory in Public Key Cryptography
+    RSA - RSA Conference
+    TCC - Theory of Cryptography Conference
+
+9. Data management
+
+databases, information systems, information retrieval, data mining, the World Wide Web:
+
+    CIDR - Conference on Innovative Data Systems Research
+    CIKM - ACM Conference on Information and Knowledge Management
+    ECIR - European Conference on Information Retrieval
+    ECIS - European Conference on Information Systems
+    ER - International Conference on Conceptual Modeling
+    ICDT - International Conference on Database Theory
+    ICIS - International Conference on Information Systems
+    ISWC - International Semantic Web Conference
+    JCDL - ACM/IEEE Joint Conference on Digital Libraries
+    KDD - ACM SIGKDD Conference on Knowledge Discovery and Data Mining
+    PODS - ACM Symposium on Principles of Database Systems
+    SIGIR - Annual International ACM SIGIR Conference
+    SIGMOD - ACM SIGMOD Conference
+    VLDB - International Conference on Very Large Data Bases
+    WWW - World Wide Web Conference
+
+10. Artificial intelligence
+
+a. Artificial intelligence and Machine learning
+
+    AAAI - AAAI Conference on Artificial Intelligence
+    AAMAS - International Conference on Autonomous Agents and Multiagent Systems
+    Canadian AI - Canadian Conference on Artificial Intelligence
+    CIBB - International Conference on Computational Intelligence Methods for Bioinformatics and Biostatistics
+    ECAI - European Conference on Artificial Intelligence
+    ECML PKDD - European Conference on Machine Learning and Principles and Practice of Knowledge Discovery in Databases
+    ICML - International Conference on Machine Learning
+    ICLR - International Conference on Learning Representations
+    IJCAI - International Joint Conference on Artificial Intelligence
+    ISWC - International Semantic Web Conference
+    NeurIPS - Conference on Neural Information Processing Systems
+    RuleML - RuleML Symposium
+
+b. Evolutionary computation
+
+evolutionary computation.
+
+    AE - Artificial Evolution Conference
+    CEC - IEEE Congress on Evolutionary Computation
+    GECCO - Genetic and Evolutionary Computation Conference
+
+c. Automated reasoning
+
+logic and Formal methods, automated reasoning:
+
+    IJCAR - International Joint Conference on Automated Reasoning
+    LPAR - International Conference on Logic for Programming, Artificial Intelligence and Reasoning
+    RuleML - RuleML Symposium
+    TABLEAUX - International Conference on Automated Reasoning with Analytic Tableaux and Related Methods
+    WoLLIC - Workshop on Logic, Language, Information and Computation
+
+d. Computer vision
+
+computer vision, image analysis and pattern recognition:
+
+    3DV - International Conference on 3D Vision
+    ACCV - Asian Conference on Computer Vision
+    BMVC - British Machine Vision Conference
+    CVPR - IEEE Conference on Computer Vision and Pattern Recognition
+    ECCV - European Conference on Computer Vision
+    ICIP - IEEE International Conference on Image Processing
+    ICCV - IEEE International Conference on Computer Vision
+    SCIA - Scandinavian Conference on Image Analysis
+    SIBGRAPI - SIBGRAPI Conference on Graphics, Patterns and Images
+    SSIAI - IEEE Southwest Symposium on Image Analysis and Interpretation
+    VCIP - IEEE International Conference on Visual Communications and Image Processing
+    WACV - IEEE Winter Conference on Applications of Computer Vision
+
+e. Natural language processing
+
+computational linguistics and natural language processing:
+
+    ACL - Annual Meeting of the Association for Computational Linguistics
+    EMNLP - Empirical Methods in Natural Language Processing
+    NAACL - Annual Conference of the North American Chapter of the Association for Computational Linguistics
+    COLING - International Committee on Computational Linguistics
+    TSD - Text, Speech and Dialogue
+    CICLing - International Conference on Intelligent Text Processing and Computational Linguistics
+
+11. Computer graphics
+
+a. Computer graphics
+
+Computer graphics, geometry processing, image processing, and multimedia:
+
+    BigMM - IEEE International Conference on Multimedia Big Data
+    Eurographics - Annual Conference of the European Association for Computer Graphics
+    ICME - IEEE International Conference on Multimedia and Expo
+    ISM - IEEE International Symposium on Multimedia
+    MM - ACM International Conference on Multimedia
+    MMSP - International Workshop on Multimedia Signal Processing
+    SGP - Symposium on Geometry Processing
+    SIGGRAPH - International Conference on Computer Graphics and Interactive Techniques
+    SIBGRAPI - SIBGRAPI Conference on Graphics, Patterns and Images
+
+b. Visualization
+
+visual analytics, scientific visualization, information visualization:
+
+    VIS - IEEE Visualization Conference
+
+    EuroVis - Eurographics Conference on Visualization
+
+    PacificVis - IEEE Pacific Visualization Symposium
+
+12. Human–computer interaction
+
+human–computer interaction and user interfaces:
+
+    ASSETS - International ACM SIGACCESS Conference on Computers and Accessibility
+    CHI - ACM Conference on Human Factors in Computing Systems
+    GI - Graphics Interface
+    MobileHCI - Conference on Human–Computer Interaction with Mobile Devices and Services
+    SIGDOC - ACM International Conference on Design of Communication
+    UIST - ACM Symposium on User Interface Software and Technology
+    UMAP - ACM International Conference on User Modeling, Adaptation, and Personalization
+
+13. Bioinformatics and computational biology
+
+bioinformatics and computational biology:
+
+    CIBB - International Conference on Computational Intelligence Methods for Bioinformatics and Biostatistics
+    ISMB - Intelligent Systems for Molecular Biology
+    PSB - Pacific Symposium on Biocomputing
+    RECOMB - Research in Computational Molecular Biology
+    WABI - Workshop on Algorithms in Bioinformatics
+
+14. Education
+
+computer science education and electronic learning:
+
+    SIGCSE - ACM Technical Symposium on Computer Science Education
+
+
