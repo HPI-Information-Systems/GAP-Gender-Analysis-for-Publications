@@ -3,7 +3,9 @@ from sqlite3 import Connection, connect
 import streamlit as st
 import numpy as np
 
-DB = 'test.db'
+country_cont = pd.read_csv('countries_continents.csv')
+data = pd.read_csv('new_data_2.csv')
+conferences = pd.read_csv('sorted_conferences.csv')
 
 
 def main():
@@ -12,11 +14,19 @@ def main():
     #conn.execute("INSERT INTO test (Attribute1, Attribute2) VALUES (42, 'text')")
     #fill_from_json(conn)
     #conn.commit()
-    #conn = connect(DB)
+    #conn = connect(DB
+
     st.title('Gender Analysis for Publications')
-    st.subheader("No of Articles by year journal")
-    option = display_relation()
-    populate_graph(option)
+    st.subheader("No of conference publications per year")
+    ps = ''
+    option_c, option_Count, option_field = display_relation()
+
+    if st.button('Submit'):
+            print (ps, option_c, option_Count, option_field)
+            populate_graph (option_c, option_Count, option_field)
+    else:
+            st.write('Waiting for submission')
+    #populate_graph(option[0],option[1],option[2])
 
 def fill_from_json(conn: Connection):
     df = pd.read_json('article_002.json')
@@ -26,7 +36,6 @@ def fill_from_json(conn: Connection):
         conn.commit()
     conn.close()
     
-
 def init_db(conn: Connection):
     # Todo: Outsource to 'database' module
     # Todo: Add create table statements
@@ -51,74 +60,61 @@ def get_options(conn: Connection):
     return (tuple(optionl),sql2)
 
 
-def populate_graph(option):
+def populate_graph(conf='', country='', field=''):
+    year = np.array(list(range(2000,2022)))
+    y = year*0
 
     ## RETRIEVING OPTIONS AND FILLING UP THE DROP DOWN LISTS TO POPULATE GRAPH
-    ss = pd.DataFrame({})
-    with open('1.txt') as f:
-        one = f.readlines()
-    with open('2.txt') as f:
-        two = f.readlines()
-    with open('3.txt') as f:
-        three = f.readlines()
-    with open('year.txt') as f:
-        year = f.readlines()
+    y_name = 'Y:'
+    if(field==[]):
+            f1 = (True)
+    else:
+            f1 = (data['Field'] == field[-1])
+            y_name = y_name + field[-1]+'+'
+    if(country==[]):
+            f2 = (True)
+    else:
+            f2 = (data['Country'] == country[-1])
+            y_name = y_name + country[-1]+'+'
+    if(conf==[]):
+            f3 = (True)
+    else:
+            f3 = (data['Conference'] == conf[-1])
+            y_name = y_name + conf[-1]+'+'
+    try:
+            filtered_df = data[f1 & f2 & f3]
+    except:
+            filtered_df = data
+    filtered_df = filtered_df.groupby(filtered_df['Year']).sum()
+    if(len(filtered_df)==22):
+            y = filtered_df['No of Publications']
+    ss = pd.DataFrame({'Year': year, y_name : np.array(y)}).set_index('Year')
+    try:
+            if (len(ps)!= 0):
+                    ps[y_name] = np.array(y)
 
-    one = [int(x[:-1]) for x in one]
-    two = [int(x[:-1]) for x in two]
-    three = [int(x[:-1]) for x in three]
-    for ii in range(0,3):
-
-        if(ii == 0):
-        	ss1 = pd.DataFrame({'year': np.array(year), 'one' : np.array(one)})
-        	ss1 = ss1.rename(columns={'year':'index'}).set_index('index')
-        elif(ii == 1):
-        	ss2 = pd.DataFrame({'year': np.array(year), 'two' : np.array(two)})
-        	ss2 = ss2.rename(columns={'year':'index'}).set_index('index')
-        elif(ii == 2):
-        	ss3 = pd.DataFrame({'year': np.array(year), 'three' : np.array(three)})
-        	ss3 = ss3.rename(columns={'year':'index'}).set_index('index')
-
-
-    count = 0
-    for op in option:
-
-        if(op == 'one'):
-        	if(count == 0):
-        		ss = ss1
-        	else:
-        		ss['one'] = one
-        elif(op == 'two'):
-        	if(count == 0):
-        		ss = ss2
-        	else:
-        		ss['two'] = two
-        elif(op == 'three'):
-        	if(count == 0):
-        		ss = ss3
-        	else:
-        		ss['three'] = three
-        count = count + 1
-	
-
+    except:
+            ps = ss
+    #ss = ss.rename(columns={'Year':'index'}).set_index('index')
     ## POPULATE GRAPH WITH DATA
-    st.line_chart(ss)
+    st.line_chart(ps)
+    return(ps)
 
 
 def display_relation():
-    # Todo: Outsource to 'frontend' module
-    #options,sql2 = get_options(conn)
-    #with open('temp_journal.txt') as f:
-    #    options = f.readlines()
-
-
 
     ## RETRIEVE OPTIONS
-    options = ('one','two','three')
-    option = st.multiselect('by which Journal would you like to filter by:',options)
-    st.write('Your selected Journals:', option)
+    options_c = tuple(list(conferences['Conference']))
+    option_c = st.multiselect('Filter by Conferences:',options_c)
 
-    return (option)
+    options_field = tuple(list(conferences['Field'].unique()))
+    option_field = st.multiselect('Filter by Field:',options_field)
+
+    options_Count = tuple(list(country_cont['Country']))
+    option_Count = st.multiselect('Filter by Country:',options_Count)
+
+    return(option_c, option_Count, option_field)
+
 
 
 if __name__ == "__main__":
