@@ -28,5 +28,11 @@ To do so, perform the following steps:
    1. [Prepare the Environment](#prepare-the-environment) if not already done.
    2. Activate the virtual environment: `source gap_env/bin/activate` if not already done in (i).
    3. [Parse the dblp xml](#parse-the-dblp-xml) if not already done.
-1. Run the database script to fill the database and also save the tables as readable csv files under `csv/db/`:
+1. If you already have gender-annotated first names from the GenderAPI, put them under `csv/GenderAPI/`
+2. Run the database script to fill the database and also save the tables as readable csv files under `csv/db/`:
 `python3.9 database.py`
+
+A csv file with all unknown first name can be found under `csv/GenderAPI/unprocessed/`. It contains first names that 
+where unknown to the GenderAPI in the past (this may change over time!) as well as names that we did not requested from 
+the GenderAPI yet. Pass it to the GenderAPI and start with the first step again to increase the gender
+determination rate.
