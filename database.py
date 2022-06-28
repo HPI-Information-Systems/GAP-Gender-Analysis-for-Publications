@@ -20,10 +20,11 @@ NA_VALUES = ["''", '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-n
 COUNTRY_VARIATIONS = pd.read_csv('country_name_variations.csv', keep_default_na=False, na_values=NA_VALUES)
 COUNTRIES = pd.read_csv('countries_unique.csv', keep_default_na=False, na_values=NA_VALUES)
 CONTINENTS = pd.read_csv('continents.csv', keep_default_na=False, na_values=NA_VALUES)
-NO_MIDDLE_NAMES = ['van', 'Van', 'von', 'Von', 'zur', 'Zur', 'aus', 'dem', 'den', 'Den', 'der', 'Der', 'del', 'Del',
-                   'de', 'De', 'la', 'La', 'los', 'Los', 'ul', 'Ul', 'al', 'Al', 'da', 'Da', 'el', 'El', 'vom', 'Vom',
-                   'auf', 'Auf', 'des', 'Des', 'di', 'Di', 'dos', 'Dos', 'du', 'Du', 'ten', 'Ten', 'ter', 'Ter',
-                   "van't", "Van't"]
+# The, Zu, De, Den, Der, Del, Ul, Al, Da, El, Des, Di, Ten, Ter, Van, Von, Zur, Du, Das, Le actually are first names
+NO_MIDDLE_NAMES = ['van', 'von', 'zur', 'aus', 'dem', 'den', 'der', 'del', 'de', 'la', 'La', 'las', 'le', 'los', 'ul',
+                   'al', 'da', 'el', 'vom', 'Vom', 'auf', 'Auf', 'des', 'di', 'dos', 'du', 'ten', 'ter', "van't",
+                   "Van't", 'of', 'het', 'the', 'af', 'til', 'zu', 'do', 'das', 'Sri', 'Si', 'della', 'Della', 'degli',
+                   'Degli', 'Mc', 'Mac', 'und', 'on', "in't", 'i', 'ka', 't']
 
 
 def main():
@@ -290,7 +291,7 @@ def get_unknown_first_names(conn: Connection):
         """, con=conn)
 
     # Discard 'nobiliary' particles in first names
-    pd.concat([unknown, pd.DataFrame(NO_MIDDLE_NAMES, columns=['first_name'])]).drop_duplicates(keep=False)
+    unknown = unknown[~unknown.first_name.isin(NO_MIDDLE_NAMES)]
 
     unknown.to_csv('csv/GenderAPI/unprocessed/first_names.csv', index=False)
 
