@@ -147,11 +147,9 @@ def fill_gender_api_results(conn: Connection, gapi_path='csv/GenderAPI/', ):
         GenderAPIResults = pd.read_csv(gapi_path, sep=';')
     else:
         glob_path = os.path.join(gapi_path, '*.csv')
-        GenderAPIResults = []
+        GenderAPIResults = pd.DataFrame()
         for csv_file in glob.glob(glob_path):
-            GenderAPIResults.append(pd.read_csv(csv_file, sep=';'))
-        if GenderAPIResults:
-            GenderAPIResults = pd.concat(GenderAPIResults)
+            GenderAPIResults = pd.concat([GenderAPIResults, pd.read_csv(csv_file, sep=';')])
 
     # Remove duplicates
     GenderAPIResults.drop_duplicates(inplace=True)
@@ -165,8 +163,9 @@ def fill_gender_api_results(conn: Connection, gapi_path='csv/GenderAPI/', ):
     # FirstName needs to be deleted
     # Thus, we sort first such that entries with the highest power (GaSamples) are listed before their unknown
     # duplicates and then drop any but the first entry for each duplicated FirstName
-    GenderAPIResults.sort_values(by=['FirstName', 'GaSamples'], ascending=[True, False], inplace=True)
-    GenderAPIResults.drop_duplicates(subset=['FirstName'], keep='first', inplace=True)
+    if not GenderAPIResults.empty:
+        GenderAPIResults.sort_values(by=['FirstName', 'GaSamples'], ascending=[True, False], inplace=True)
+        GenderAPIResults.drop_duplicates(subset=['FirstName'], keep='first', inplace=True)
 
     conn.execute("""
         CREATE TABLE GenderAPIResults(
