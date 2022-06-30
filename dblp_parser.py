@@ -14,7 +14,7 @@ def extract_title(title_element):
     :param title_element: xml element
     :return:    string
     """
-    title = re.sub('<.*?>', '', etree.tostring(title_element).decode('utf-8'))
+    title = re.sub('<.*?>', '', etree.tostring(title_element).decode('utf-8')).rstrip("\n")
     return title
 
 
@@ -37,7 +37,7 @@ def extract_feature(elem, features):
         if sub.tag not in features:
             continue
         elif sub.tag == 'title':
-            text = extract_title(sub) if sub.text is None else sub.text
+            text = extract_title(sub)
         else:
             text = sub.text
         if text is not None and len(text) > 0:

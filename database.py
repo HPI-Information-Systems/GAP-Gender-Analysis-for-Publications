@@ -30,6 +30,7 @@ NO_MIDDLE_NAMES = ['van', 'von', 'zur', 'aus', 'dem', 'den', 'der', 'del', 'de',
 def main():
     conn = connect(DB)
 
+    drop(conn, 'Publication')
     drop(conn, 'Venue')
     drop(conn, 'AuthorName')
     drop(conn, 'Author')
@@ -46,6 +47,7 @@ def main():
     fill_gender_api_results(conn)
     fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
     fill_venues(conn, to_csv=True)
+    fill_publications(conn, to_csv=True)
 
     # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
     get_unknown_first_names(conn)
@@ -330,6 +332,99 @@ def fill_venues(conn: Connection, to_csv=False):
     log('Venues written to database')
 
 
+def fill_publications(conn: Connection, to_csv=False):
+    log('Progress of filling publications started')
+    # Read all the needed csv files and prepare for publication extraction
+    inproceedings = pd.read_csv('csv/inproceedings.csv', dtype={'year': int, 'publtype': str, 'pages': str},
+                                usecols=['key', 'title', 'booktitle', 'pages', 'year', 'publtype'])
+    articles = pd.read_csv('csv/article.csv', usecols=['key', 'title', 'journal', 'pages', 'year', 'publtype'],
+                           dtype={'year': float, 'publtype': str, 'pages': str})
+    # Read column year as float due to NaN values and then convert it to int
+    articles.year = articles.year.astype(pd.Int64Dtype())
+    proceedings = pd.read_csv('csv/proceedings.csv', usecols=['key', 'title', 'booktitle', 'year', 'publtype'],
+                              dtype={'year': int, 'publtype': str})
+    books = pd.read_csv('csv/book.csv', usecols=['key', 'title', 'year', 'publtype'], dtype={'year': int,
+                                                                                             'publtype': str})
+    incollections = pd.read_csv('csv/incollection.csv', usecols=['key', 'title', 'pages', 'year', 'publtype'],
+                                dtype={'year': int, 'publtype': str, 'pages': str})
+    phdtheses = pd.read_csv('csv/phdthesis.csv', usecols=['key', 'title', 'pages', 'year', 'publtype'],
+                            dtype={'year': object, 'publtype': str, 'pages': str})
+    # Read column year as object due to multiple years separated by newlines, pick the maximum and convert to int
+    phdtheses.year = phdtheses.year.apply(lambda x: max(x.split("\n"))).astype(pd.Int64Dtype())
+
+    mastertheses = pd.read_csv('csv/mastersthesis.csv', usecols=['key', 'title', 'year'], dtype={'year': int})
+
+    Venue_conf = pd.read_sql("SELECT VenueID, Name FROM Venue where Type = 'Conference | Workshop'", con=conn)
+    Venue_journal = pd.read_sql("SELECT VenueID, Name FROM Venue where Type = 'Journal'", con=conn)
+
+    # Prepare inproceedings
+    inproceedings.rename(inplace=True, columns={'key': 'PublicationID', 'title': 'Title', 'booktitle': 'Venue',
+                                                'pages': 'Pages', 'year': 'Year', 'publtype': 'PublicationType'})
+    inproceedings['Type'] = 'Inproceedings'
+    inproceedings['VenueID'] = inproceedings.merge(Venue_conf, how='left', left_on='Venue',
+                                                   right_on='Name').astype({'VenueID': 'Int64'})['VenueID']
+    inproceedings.drop(columns=['Venue'], inplace=True)
+
+    # Prepare articles
+    articles.rename(inplace=True, columns={'key': 'PublicationID', 'title': 'Title', 'journal': 'Venue',
+                                           'pages': 'Pages', 'year': 'Year', 'publtype': 'PublicationType'})
+    articles['Type'] = 'Article'
+    articles['VenueID'] = articles.merge(Venue_journal, how='left', left_on='Venue',
+                                         right_on='Name').astype({'VenueID': 'Int64'})['VenueID']
+    articles.drop(columns=['Venue'], inplace=True)
+
+    # Prepare proceedings
+    proceedings.rename(inplace=True, columns={'key': 'PublicationID', 'title': 'Title', 'booktitle': 'Venue',
+                                              'year': 'Year', 'publtype': 'PublicationType'})
+    proceedings['Type'] = 'Proceedings'
+    proceedings['VenueID'] = proceedings.merge(Venue_conf, how='left', left_on='Venue',
+                                               right_on='Name').astype({'VenueID': 'Int64'})['VenueID']
+    proceedings.drop(columns=['Venue'], inplace=True)
+
+    # Prepare books
+    books.rename(inplace=True, columns={'key': 'PublicationID', 'title': 'Title', 'year': 'Year',
+                                        'publtype': 'PublicationType'})
+    books['Type'] = 'Book'
+
+    # Prepare incollections (chapters of books)
+    incollections.rename(inplace=True, columns={'key': 'PublicationID', 'title': 'Title', 'year': 'Year',
+                                                'pages': 'Pages', 'publtype': 'PublicationType'})
+    incollections['Type'] = 'Incollection'
+
+    # Prepare phdtheses
+    phdtheses.rename(inplace=True, columns={'key': 'PublicationID', 'title': 'Title', 'year': 'Year', 'pages': 'Pages',
+                                            'publtype': 'PublicationType'})
+    phdtheses['Type'] = 'PhD Thesis'
+
+    # Prepare mastertheses
+    mastertheses.rename(inplace=True, columns={'key': 'PublicationID', 'title': 'Title', 'year': 'Year'})
+    mastertheses['Type'] = 'Master Thesis'
+
+    Publication = pd.concat([inproceedings, articles, proceedings, books, incollections, phdtheses, mastertheses])
+
+    # Extract actual title if additional title information like bibtex are given via dict
+    Publication.Title = Publication.Title.apply(lambda x: _extract(x, 'text'))
+
+    if to_csv:
+        Publication.to_csv('csv/db/Publication.csv', index=False)
+
+    Publication[Publication.Type.isnull()].to_csv('noPublicationType.csv', index=False)
+
+    conn.execute("""
+        CREATE TABLE Publication(
+            PublicationID TEXT NOT NULL PRIMARY KEY,
+            Title TEXT NOT NULL,
+            VenueID INT,
+            Type TEXT NOT NULL,
+            PublicationType TEXT,
+            Year INT,
+            Pages TEXT
+        );
+    """)
+    Publication.to_sql('Publication', con=conn, if_exists='append', index=False)
+    log('Publications written to database')
+
+
 def get_unknown_first_names(conn: Connection):
     unknown = pd.read_sql("""
         SELECT DISTINCT FirstName AS first_name FROM Author 
@@ -401,8 +496,7 @@ def _separate_names(authors):
     author_names['DBLPName'], author_names['FullName'] = authors.str.split("\n").str[0], authors.str.split("\n").str[1:]
 
     # Extract actual name if additional author information are given via dict
-    author_names.DBLPName = author_names.DBLPName.apply(
-        lambda x: ast.literal_eval(x)['text'] if x.find('{') == 0 else x)
+    author_names.DBLPName = author_names.DBLPName.apply(lambda x: _extract(x, 'text'))
 
     # Drop authors with one name only from alternative_names
     dblp_names = author_names.DBLPName.drop_duplicates()
@@ -412,8 +506,7 @@ def _separate_names(authors):
     alternative_names = alternative_names.explode('FullName')
 
     # Extract actual name if additional author information are given via dict
-    alternative_names.FullName = alternative_names.FullName.apply(
-        lambda x: ast.literal_eval(x)['text'] if x.find('{') == 0 else x)
+    alternative_names.FullName = alternative_names.FullName.apply(lambda x: _extract(x, 'text'))
     alternative_names.reset_index(drop=True, inplace=True)
 
     return dblp_names, alternative_names
@@ -432,12 +525,9 @@ def _prepare_affiliations(www):
     www = www.explode('note')
 
     # Split notes into type, label and text for easier handling
-    www['label'] = www.note.apply(
-        lambda x: ast.literal_eval(x)['label'] if x.find('{') == 0 and 'label' in ast.literal_eval(x) else None)
-    www['type'] = www.note.apply(
-        lambda x: ast.literal_eval(x)['type'] if x.find('{') == 0 and 'type' in ast.literal_eval(x) else None)
-    www['text'] = www.note.apply(
-        lambda x: ast.literal_eval(x)['text'] if x.find('{') == 0 and 'text' in ast.literal_eval(x) else None)
+    www['label'] = www.note.apply(lambda x: _extract(x, 'label'))
+    www['type'] = www.note.apply(lambda x: _extract(x, 'type'))
+    www['text'] = www.note.apply(lambda x: _extract(x, 'text'))
     www.drop(columns=['note'], inplace=True)
 
     # Drop unnecessary note types like 'award', 'uname', 'isnot' and 'former'
@@ -452,6 +542,22 @@ def _prepare_affiliations(www):
     # www[www.duplicated(subset=['key'], keep=False)].to_csv('csv/persons_with_multiple_affiliations.csv', index=False)
     www.drop_duplicates(subset=['key'], keep='first', inplace=True)
     return www['text']
+
+
+def _extract(element, attribute):
+    """
+    Get the value of attribute from element if it's a dict. If the attribute is not present, return None.
+    If element is not a dict, it contains the text itself.
+    :param element:     string or None, derives from a column value of a csv file produced by dplp_parser.py
+    :param attribute:   string, the to be extracted dict value if element contains a dict
+    :return:            string or None
+    """
+    if element and element[0] == '{' and element[-1] == '}' and attribute in ast.literal_eval(element):
+        return ast.literal_eval(element)[attribute]
+    elif attribute == 'text':
+        return element
+    else:
+        return None
 
 
 def _prepare_urls(urls):
@@ -494,7 +600,7 @@ def _append_type(url):
     :param url: string, containing a dictionary with the url given in 'text'
     :return: string, the url given in url['text'] followed by url['type'] in brackets if given
     """
-    if url and url.find('{') == 0:
+    if url and url[0] == '{' and url[-1] == '}':
         url = ast.literal_eval(url)
         return url['text'] + ' (' + url['type'] + ')' if 'type' in url else url['text']
     else:
