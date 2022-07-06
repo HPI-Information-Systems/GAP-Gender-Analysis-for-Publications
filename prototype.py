@@ -73,7 +73,10 @@ if(query_action(sql,'check') != [(1,)]):
     connection.execute(f"DROP VIEW IF EXISTS W_pub;")
 
 
-country_cont = pd.read_csv('countries_continents.csv')
+# reading csv for unique countries and Continents
+output1 = pd.merge(pd.read_csv('continents.csv'), pd.read_csv('countries_unique.csv'),on='Code',how='inner')
+country_cont = pd.DataFrame({'Country': output1['Country'], 'Continent' : output1['Continent']})
+output1 = None
 
 # creating a placeholder for the fixed sized textbox
 logtxtbox = st.empty()
@@ -160,7 +163,7 @@ def populate_graph(venue='', country='', cont='', start_year='2000', end_year='2
             for C in cont:
                     if(C!=cont[0]):
                             f3 = f3 + ' or '
-                    f3 = f3 + 'Pub_place.Continent = "' + str(C[:-1]) + '"'
+                    f3 = f3 + 'Pub_place.Continent = "' + str(C) + '"'
                     y_name = y_name+str(C)+'/'
             f3 = f3 + ')'
 
@@ -235,7 +238,7 @@ def display_relation():
     options_Venue = tuple(options_Venue)
 
     ## RETRIEVE OPTIONS for DISTINCT COUNTRY/CONTINENT
-    options_Count = tuple(list(country_cont['Country']))    
+    options_Count = tuple(list(country_cont['Country'].unique()))    
     options_Cont = tuple(list(country_cont['Continent'].unique()))
 
     ## WIDGETs for the drop-down lists for selection
