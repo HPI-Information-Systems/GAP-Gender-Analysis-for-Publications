@@ -108,10 +108,8 @@ def main():
             logtxt = st.session_state.logtxt
             logtxtbox.write(logtxt)
             populate_graph (widget_venue, widget_count, widget_cont,start_year,end_year)
-            #st.session_state.df_compare[y_name] = line_graph_data[y_name]
-            #st.session_state.y_columns.append(y_name)
 
-
+## Session state management
 ## the action of clearing all graphs and texts for the reset button
 def clear_multi():
     st.session_state.conf = []
@@ -196,7 +194,9 @@ def populate_graph(venue='', country='', cont='', start_year='2000', end_year='2
     else:
             sql = sql_start + sql_cnt_between + sql_filter + newf + sql_end
             out = query_action(sql,'store')
+    ## Print generated SQL query
     print(sql+'\n')
+    
     ## Getting data to graph format
     year = pd.array(list(range(int(start_year),int(end_year))))
     y = []
@@ -206,20 +206,24 @@ def populate_graph(venue='', country='', cont='', start_year='2000', end_year='2
             except: 
                     y.append(0)
     y = pd.array(y)
-    ## constructuib st.line_chart's data
+    ## construction of st.line_chart's data
+    ## Session state management
     st.session_state.df_compare[y_name] = y
     st.session_state.y_columns.append(y_name)
-    print('st.session_state:')
-    print(st.session_state)
-    print('\n')
+    
+    ##debugging outputs
+    # print('st.session_state:')
+    # print(st.session_state)
+    # print('\n')
     if len(st.session_state.y_columns)>1:
             line_graph_data = st.session_state.df_compare
             line_graph_data['Year'] = year
             line_graph_data = line_graph_data.set_index('Year')
     else:
             line_graph_data = pd.DataFrame({'Year': year, y_name : y}).set_index('Year')
-    print("\nline_graph_data :")
-    print(line_graph_data)
+    ## debugging prints
+    # print("\nline_graph_data :")
+    # print(line_graph_data)
     st.line_chart(line_graph_data)
 
 
