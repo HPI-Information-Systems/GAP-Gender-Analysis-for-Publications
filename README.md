@@ -1,7 +1,5 @@
 # GAP: Gender Analysis for Publications
 
-## The Web App
-Run app with `streamlit run prototype.py`.
 
 ## Setting up the Data Source
 ### Prepare the Environment
@@ -36,3 +34,7 @@ A csv file with all unknown first name can be found under `csv/GenderAPI/unproce
 where unknown to the GenderAPI in the past (this may change over time!) as well as names that we did not requested from 
 the GenderAPI yet. Pass it to the GenderAPI and start with the first step again to increase the gender
 determination rate.
+
+## The Web App
+### After running all of the above steps, run this web app inside the same virtual environment
+Run app with `streamlit run prototype.py`.
