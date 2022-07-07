@@ -29,8 +29,9 @@ def query_action(sql,action='run'):
 ########## STEP 1 #######################
 ###### WOMEN authors and their PublicationIDs reunited ######
 
-# Query for INNER JOIN
-# connection.execute(f"DROP VIEW IF EXISTS W_auth_pub;")
+## Query for INNER JOIN
+# Run to update the view in case of a new DBLP dump
+# conn.execute(f"DROP VIEW IF EXISTS W_auth_pub;")
 
 sql = '''SELECT count(name) FROM sqlite_master WHERE type='view' AND name='W_auth_pub';'''
 if(query_action(sql,'check') != [(1,)]):
@@ -46,7 +47,8 @@ if(query_action(sql,'check') != [(1,)]):
 ###### WOMEN authors, their PublicationIDs, VenueID, Year of publishing reunited ######
 
 # Query for INNER JOIN
-#connection.execute(f"DROP VIEW IF EXISTS W_pub;")
+# Run to update the view in case of a new DBLP dump
+#conn.execute(f"DROP VIEW IF EXISTS W_pub;")
 
 sql = '''SELECT count(name) FROM sqlite_master WHERE type='view' AND name='W_pub';'''
 if(query_action(sql,'check') != [(1,)]):
@@ -60,6 +62,7 @@ if(query_action(sql,'check') != [(1,)]):
 
 ############### STEP 3 ##########################
 # Query for inner-join bewteen Affiliation and Country (ONLY for ones with AffiliationID!=Null)
+# Run to update the view in case of a new DBLP dump
 #conn.execute(f"DROP VIEW IF EXISTS Pub_place;")
 
 sql = '''SELECT count(name) FROM sqlite_master WHERE type='view' AND name='Pub_place';'''
@@ -68,9 +71,9 @@ if(query_action(sql,'check') != [(1,)]):
     AS SELECT AffiliationID, Country.DisplayName, Country.Continent
     FROM Affiliation 
     JOIN Country ON Affiliation.CountryCode = Country.CountryCode;'''
-
     cursor.execute(sql)
-    connection.execute(f"DROP VIEW IF EXISTS W_pub;")
+    ## W_pub view isnt needed for any future calculations
+    conn.execute(f"DROP VIEW IF EXISTS W_auth_pub;")
 
 
 # reading csv for unique countries and Continents
@@ -79,21 +82,23 @@ country_cont = pd.DataFrame({'Country': output1['Country'], 'Continent' : output
 output1 = None
 
 # creating a placeholder for the fixed sized textbox
-logtxtbox = st.empty()
+## will be used to display additional information about the data like missing affiliations and/or venues
+#logtxtbox = st.empty()
 
-# creating session state variables to communicate between sessions
-if 'logtxt' not in st.session_state:
-    st.session_state.logtxt = ''
-prev_compare = False
+## creating session state variables to communicate data between sessions
+
+#if 'logtxt' not in st.session_state:
+#    st.session_state.logtxt = ''
+## for data comparison across multiple selections
 if 'df_compare' not in st.session_state:
     st.session_state.df_compare = pd.DataFrame()
+## for column names across multiple selections
 if 'y_columns' not in st.session_state:
     st.session_state.y_columns = []
-year = pd.array(list(range(2000,2022)))
-
-if 'compare' not in st.session_state:
-    st.session_state.compare = False
-
+## for min/max of the year range slider
+if 'min_max' not in st.session_state:
+    sql = '''SELECT min(Year),max(Year) FROM W_pub;'''
+    st.session_state.min_max = query_action(sql,'check')[0]
 
 ## the main function
 def main():
@@ -105,23 +110,23 @@ def main():
     widget_venue, widget_count, widget_cont,logtxtbox,start_year,end_year = display_relation()
     if st.button('Submit and Compare'):
             #if(compare == True):
-            logtxt = st.session_state.logtxt
-            logtxtbox.write(logtxt)
+            #logtxt = st.session_state.logtxt
+            #logtxtbox.write(logtxt)
             populate_graph (widget_venue, widget_count, widget_cont,start_year,end_year)
 
-## Session state management
+
 ## the action of clearing all graphs and texts for the reset button
 def clear_multi():
-    st.session_state.conf = []
-    st.session_state.country = []
-    st.session_state.field = []
     st.session_state.df_compare = pd.DataFrame()
-    st.session_state.logtxt = ''
+    #st.session_state.logtxt = ''
     st.session_state.y_columns = []
     return
 
 
-def populate_graph(venue='', country='', cont='', start_year='2000', end_year='2022' ,compare = False):
+## Creates Dynamic queries based on selection and 
+## runs the query to generate the count to populate the line graphs
+
+def populate_graph(venue='', country='', cont='', start_year='2000', end_year='2022'):
 
     global cursor
     sql_start = '''SELECT Year, count(PublicationID) as count\nFROM W_pub '''
@@ -129,7 +134,7 @@ def populate_graph(venue='', country='', cont='', start_year='2000', end_year='2
     sql_end = '''\nGROUP BY Year;'''
     sql_cnt_between = '''\nINNER JOIN Pub_place\nON W_pub.AffiliationID == Pub_place.AffiliationID'''
 
-    ## take the slider input for year filter
+    ## the column/fiter names for each selection
     y_name = ''
 
     ## RETRIEVING OPTIONS AND FILLING UP THE DROP DOWN LISTS TO POPULATE GRAPH
@@ -206,24 +211,20 @@ def populate_graph(venue='', country='', cont='', start_year='2000', end_year='2
             except: 
                     y.append(0)
     y = pd.array(y)
-    ## construction of st.line_chart's data
-    ## Session state management
+    ## constructuib st.line_chart's data
     st.session_state.df_compare[y_name] = y
     st.session_state.y_columns.append(y_name)
-    
-    ##debugging outputs
-    # print('st.session_state:')
-    # print(st.session_state)
-    # print('\n')
+    print('st.session_state:')
+    print(st.session_state)
+    print('\n')
     if len(st.session_state.y_columns)>1:
             line_graph_data = st.session_state.df_compare
             line_graph_data['Year'] = year
             line_graph_data = line_graph_data.set_index('Year')
     else:
             line_graph_data = pd.DataFrame({'Year': year, y_name : y}).set_index('Year')
-    ## debugging prints
-    # print("\nline_graph_data :")
-    # print(line_graph_data)
+    print("\nline_graph_data :")
+    print(line_graph_data)
     st.line_chart(line_graph_data)
 
 
@@ -257,10 +258,8 @@ def display_relation():
     logtxtbox = st.empty()
 
     ## year-raneg selector for the drop-down lists for selection
-    yearmax = pd.array(list(range(1930,2022)))
-
     st.subheader("Year-range-selector")
-    start_year,end_year = st.slider("Year span:",  min_value = 1900,value=[2000,2022],max_value=2030)
+    start_year,end_year = st.slider("Year span:",  min_value = st.session_state.min_max[0],value=[2000,2022],max_value=st.session_state.min_max[1])
     ## button for clear history
     st.button('Clear History', on_click=clear_multi)
     return(widget_venue, widget_count, widget_cont,logtxtbox,start_year,end_year)
