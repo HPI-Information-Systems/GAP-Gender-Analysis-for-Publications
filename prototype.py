@@ -72,7 +72,7 @@ if(query_action(sql,'check') != [(1,)]):
     FROM Affiliation 
     JOIN Country ON Affiliation.CountryCode = Country.CountryCode;'''
     cursor.execute(sql)
-    ## W_pub view isnt needed for any future calculations
+    ## W_auth_pub view isnt needed for any future calculations
     conn.execute(f"DROP VIEW IF EXISTS W_auth_pub;")
 
 
