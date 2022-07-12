@@ -2,3 +2,4 @@ gap.db
 .idea/
 dblp/
 csv/
+test_query.sql
