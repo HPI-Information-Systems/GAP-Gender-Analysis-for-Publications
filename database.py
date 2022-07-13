@@ -435,7 +435,8 @@ def fill_publications(conn: Connection, to_csv=False):
             Type TEXT NOT NULL,
             PublicationType TEXT,
             Year INT,
-            Pages TEXT
+            Pages TEXT,
+            AuthorCount INT,
         );
     """)
     Publication.to_sql('Publication', con=conn, if_exists='append', index=False)
