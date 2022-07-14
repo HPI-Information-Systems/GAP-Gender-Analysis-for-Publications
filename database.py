@@ -38,6 +38,14 @@ def main():
     drop(conn, 'GenderAPIResults')
     drop(conn, 'Affiliation')
     drop(conn, 'Country')
+    drop(conn, 'AllTogether')
+
+    drop_index(conn, 'affiliation_index')
+    drop_index(conn, 'author_index')
+    drop_index(conn, 'publication_index')
+    drop_index(conn, 'venue_index')
+    drop_index(conn, 'publication_author_index')
+    drop_index(conn, 'all_together_index')
 
     # Do not enable the foreign key constraint checks before dropping the tables as this would make the dropping process
     # incredibly slow
@@ -49,14 +57,21 @@ def main():
     fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
     fill_venues(conn, to_csv=True)
     fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
+    fill_all_together(conn)
+    
 
     # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
     get_unknown_first_names(conn)
+
+    create_indices(conn)
+
 
 
 def drop(conn, table):
     conn.execute(f"DROP TABLE IF EXISTS {table};")
 
+def drop_index(conn, index):
+    conn.execute(f"DROP INDEX IF EXISTS {index};")
 
 def enable_foreign_key_constraints(conn):
     conn.execute('PRAGMA foreign_keys = ON;')
@@ -332,7 +347,6 @@ def fill_venues(conn: Connection, to_csv=False):
     Venue.to_sql('Venue', con=conn, if_exists='append', index_label='VenueID')
     log('Venues written to database')
 
-
 def fill_publications(conn: Connection, to_csv=False):
     """
     Extract publications from dblp's inproceedings, article, proceedings, book, incollection, phdthesis and masterthesis
@@ -417,6 +431,7 @@ def fill_publications(conn: Connection, to_csv=False):
 
     Publication = pd.concat([inproceedings, articles, proceedings, books, incollections, phdtheses, mastertheses])
     publications_with_authors = Publication[['PublicationID', 'author']]
+    Publication['AuthorCount'] = Publication.author.apply(lambda x: len(x.split("\n")) if pd.notnull(x) else 0)
     Publication.drop(columns=['author'], inplace=True)
 
     # Extract actual title if additional title information like bibtex are given via dict
@@ -436,9 +451,10 @@ def fill_publications(conn: Connection, to_csv=False):
             PublicationType TEXT,
             Year INT,
             Pages TEXT,
-            AuthorCount INT,
+            AuthorCount INT
         );
     """)
+
     Publication.to_sql('Publication', con=conn, if_exists='append', index=False)
     log('Publications written to database')
 
@@ -514,6 +530,51 @@ def get_unknown_first_names(conn: Connection):
 
     unknown.to_csv('csv/GenderAPI/unprocessed/first_names.csv', index=False)
 
+def fill_all_together(conn: Connection):
+    """
+    Prepare the table 'AllTogether' by using the given connection conn.
+    :param conn:    sqlite3.Connection
+    :param to_csv:  bool, whether to save the resulting table to csv/db/AllTogether.csv, too.
+    """
+    log('Progress of filling all together started')
+    conn.execute("""
+        CREATE TABLE AllTogether(
+            PublicationID TEXT, 
+            PublicationType TEXT, 
+            AuthorID TEXT, 
+            Venue TEXT, 
+            AffiliationID INT, 
+            Position TEXT, 
+            Gender TEXT, 
+            Year INT, 
+            AuthorCount INT, 
+            Country TEXT, 
+            Continent TEXT);
+    """)
+
+    conn.execute("""
+        INSERT INTO AllTogether
+        SELECT Publication.PublicationID, Publication.Type, Author.AuthorID, Venue.Name, Author.AffiliationID, PublicationAuthor.Position, Author.Gender, Publication.Year, Publication.AuthorCount, Country.DisplayName, Country.Continent
+        FROM Publication
+
+        INNER JOIN PublicationAuthor ON PublicationAuthor.PublicationID = Publication.PublicationID
+        INNER JOIN Author ON PublicationAuthor.DBLPName = Author.DBLPName
+        INNER JOIN Venue ON Publication.VenueID = Venue.VenueID
+        INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
+        INNER JOIN Country ON Affiliation.CountryCode = Country.CountryCode;
+    """)
+    log('All together written to database')
+
+def create_indices(conn: Connection):
+    log("Process of creating indices started")
+    conn.execute("""CREATE INDEX IF NOT EXISTS all_together_index ON AllTogether(PublicationID, PublicationType, AuthorID, Venue, AffiliationID, Position, Gender, Year, AuthorCount, Country, Continent);""")
+    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS publication_index ON Publication(PublicationID);""")
+    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS author_index ON Author(AuthorID);""")
+    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS affiliation_index ON Affiliation(AffiliationID);""")
+    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS venue_index ON Venue(VenueID);""")
+    conn.execute("""CREATE INDEX IF NOT EXISTS publication_author_index ON PublicationAuthor(DBLPName);""")
+
+    log("Inddices created")
 
 def _assign_country_code(affiliation):
     """
