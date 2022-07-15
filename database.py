@@ -2,6 +2,7 @@ from lxml import etree
 import pandas as pd
 from sqlite3 import Connection, connect
 from utils import log
+from datetime import datetime
 import os
 import ast
 import re
@@ -30,40 +31,38 @@ NO_MIDDLE_NAMES = ['van', 'von', 'zur', 'aus', 'dem', 'den', 'der', 'del', 'de',
 def main():
     conn = connect(DB)
 
-    drop(conn, 'PublicationAuthor')
-    drop(conn, 'Publication')
-    drop(conn, 'Venue')
-    drop(conn, 'AuthorName')
-    drop(conn, 'Author')
-    drop(conn, 'GenderAPIResults')
-    drop(conn, 'Affiliation')
-    drop(conn, 'Country')
-    drop(conn, 'AllTogether')
+    # drop(conn, 'PublicationAuthor')
+    # drop(conn, 'Publication')
+    # drop(conn, 'Venue')
+    # drop(conn, 'AuthorName')
+    # drop(conn, 'Author')
+    # drop(conn, 'GenderAPIResults')
+    # drop(conn, 'Affiliation')
+    # drop(conn, 'Country')
+    # drop(conn, 'AllTogether')
+    drop(conn, 'GeneralStatistics')
 
-    drop_index(conn, 'affiliation_index')
-    drop_index(conn, 'author_index')
-    drop_index(conn, 'publication_index')
-    drop_index(conn, 'venue_index')
-    drop_index(conn, 'publication_author_index')
-    drop_index(conn, 'all_together_index')
+    # drop_index(conn, 'all_together_index')
 
-    # Do not enable the foreign key constraint checks before dropping the tables as this would make the dropping process
-    # incredibly slow
-    enable_foreign_key_constraints(conn)
+    # # Do not enable the foreign key constraint checks before dropping the tables as this would make the dropping process
+    # # incredibly slow
+    # enable_foreign_key_constraints(conn)
 
-    fill_countries(conn, to_csv=True)
-    fill_affiliations(conn, to_csv=True)
-    fill_gender_api_results(conn)
-    fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
-    fill_venues(conn, to_csv=True)
-    fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
-    fill_all_together(conn)
+    # fill_countries(conn, to_csv=True)
+    # fill_affiliations(conn, to_csv=True)
+    # fill_gender_api_results(conn)
+    # fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
+    # fill_venues(conn, to_csv=True)
+    # fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
+    # fill_all_together(conn)
     
 
-    # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
-    get_unknown_first_names(conn)
+    # # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
+    # get_unknown_first_names(conn)
 
-    create_indices(conn)
+    # create_indices(conn)
+
+    fill_statistics(conn)
 
 
 
@@ -566,15 +565,60 @@ def fill_all_together(conn: Connection):
     log('All together written to database')
 
 def create_indices(conn: Connection):
-    log("Process of creating indices started")
-    conn.execute("""CREATE INDEX IF NOT EXISTS all_together_index ON AllTogether(PublicationID, PublicationType, AuthorID, Venue, AffiliationID, Position, Gender, Year, AuthorCount, Country, Continent);""")
-    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS publication_index ON Publication(PublicationID);""")
-    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS author_index ON Author(AuthorID);""")
-    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS affiliation_index ON Affiliation(AffiliationID);""")
-    conn.execute("""CREATE UNIQUE INDEX IF NOT EXISTS venue_index ON Venue(VenueID);""")
-    conn.execute("""CREATE INDEX IF NOT EXISTS publication_author_index ON PublicationAuthor(DBLPName);""")
+    log("Process of creating AllTogether index started")
 
-    log("Inddices created")
+    conn.execute("""CREATE INDEX all_together_index ON AllTogether(PublicationID, PublicationType, AuthorID, Venue, AffiliationID, Position, Gender, Year, AuthorCount, Country, Continent);""")
+   
+    log("Index created")
+
+def fill_statistics(conn: Connection):
+    log("Process of filling statistics started")
+    conn.execute("""CREATE TABLE GeneralStatistics(Name TEXT, Value TEXT);""")
+    returnVal = conn.execute("""SELECT count(distinct PublicationID) as count\nFROM Publication;""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute(f"""INSERT INTO GeneralStatistics(Name, Value) VALUES('PublicationCount', ?);""", (result,))
+    
+    
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\nFROM Author;""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('AuthorCount', ?);""", (result,))
+
+    returnVal = conn.execute("""SELECT count(distinct AffiliationID) as count\nFROM Affiliation;""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('AffiliationCount', ?);""", (result,))
+
+    returnVal = conn.execute("""SELECT count(distinct VenueID) as count\nFROM Venue;""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('VenueCount', ?);""", (result,))
+
+    returnVal = conn.execute("""SELECT count(DBLPName) as count\nFROM PublicationAuthor;""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('PublicationAuthorCount', ?);""", (result,))
+
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"woman\"""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('FemaleAuthorCount', ?)""", (result,))
+
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"man\"""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('MaleAuthorCount', ?)""", (result,))
+
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"unknown\"""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('UnkownAuthorCount', ?)""", (result,))
+
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) FROM Author INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID WHERE Affiliation.CountryCode is not null;""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('AuthorCountWithCountry', ?)""", (result,))
+
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) FROM Author INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID WHERE Affiliation.CountryCode is null;""")
+    result = returnVal.fetchall()[0][0]
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('AuthorCountWithoutCountry', ?)""", (result,))
+
+    conn.execute(f"""INSERT INTO GeneralStatistics(Name, Value) VALUES('Date', ?)""", (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),))
+    conn.commit()
+
+    log("Process of filling statistics finished")
 
 def _assign_country_code(affiliation):
     """
@@ -588,6 +632,7 @@ def _assign_country_code(affiliation):
     :return: list of given affiliation and country code, if found. Otherwise, country code is an empty string.
     """
     country_code = None
+
     codes_found = []
 
     # Most affiliations list the country after last comma
