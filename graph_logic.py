@@ -5,6 +5,8 @@ from PIL import Image
 import prototype as pt
 
 # Display all the filters that the user can select
+
+
 def display_filters(cursor):
 
     if 'filters' not in st.session_state:
@@ -58,8 +60,6 @@ def display_filters(cursor):
             'Filter by Continent:', st.session_state.filters[0], key='Cont')
         widget_venue = st.multiselect(
             'Filter by Conference/Journals:', st.session_state.filters[2], key='venue')
-        data_representation = st.radio(
-            'Data representation (Relative not properly working yet):', ('Absolute numbers', 'Relative numbers'))
     with col2:
         widget_count = st.multiselect(
             'Filter by Country:', st.session_state.filters[1], key='country')
@@ -71,17 +71,22 @@ def display_filters(cursor):
     logtxtbox = st.empty()
 
     # year-raneg selector for the drop-down lists for selection
-    st.subheader("Year-range-selector")
-    st.session_state.year_range[0], st.session_state.year_range[1] = st.slider(
+    st.subheader("Global Options")
+    col1, col2 = st.columns([3, 1])
+    st.session_state.year_range[0], st.session_state.year_range[1] = col1.slider(
         "Select years range:",  min_value=st.session_state.min_max[0], value=st.session_state.year_range, max_value=st.session_state.min_max[1])
+    st.session_state.data_representation = col2.radio(
+            'Select if the data will be shown in percentage or absolute numbers:', ['Absolute numbers', 'Relative numbers'])
 
     # button for clear history
     st.button('Clear History', on_click=clear_graphs)
-    return(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, logtxtbox, data_representation)
+    return(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, logtxtbox)
 
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
-def populate_graph(conn: Connection, venue='', country='', cont='', publication_type='', auth_pos='', data_representation=''):
+
+
+def populate_graph(conn: Connection, venue='', country='', cont='', publication_type='', auth_pos=''):
     sql_start = '''SELECT Year, count(PublicationID) as count\nFROM AllTogether '''
     sql_filter = '''\nWHERE '''
     sql_woman_filter = ''' AND (Gender = "woman")'''
@@ -90,11 +95,8 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
     # the column/fiter names for each selection
     y_name = ''
 
-    if 'data_representation' not in st.session_state:
-        st.session_state.data_representation = data_representation
-
-    if 'previous_data_representation' not in st.session_state:
-        st.session_state.previous_data_representation = data_representation
+    # if 'data_representation' not in st.session_state:
+    #     st.session_state.data_representation = data_representation
 
     # RETRIEVING OPTIONS AND FILLING UP THE DROP DOWN LISTS TO POPULATE GRAPH
     # creating query
@@ -157,13 +159,6 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
             f5 = f5 + 'PublicationType = "' + str(p) + '"'
             y_name = y_name+str(p)+'/'
         f5 = f5 + ')'
-    if(data_representation == 'Relative numbers'):
-        show_percentage = True
-        y_name = y_name + 'Percentage/'
-    else:
-        show_percentage = False
-        y_name = y_name + 'Absolute/'
-    # Dynamically arranging the queries based on input
     sql_logic = [f1, f2, f3, f4, f5]
     newf = ''
     f_count = 0
@@ -183,55 +178,52 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
         sql = sql_start + sql_filter + newf + sql_woman_filter + sql_end
         sql_non_woman = sql_start + sql_filter + newf + sql_end
         out = pt.query_action(sql, 'store')
-        if(show_percentage):
-            sql = sql_start + sql_filter + newf + sql_end
-            out_all = pt.query_action(sql, 'store')
+        sql = sql_start + sql_filter + newf + sql_end
+        out_all = pt.query_action(sql, 'store')
 
         y = []
 
+        for Y in year:
+            try:
+                y.append(out[Y])
+            except:
+                y.append(0)
+        st.session_state.df_compare[0][y_name] = y
+
+
         # TODO: Check if it really outputs the right percentage
-        if(show_percentage):
-            for i in year:
-                print(i)
+        y = []
+        for i in year:
 
-                if(i in out_all):
-                    if(i in out):
-                        out_all[i] = out[i]*100/out_all[i]
-                    else:
-                        out_all[i] = 0
-                else:
-                    out_all[i] = 0
+            if(i in out_all and i in out):
+                out_all[i] = out[i]*100/out_all[i]
+            else:
+                out_all[i] = 0
 
-                try:
-                    y.append(out_all[i])
-                except:
-                    y.append(0)
-        else:
-            for Y in year:
-                try:
-                    y.append(out[Y])
-                except:
-                    y.append(0)
+            try:
+                y.append(out_all[i])
+            except:
+                y.append(0)
+
+        st.session_state.df_compare[1][y_name] = y
+
         y = pd.array(y)
 
         # construction of line_chart's data
 
-        st.session_state.df_compare[y_name] = y
         st.session_state.y_columns.append([y_name, True, sql, sql_non_woman])
 
-        if len(st.session_state.y_columns) > 1:
-            line_graph_data = get_selected_df()
-            line_graph_data['Year'] = [str(i) for i in year]
-            line_graph_data = line_graph_data.set_index('Year')
-            st.session_state.df_compare = line_graph_data
-        else:
-            line_graph_data = pd.DataFrame(
-                {'Year': [str(i) for i in year], y_name: y}).set_index('Year')
-    else:
-        line_graph_data = get_selected_df()
-        line_graph_data['Year'] = [str(i) for i in year]
-        line_graph_data = line_graph_data.set_index('Year')
+        # if len(st.session_state.y_columns) > 1:
+
+
+    line_graph_data = get_selected_df()
+    line_graph_data['Year'] = [str(i) for i in year]
+    line_graph_data = line_graph_data.set_index('Year')
+
     st.line_chart(line_graph_data)
+    # else:
+    #     line_graph_data = pd.DataFrame(
+    #         {'Year': [str(i) for i in year], y_name: y}).set_index('Year')
 
 
 # get only the dataframes that the user selected below the chart
@@ -241,19 +233,25 @@ def get_selected_df():
 
     for i in range(len(st.session_state.y_columns)):
         if st.session_state.y_columns[i][1] == True:
-            true_df.insert(
-                loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[st.session_state.y_columns[i][0]])
+            if st.session_state.data_representation == 'Absolute numbers':
+                true_df.insert(
+                    loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[0][st.session_state.y_columns[i][0]])
+            else:
+                true_df.insert(
+                    loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[1][st.session_state.y_columns[i][0]])
 
     return true_df
 
 # the action of clearing all graphs and texts for the reset button
 
+
 def clear_graphs():
-    st.session_state.df_compare = pd.DataFrame()
+    st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
     st.session_state.y_columns = []
     return
 
 # Generate the checkboxes for the graphs to be displayed
+
 
 def display_graph_checkboxes():
     st.subheader('Graph history')
@@ -276,6 +274,7 @@ def display_graph_checkboxes():
             st.write('')
     else:
         st.session_state.y_columns.sort(key=lambda x: x[1], reverse=True)
+
         for i in range(len(st.session_state.y_columns)):
             globals()['graph_checkbox_%s' % i] = st.checkbox(
                 st.session_state.y_columns[i][0], value=st.session_state.y_columns[i][1], key=i)
