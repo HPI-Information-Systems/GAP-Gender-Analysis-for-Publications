@@ -79,8 +79,8 @@ def display_general_statistics(cursor):
     col2.markdown(f'**Man author count**:  \n{st.session_state.male_author_count}')
     col3.markdown(f'**Authors with unkown gender**:  \n{st.session_state.unkown_author_count}')
     
-    col1.markdown(f'**Authors with Country assigned (Wrong data):**  \n{st.session_state.authors_with_country}')
-    col2.markdown(f'**Authors without Country assigned (Wrong data):**  \n{st.session_state.authors_without_country}')
+    col1.markdown(f'**Authors with Affiliation that has a Country assigned:**  \n{st.session_state.authors_with_country}')
+    col2.markdown(f'**Authors with Affiliation that has not a Country assigned:**  \n{st.session_state.authors_without_country}')
     col3.markdown(f'**Created by:**  \n[HPI Information Systems](https://hpi.de/naumann/home.html)')
 
     col1.markdown(f'**Data source:**  \n[dblp](https://dblp.org/)')
@@ -110,25 +110,3 @@ suscipit quas? Nulla, placeat. Voluptatem quaerat non architecto ab laudantium
 modi minima sunt esse temporibus sint culpa, recusandae aliquam numquam 
 totam ratione voluptas quod exercitationem fuga. Possimus quis earum veniam 
 quasi aliquam eligendi, placeat qui corporis!''')
-
-    # OR
-    # with st.expander('General statistics about the data'):
-    #     col1, col2, col3 = st.columns(3)
-
-    #     col1.markdown(
-    #         f'**Publications count:**  \n{st.session_state.publication_count}')
-    #     col2.markdown(f'**Author count:**  \n{st.session_state.author_count}')
-    #     col3.markdown(
-    #         f'**Affiliation count:**  \n{st.session_state.affiliation_count}')
-
-    #     col1.markdown(f'**Venue count:**  \n{st.session_state.venue_count}')
-    #     col2.markdown(
-    #         f'**Publication Author count**: {st.session_state.publication_author_count}')
-    #     # Foormate date from st.session_state.last_time_updated to %d %b %Y
-    #     col3.markdown(
-    #         f'**Last time updated database:**  \n{datetime.strptime(st.session_state.last_time_updated, "%Y-%m-%d %H:%M:%S").strftime("%d %b %Y")}')
-
-    #     col1.markdown(f'**Data source:**  \n[dblp](https://dblp.org/)')
-    #     col2.markdown(
-    #         f'**Gender determination:**  \n[GenderAPI](https://gender-api.com/)')
-    #     col3.markdown(f'**Illustrations by:**  \n[Undraw](https://undraw.co/)')

@@ -5,15 +5,12 @@ from PIL import Image
 import prototype as pt
 
 # Display all the filters that the user can select
-
-
 def display_filters(cursor):
 
     if 'filters' not in st.session_state:
         st.session_state.filters = []
 
     if st.session_state.filters == [] or len(st.session_state.filters) < 4:
-        # RETRIEVE OPTIONS for DISTINCT Conferences
         sql = '''SELECT DISTINCT Continent FROM AllTogether;'''
         cursor.execute(sql)
         result = cursor.fetchall()
@@ -50,10 +47,7 @@ def display_filters(cursor):
         options_Type = tuple(options_Type)
         st.session_state.filters.append(options_Type)
 
-        # RETRIEVE OPTIONS for DISTINCT COUNTRY/CONTINENT
-        # TODO: Get new options -> not working anymore
 
-    # WIDGETs for the drop-down lists for selection
     col1, col2 = st.columns([1, 1])
     with col1:
         widget_cont = st.multiselect(
@@ -70,7 +64,7 @@ def display_filters(cursor):
 
     logtxtbox = st.empty()
 
-    # year-raneg selector for the drop-down lists for selection
+    # year-range selector for the drop-down lists for selection
     st.subheader("Global Options")
     col1, col2 = st.columns([3, 1])
     st.session_state.year_range[0], st.session_state.year_range[1] = col1.slider(
@@ -78,14 +72,11 @@ def display_filters(cursor):
     st.session_state.data_representation = col2.radio(
             'Select if the data will be shown in percentage or absolute numbers:', ['Absolute numbers', 'Relative numbers'])
 
-    # button for clear history
     st.button('Clear History', on_click=clear_graphs)
     return(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, logtxtbox)
 
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
-
-
 def populate_graph(conn: Connection, venue='', country='', cont='', publication_type='', auth_pos=''):
     sql_start = '''SELECT Year, count(PublicationID) as count\nFROM AllTogether '''
     sql_filter = '''\nWHERE '''
@@ -95,12 +86,8 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
     # the column/fiter names for each selection
     y_name = ''
 
-    # if 'data_representation' not in st.session_state:
-    #     st.session_state.data_representation = data_representation
-
     # RETRIEVING OPTIONS AND FILLING UP THE DROP DOWN LISTS TO POPULATE GRAPH
     # creating query
-
     if(venue == []):
         f1 = ''
     else:  # for the 'Venue' of Publication
@@ -191,7 +178,6 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
         st.session_state.df_compare[0][y_name] = y
 
 
-        # TODO: Check if it really outputs the right percentage
         y = []
         for i in year:
 
@@ -210,10 +196,7 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
         y = pd.array(y)
 
         # construction of line_chart's data
-
         st.session_state.y_columns.append([y_name, True, sql, sql_non_woman])
-
-        # if len(st.session_state.y_columns) > 1:
 
 
     line_graph_data = get_selected_df()
@@ -221,10 +204,6 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
     line_graph_data = line_graph_data.set_index('Year')
 
     st.line_chart(line_graph_data)
-    # else:
-    #     line_graph_data = pd.DataFrame(
-    #         {'Year': [str(i) for i in year], y_name: y}).set_index('Year')
-
 
 # get only the dataframes that the user selected below the chart
 def get_selected_df():
@@ -243,16 +222,12 @@ def get_selected_df():
     return true_df
 
 # the action of clearing all graphs and texts for the reset button
-
-
 def clear_graphs():
     st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
     st.session_state.y_columns = []
     return
 
 # Generate the checkboxes for the graphs to be displayed
-
-
 def display_graph_checkboxes():
     st.subheader('Graph history')
 
