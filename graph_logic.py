@@ -11,7 +11,7 @@ def display_filters(cursor):
         st.session_state.filters = []
 
     if st.session_state.filters == [] or len(st.session_state.filters) < 4:
-        sql = '''SELECT DISTINCT Continent FROM AllTogether;'''
+        sql = '''SELECT DISTINCT Continent FROM AllTogether ORDER BY Continent ASC;'''
         cursor.execute(sql)
         result = cursor.fetchall()
         options_Continent = []
@@ -20,7 +20,7 @@ def display_filters(cursor):
         options_Continent = tuple(options_Continent)
         st.session_state.filters.append(options_Continent)
 
-        sql = '''SELECT DISTINCT Country FROM AllTogether;'''
+        sql = '''SELECT DISTINCT Country FROM AllTogether ORDER BY Country ASC;'''
         cursor.execute(sql)
         result = cursor.fetchall()
         options_Country = []
@@ -29,7 +29,7 @@ def display_filters(cursor):
         options_Country = tuple(options_Country)
         st.session_state.filters.append(options_Country)
 
-        sql = '''SELECT DISTINCT Venue FROM AllTogether;'''
+        sql = '''SELECT DISTINCT Venue FROM AllTogether ORDER BY Venue ASC;'''
         cursor.execute(sql)
         result = cursor.fetchall()
         options_Venue = []
@@ -38,7 +38,7 @@ def display_filters(cursor):
         options_Venue = tuple(options_Venue)
         st.session_state.filters.append(options_Venue)
 
-        sql = '''SELECT DISTINCT PublicationType FROM AllTogether WHERE PublicationType <> "Proceedings";'''
+        sql = '''SELECT DISTINCT PublicationType FROM AllTogether WHERE PublicationType <> "Proceedings" ORDER BY PublicationType ASC;'''
         cursor.execute(sql)
         result = cursor.fetchall()
         options_Type = []
@@ -85,6 +85,12 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
 
     # the column/fiter names for each selection
     y_name = ''
+
+    change_year_range_df()
+
+    # if(st.session_state.year_range != st.session_state.pyr):
+    #     clear_graphs()
+    #     st.session_state.pyr = st.session_state.year_range
 
     # RETRIEVING OPTIONS AND FILLING UP THE DROP DOWN LISTS TO POPULATE GRAPH
     # creating query
@@ -168,6 +174,7 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
         sql = sql_start + sql_filter + newf + sql_end
         out_all = pt.query_action(sql, 'store')
 
+
         y = []
 
         for Y in year:
@@ -190,20 +197,58 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
                 y.append(out_all[i])
             except:
                 y.append(0)
-
+ 
         st.session_state.df_compare[1][y_name] = y
 
         y = pd.array(y)
 
         # construction of line_chart's data
-        st.session_state.y_columns.append([y_name, True, sql, sql_non_woman])
+        st.session_state.y_columns.append([y_name, True, out, out_all])
+    
+    # if(st.session_state.year_range != st.session_state.pyr):
+
+    #     for i in range(len(st.session_state.y_columns)):
+    #         y = []
+
+    #         for Y in year:
+    #             try:
+    #                 y.append(st.session_state.y_columns[i][2][Y])
+    #             except:
+    #                 y.append(0)
+    #         st.session_state.df_compare[0][y_name] = y
 
 
+    #         y = []
+    #         for x in year:
+
+    #             if(x in st.session_state.y_columns[i][3] and x in st.session_state.y_columns[i][2]):
+    #                 st.session_state.y_columns[i][3][x] = st.session_state.y_columns[i][2][x]*100/st.session_state.y_columns[i][3][x]
+    #             else:
+    #                 st.session_state.y_columns[i][3][x] = 0
+
+    #             try:
+    #                 y.append(st.session_state.y_columns[i][3][x])
+    #             except:
+    #                 y.append(0)
+
+    #         st.session_state.df_compare[1][y_name] = y
+
+    #     st.session_state.pyr = st.session_state.pyr
+
+        y = pd.array(y)
     line_graph_data = get_selected_df()
     line_graph_data['Year'] = [str(i) for i in year]
     line_graph_data = line_graph_data.set_index('Year')
 
+
     st.line_chart(line_graph_data)
+
+def change_year_range_df():
+    if st.session_state.year_range != st.session_state.pyr:
+        clear_graphs()
+        st.session_state.pyr[0] = st.session_state.year_range[0]
+        st.session_state.pyr[1] = st.session_state.year_range[1]
+        
 
 # get only the dataframes that the user selected below the chart
 def get_selected_df():

@@ -1,5 +1,6 @@
 gap.db
 .idea/
+.vscode/
 dblp/
 csv/
 test_query.sql
