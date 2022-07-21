@@ -168,74 +168,75 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
 
     # Checks if the query was already requested
     if(not [item for item in st.session_state.y_columns if y_name in item]):
-        sql = sql_start + sql_filter + newf + sql_woman_filter + sql_end
-        sql_non_woman = sql_start + sql_filter + newf + sql_end
-        out = pt.query_action(sql, 'store')
-        sql = sql_start + sql_filter + newf + sql_end
-        out_all = pt.query_action(sql, 'store')
+        with st.spinner('Creating graph...'):
+            sql = sql_start + sql_filter + newf + sql_woman_filter + sql_end
+            sql_non_woman = sql_start + sql_filter + newf + sql_end
+            out = pt.query_action(sql, 'store')
+            sql = sql_start + sql_filter + newf + sql_end
+            out_all = pt.query_action(sql, 'store')
 
 
-        y = []
+            y = []
 
-        for Y in year:
-            try:
-                y.append(out[Y])
-            except:
-                y.append(0)
-        st.session_state.df_compare[0][y_name] = y
+            for Y in year:
+                try:
+                    y.append(out[Y])
+                except:
+                    y.append(0)
+            st.session_state.df_compare[0][y_name] = y
 
 
-        y = []
-        for i in year:
+            y = []
+            for i in year:
 
-            if(i in out_all and i in out):
-                out_all[i] = out[i]*100/out_all[i]
-            else:
-                out_all[i] = 0
+                if(i in out_all and i in out):
+                    out_all[i] = out[i]*100/out_all[i]
+                else:
+                    out_all[i] = 0
 
-            try:
-                y.append(out_all[i])
-            except:
-                y.append(0)
- 
-        st.session_state.df_compare[1][y_name] = y
-
-        y = pd.array(y)
-
-        # construction of line_chart's data
-        st.session_state.y_columns.append([y_name, True, out, out_all])
+                try:
+                    y.append(out_all[i])
+                except:
+                    y.append(0)
     
-    # if(st.session_state.year_range != st.session_state.pyr):
+            st.session_state.df_compare[1][y_name] = y
 
-    #     for i in range(len(st.session_state.y_columns)):
-    #         y = []
+            y = pd.array(y)
 
-    #         for Y in year:
-    #             try:
-    #                 y.append(st.session_state.y_columns[i][2][Y])
-    #             except:
-    #                 y.append(0)
-    #         st.session_state.df_compare[0][y_name] = y
+            # construction of line_chart's data
+            st.session_state.y_columns.append([y_name, True, out, out_all])
+        
+        # if(st.session_state.year_range != st.session_state.pyr):
+
+        #     for i in range(len(st.session_state.y_columns)):
+        #         y = []
+
+        #         for Y in year:
+        #             try:
+        #                 y.append(st.session_state.y_columns[i][2][Y])
+        #             except:
+        #                 y.append(0)
+        #         st.session_state.df_compare[0][y_name] = y
 
 
-    #         y = []
-    #         for x in year:
+        #         y = []
+        #         for x in year:
 
-    #             if(x in st.session_state.y_columns[i][3] and x in st.session_state.y_columns[i][2]):
-    #                 st.session_state.y_columns[i][3][x] = st.session_state.y_columns[i][2][x]*100/st.session_state.y_columns[i][3][x]
-    #             else:
-    #                 st.session_state.y_columns[i][3][x] = 0
+        #             if(x in st.session_state.y_columns[i][3] and x in st.session_state.y_columns[i][2]):
+        #                 st.session_state.y_columns[i][3][x] = st.session_state.y_columns[i][2][x]*100/st.session_state.y_columns[i][3][x]
+        #             else:
+        #                 st.session_state.y_columns[i][3][x] = 0
 
-    #             try:
-    #                 y.append(st.session_state.y_columns[i][3][x])
-    #             except:
-    #                 y.append(0)
+        #             try:
+        #                 y.append(st.session_state.y_columns[i][3][x])
+        #             except:
+        #                 y.append(0)
 
-    #         st.session_state.df_compare[1][y_name] = y
+        #         st.session_state.df_compare[1][y_name] = y
 
-    #     st.session_state.pyr = st.session_state.pyr
+        #     st.session_state.pyr = st.session_state.pyr
 
-        y = pd.array(y)
+            y = pd.array(y)
     line_graph_data = get_selected_df()
     line_graph_data['Year'] = [str(i) for i in year]
     line_graph_data = line_graph_data.set_index('Year')
