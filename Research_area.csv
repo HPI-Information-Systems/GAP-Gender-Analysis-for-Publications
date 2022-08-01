@@ -1,0 +1,102 @@
+Research Area,Venue
+Artificial intelligence,AAAI
+Artificial intelligence,IJCAI
+Artificial intelligence,acm sigai
+Computer vision,cvf
+Computer vision,CVPR 
+Computer vision,ECCV 
+Computer vision,ICCV 
+Machine learning & data mining,acm sigkdd
+Machine learning & data mining,imls
+Machine learning & data mining,ICML 
+Machine learning & data mining,KDD 
+Machine learning & data mining,NeurIPS/NIPS 
+Natural language processing,ACL 
+Natural language processing,EMNLP 
+Natural language processing,NAACL 
+The Web & information retrieval,acm sigir
+The Web & information retrieval,SIGIR 
+The Web & information retrieval,WWW 
+Computer architecture,acm sigarch
+Computer architecture,ASPLOS 
+Computer architecture,ISCA 
+Computer architecture,MICRO 
+Computer architecture,HPCA 
+Computer networks,acm sigcomm
+Computer networks,SIGCOMM 
+Computer networks,NSDI 
+Computer security,acm sigsac
+Computer security,CCS 
+Computer security,IEEE S&P 
+Computer security,USENIX Security 
+Computer security,NDSS 
+Databases,acm sigmod
+Databases,SIGMOD 
+Databases,VLDB 
+Databases,ICDE 
+Databases,PODS 
+Design automation,acm sigda
+Design automation,DAC 
+Design automation,ICCAD 
+Embedded & real-time systems,acm sigbed
+Embedded & real-time systems,EMSOFT 
+Embedded & real-time systems,RTAS 
+Embedded & real-time systems,RTSS 
+High-performance computing,acm sighpc
+High-performance computing,HPDC 
+High-performance computing,ICS 
+High-performance computing,SC 
+Mobile computing,acm sigmobile
+Mobile computing,MobiCom 
+Mobile computing,MobiSys 
+Mobile computing,SenSys 
+Measurement & perf. analysis,acm sigmetrics
+Measurement & perf. analysis,IMC 
+Measurement & perf. analysis,SIGMETRICS
+Operating systems,acm sigops
+Operating systems,OSDI 
+Operating systems,SOSP 
+Operating systems,EuroSys 
+Operating systems,FAST 
+Operating systems,USENIX ATC 
+Programming languages,acm sigplan
+Programming languages,PLDI 
+Programming languages,POPL 
+Programming languages,ICFP 
+Programming languages,OOPSLA
+Software engineering,acm sigsoft
+Software engineering,FSE
+Software engineering,ICSE
+Software engineering,ASE 
+Software engineering,ISSTA
+Algorithms & complexity,acm sigact
+Algorithms & complexity,ieee tcmf
+Algorithms & complexity,FOCS 
+Algorithms & complexity,SODA 
+Algorithms & complexity,STOC 
+Cryptography,iacr
+Cryptography,CRYPTO 
+Cryptography,EuroCrypt
+Logic & verification,acm siglog
+Logic & verification,CAV 
+Logic & verification,LICS 
+Comp. bio & bioinformatics,acm sigbio
+Comp. bio & bioinformatics,ISMB 
+Comp. bio & bioinformatics,RECOMB 
+Computer graphics,acm siggraph
+Computer graphics,SIGGRAPH 
+Computer graphics,SIGGRAPH Asia 
+Economics & computation,acm sigecom
+Economics & computation,EC 
+Economics & computation,WINE 
+Human-computer interaction,acm sigchi
+Human-computer interaction,CHI 
+Human-computer interaction,UbiComp / Pervasive / IMWUT 
+Human-computer interaction,UIST
+Robotics,ieee ras
+Robotics,ICRA 
+Robotics,IROS 
+Robotics,RSS
+Visualization,ieee vgtc
+Visualization,VIS 
+Visualization,VR 
