@@ -1,102 +1,77 @@
 Research Area,Venue
-Artificial intelligence,AAAI
-Artificial intelligence,IJCAI
-Artificial intelligence,acm sigai
-Computer vision,cvf
-Computer vision,CVPR 
-Computer vision,ECCV 
-Computer vision,ICCV 
-Machine learning & data mining,acm sigkdd
-Machine learning & data mining,imls
-Machine learning & data mining,ICML 
-Machine learning & data mining,KDD 
-Machine learning & data mining,NeurIPS/NIPS 
-Natural language processing,ACL 
-Natural language processing,EMNLP 
-Natural language processing,NAACL 
-The Web & information retrieval,acm sigir
-The Web & information retrieval,SIGIR 
-The Web & information retrieval,WWW 
-Computer architecture,acm sigarch
-Computer architecture,ASPLOS 
-Computer architecture,ISCA 
-Computer architecture,MICRO 
-Computer architecture,HPCA 
-Computer networks,acm sigcomm
-Computer networks,SIGCOMM 
-Computer networks,NSDI 
-Computer security,acm sigsac
-Computer security,CCS 
-Computer security,IEEE S&P 
-Computer security,USENIX Security 
-Computer security,NDSS 
-Databases,acm sigmod
-Databases,SIGMOD 
-Databases,VLDB 
-Databases,ICDE 
-Databases,PODS 
-Design automation,acm sigda
-Design automation,DAC 
-Design automation,ICCAD 
-Embedded & real-time systems,acm sigbed
-Embedded & real-time systems,EMSOFT 
-Embedded & real-time systems,RTAS 
-Embedded & real-time systems,RTSS 
-High-performance computing,acm sighpc
-High-performance computing,HPDC 
-High-performance computing,ICS 
-High-performance computing,SC 
-Mobile computing,acm sigmobile
-Mobile computing,MobiCom 
-Mobile computing,MobiSys 
-Mobile computing,SenSys 
-Measurement & perf. analysis,acm sigmetrics
-Measurement & perf. analysis,IMC 
-Measurement & perf. analysis,SIGMETRICS
-Operating systems,acm sigops
-Operating systems,OSDI 
-Operating systems,SOSP 
-Operating systems,EuroSys 
-Operating systems,FAST 
-Operating systems,USENIX ATC 
-Programming languages,acm sigplan
-Programming languages,PLDI 
-Programming languages,POPL 
-Programming languages,ICFP 
-Programming languages,OOPSLA
-Software engineering,acm sigsoft
-Software engineering,FSE
-Software engineering,ICSE
-Software engineering,ASE 
-Software engineering,ISSTA
-Algorithms & complexity,acm sigact
-Algorithms & complexity,ieee tcmf
-Algorithms & complexity,FOCS 
-Algorithms & complexity,SODA 
-Algorithms & complexity,STOC 
-Cryptography,iacr
-Cryptography,CRYPTO 
-Cryptography,EuroCrypt
-Logic & verification,acm siglog
-Logic & verification,CAV 
-Logic & verification,LICS 
-Comp. bio & bioinformatics,acm sigbio
-Comp. bio & bioinformatics,ISMB 
-Comp. bio & bioinformatics,RECOMB 
-Computer graphics,acm siggraph
-Computer graphics,SIGGRAPH 
-Computer graphics,SIGGRAPH Asia 
-Economics & computation,acm sigecom
-Economics & computation,EC 
-Economics & computation,WINE 
-Human-computer interaction,acm sigchi
-Human-computer interaction,CHI 
-Human-computer interaction,UbiComp / Pervasive / IMWUT 
-Human-computer interaction,UIST
-Robotics,ieee ras
-Robotics,ICRA 
-Robotics,IROS 
-Robotics,RSS
-Visualization,ieee vgtc
-Visualization,VIS 
-Visualization,VR 
+Artificial intelligence,AAAI,https://dblp.org/db/conf/aaai/index.html
+Artificial intelligence,IJCAI,https://dblp.org/db/conf/ijcai/index.html
+Computer vision,CVPR,https://dblp.org/db/conf/nips/index.html
+Computer vision,ECCV,https://dblp.org/db/conf/eccv/index.html
+Computer vision,ICCV,https://dblp.org/db/conf/iccv/index.html
+Machine learning & data mining,ICML,https://dblp.org/db/conf/icml/index.html
+Machine learning & data mining,KDD,https://dblp.org/db/conf/kdd/index.html
+Machine learning & data mining,NeurIPS/NIPS,https://dblp.org/db/conf/nips/index.html
+Natural language processing,ACL,https://dblp.org/db/conf/acl/index.html
+Natural language processing,EMNLP,https://dblp.org/db/conf/emnlp/index.html
+Natural language processing,NAACL,https://dblp.org/db/conf/naacl/index.html
+The Web & information retrieval,SIGIR,https://dblp.org/db/conf/sigir/index.html
+The Web & information retrieval,WWW,https://dblp.org/db/conf/www/index.html
+Computer architecture,ASPLOS,https://dblp.org/db/conf/asplos/index.html
+Computer architecture,ISCA,https://dblp.org/db/conf/isca/index.html
+Computer architecture,MICRO,https://dblp.org/db/conf/micro/index.html
+Computer architecture,HPCA,https://dblp.org/db/conf/hpca/index.html
+Computer networks,SIGCOMM,https://dblp.org/db/conf/sigcomm/index.html
+Computer networks,NSDI,https://dblp.org/db/conf/nsdi/index.html
+Computer security,CCS,https://dblp.org/db/conf/ccs/index.html
+Computer security,IEEE S&P ("Oakland"),https://dblp.org/db/conf/sp/index.html
+Computer security,USENIX Security,https://dblp.org/db/conf/uss/index.html
+Computer security,NDSS,https://dblp.org/db/conf/ndss/index.html
+Databases,SIGMOD,https://dblp.org/db/conf/sigmod/index.html
+Databases,VLDB,https://dblp.org/db/conf/vldb/index.html
+Databases,ICDE,https://dblp.org/db/conf/icde/index.html
+Databases,PODS,https://dblp.org/db/conf/pods/index.html
+Design automation,DAC,https://dblp.org/db/conf/dac/index.html
+Design automation,ICCAD,https://dblp.org/db/conf/iccad/index.html
+Embedded & real-time systems,EMSOFT,https://dblp.org/db/conf/emsoft/index.html
+Embedded & real-time systems,RTAS,https://dblp.org/db/conf/rtas/index.html
+Embedded & real-time systems,RTSS,https://dblp.org/db/conf/rtss/index.html
+High-performance computing,HPDC,https://dblp.org/db/conf/hpdc/index.html
+High-performance computing,ICS,https://dblp.org/db/conf/ics/index.html
+High-performance computing,SC,https://dblp.org/db/conf/sc/index.html
+Mobile computing,MobiCom,https://dblp.org/db/conf/mobicom/index.html
+Mobile computing,MobiSys,https://dblp.org/db/conf/mobisys/index.html
+Mobile computing,SenSys,https://dblp.org/db/conf/sensys/index.html
+Measurement & perf. analysis,IMC,https://dblp.org/db/conf/imc/index.html
+Measurement & perf. analysis,SIGMETRICS,https://dblp.org/db/conf/sigmetrics/index.html
+Operating systems,OSDI,https://dblp.org/db/conf/osdi/index.html
+Operating systems,SOSP,https://dblp.org/db/conf/sosp/index.html
+Operating systems,EuroSys,https://dblp.org/db/conf/eurosys/index.html
+Operating systems,FAST,https://dblp.org/db/conf/fast/index.html
+Operating systems,USENIX ATC,https://dblp.org/db/conf/usenix/index.html
+Programming languages,PLDI,https://dblp.org/db/conf/pldi/index.html
+Programming languages,POPL,https://dblp.org/db/conf/popl/index.html
+Programming languages,ICFP,https://dblp.org/db/conf/icfp/index.html
+Programming languages,OOPSLA,https://dblp.org/db/conf/oopsla/index.html
+Software engineering,FSE,https://dblp.org/db/conf/sigsoft/index.html
+Software engineering,ICSE,https://dblp.org/db/conf/icse/index.html
+Software engineering,ASE,https://dblp.org/db/conf/kbse/index.html
+Software engineering,ISSTA,https://dblp.org/db/conf/issta/index.html
+Algorithms & complexity,FOCS,https://dblp.org/db/conf/focs/index.html
+Algorithms & complexity,SODA,https://dblp.org/db/conf/soda/index.html
+Algorithms & complexity,STOC,https://dblp.org/db/conf/stoc/index.html
+Cryptography,CRYPTO,https://dblp.org/db/conf/crypto/index.html
+Cryptography,EuroCrypt,https://dblp.org/db/conf/eurocrypt/index.html
+Logic & verification,CAV,https://dblp.org/db/conf/cav/index.html
+Logic & verification,LICS,https://dblp.org/db/conf/lics/index.html
+Comp. bio & bioinformatics,ISMB,https://dblp.org/db/conf/ismb/index.html
+Comp. bio & bioinformatics,RECOMB,https://dblp.org/db/conf/recomb/index.html
+Computer graphics,SIGGRAPH,https://dblp.org/db/conf/siggraph/index.html
+Computer graphics,SIGGRAPH Asia,https://dblp.org/db/conf/siggrapha/index.html
+Economics & computation,EC,https://dblp.org/db/conf/sigecom/index.html
+Economics & computation,WINE,https://dblp.org/db/conf/wine/index.html
+Human-computer interaction,CHI,https://dblp.org/db/conf/chi/index.html
+Human-computer interaction,UbiComp,https://dblp.org/db/conf/huc/index.html
+Human-computer interaction,Pervasive,https://dblp.org/db/conf/pervasive/index.html
+Human-computer interaction,IMWUT,https://dblp.org/db/journals/imwut/index.html
+Human-computer interaction,UIST,https://dblp.org/db/conf/uist/index.html
+Robotics,ICRA,https://dblp.org/db/conf/icra/index.html
+Robotics,IROS,https://dblp.org/db/conf/iros/index.html
+Robotics,RSS,https://dblp.org/db/conf/rss/index.html
+Visualization,VIS,https://dblp.org/db/conf/visualization/index.html
+Visualization,VR,https://dblp.org/db/conf/vr/index.html
