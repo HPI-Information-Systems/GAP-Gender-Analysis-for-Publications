@@ -1,77 +1,77 @@
-Research Area,Venue
-Artificial intelligence,AAAI,https://dblp.org/db/conf/aaai/index.html
-Artificial intelligence,IJCAI,https://dblp.org/db/conf/ijcai/index.html
-Computer vision,CVPR,https://dblp.org/db/conf/nips/index.html
-Computer vision,ECCV,https://dblp.org/db/conf/eccv/index.html
-Computer vision,ICCV,https://dblp.org/db/conf/iccv/index.html
-Machine learning & data mining,ICML,https://dblp.org/db/conf/icml/index.html
-Machine learning & data mining,KDD,https://dblp.org/db/conf/kdd/index.html
-Machine learning & data mining,NeurIPS/NIPS,https://dblp.org/db/conf/nips/index.html
-Natural language processing,ACL,https://dblp.org/db/conf/acl/index.html
-Natural language processing,EMNLP,https://dblp.org/db/conf/emnlp/index.html
-Natural language processing,NAACL,https://dblp.org/db/conf/naacl/index.html
-The Web & information retrieval,SIGIR,https://dblp.org/db/conf/sigir/index.html
-The Web & information retrieval,WWW,https://dblp.org/db/conf/www/index.html
-Computer architecture,ASPLOS,https://dblp.org/db/conf/asplos/index.html
-Computer architecture,ISCA,https://dblp.org/db/conf/isca/index.html
-Computer architecture,MICRO,https://dblp.org/db/conf/micro/index.html
-Computer architecture,HPCA,https://dblp.org/db/conf/hpca/index.html
-Computer networks,SIGCOMM,https://dblp.org/db/conf/sigcomm/index.html
-Computer networks,NSDI,https://dblp.org/db/conf/nsdi/index.html
-Computer security,CCS,https://dblp.org/db/conf/ccs/index.html
-Computer security,IEEE S&P ("Oakland"),https://dblp.org/db/conf/sp/index.html
-Computer security,USENIX Security,https://dblp.org/db/conf/uss/index.html
-Computer security,NDSS,https://dblp.org/db/conf/ndss/index.html
-Databases,SIGMOD,https://dblp.org/db/conf/sigmod/index.html
-Databases,VLDB,https://dblp.org/db/conf/vldb/index.html
-Databases,ICDE,https://dblp.org/db/conf/icde/index.html
-Databases,PODS,https://dblp.org/db/conf/pods/index.html
-Design automation,DAC,https://dblp.org/db/conf/dac/index.html
-Design automation,ICCAD,https://dblp.org/db/conf/iccad/index.html
-Embedded & real-time systems,EMSOFT,https://dblp.org/db/conf/emsoft/index.html
-Embedded & real-time systems,RTAS,https://dblp.org/db/conf/rtas/index.html
-Embedded & real-time systems,RTSS,https://dblp.org/db/conf/rtss/index.html
-High-performance computing,HPDC,https://dblp.org/db/conf/hpdc/index.html
-High-performance computing,ICS,https://dblp.org/db/conf/ics/index.html
-High-performance computing,SC,https://dblp.org/db/conf/sc/index.html
-Mobile computing,MobiCom,https://dblp.org/db/conf/mobicom/index.html
-Mobile computing,MobiSys,https://dblp.org/db/conf/mobisys/index.html
-Mobile computing,SenSys,https://dblp.org/db/conf/sensys/index.html
-Measurement & perf. analysis,IMC,https://dblp.org/db/conf/imc/index.html
-Measurement & perf. analysis,SIGMETRICS,https://dblp.org/db/conf/sigmetrics/index.html
-Operating systems,OSDI,https://dblp.org/db/conf/osdi/index.html
-Operating systems,SOSP,https://dblp.org/db/conf/sosp/index.html
-Operating systems,EuroSys,https://dblp.org/db/conf/eurosys/index.html
-Operating systems,FAST,https://dblp.org/db/conf/fast/index.html
-Operating systems,USENIX ATC,https://dblp.org/db/conf/usenix/index.html
-Programming languages,PLDI,https://dblp.org/db/conf/pldi/index.html
-Programming languages,POPL,https://dblp.org/db/conf/popl/index.html
-Programming languages,ICFP,https://dblp.org/db/conf/icfp/index.html
-Programming languages,OOPSLA,https://dblp.org/db/conf/oopsla/index.html
-Software engineering,FSE,https://dblp.org/db/conf/sigsoft/index.html
-Software engineering,ICSE,https://dblp.org/db/conf/icse/index.html
-Software engineering,ASE,https://dblp.org/db/conf/kbse/index.html
-Software engineering,ISSTA,https://dblp.org/db/conf/issta/index.html
-Algorithms & complexity,FOCS,https://dblp.org/db/conf/focs/index.html
-Algorithms & complexity,SODA,https://dblp.org/db/conf/soda/index.html
-Algorithms & complexity,STOC,https://dblp.org/db/conf/stoc/index.html
-Cryptography,CRYPTO,https://dblp.org/db/conf/crypto/index.html
-Cryptography,EuroCrypt,https://dblp.org/db/conf/eurocrypt/index.html
-Logic & verification,CAV,https://dblp.org/db/conf/cav/index.html
-Logic & verification,LICS,https://dblp.org/db/conf/lics/index.html
-Comp. bio & bioinformatics,ISMB,https://dblp.org/db/conf/ismb/index.html
-Comp. bio & bioinformatics,RECOMB,https://dblp.org/db/conf/recomb/index.html
-Computer graphics,SIGGRAPH,https://dblp.org/db/conf/siggraph/index.html
-Computer graphics,SIGGRAPH Asia,https://dblp.org/db/conf/siggrapha/index.html
-Economics & computation,EC,https://dblp.org/db/conf/sigecom/index.html
-Economics & computation,WINE,https://dblp.org/db/conf/wine/index.html
-Human-computer interaction,CHI,https://dblp.org/db/conf/chi/index.html
-Human-computer interaction,UbiComp,https://dblp.org/db/conf/huc/index.html
-Human-computer interaction,Pervasive,https://dblp.org/db/conf/pervasive/index.html
-Human-computer interaction,IMWUT,https://dblp.org/db/journals/imwut/index.html
-Human-computer interaction,UIST,https://dblp.org/db/conf/uist/index.html
-Robotics,ICRA,https://dblp.org/db/conf/icra/index.html
-Robotics,IROS,https://dblp.org/db/conf/iros/index.html
-Robotics,RSS,https://dblp.org/db/conf/rss/index.html
-Visualization,VIS,https://dblp.org/db/conf/visualization/index.html
-Visualization,VR,https://dblp.org/db/conf/vr/index.html
+"Research Area","Venue","Alias(es)(; separated)","Reference"
+"Artificial intelligence","AAAI","AAAI Conference on Artificial Intelligence","https://dblp.org/db/conf/aaai/index.html"
+"Artificial intelligence","IJCAI","International Joint Conference on Artificial Intelligence","https://dblp.org/db/conf/ijcai/index.html"
+"Computer vision","CVPR","Conference on Neural Information Processing Systems; NeurIPS; NIPS","https://dblp.org/db/conf/nips/index.html"
+"Computer vision","ECCV","European Conference on Computer Vision","https://dblp.org/db/conf/eccv/index.html"
+"Computer vision","ICCV","IEEE International Conference on Computer Vision ","https://dblp.org/db/conf/iccv/index.html"
+"Machine learning & data mining","ICML","International Conference on Machine Learning","https://dblp.org/db/conf/icml/index.html"
+"Machine learning & data mining","KDD","ACM SIGKDD Conference on Knowledge Discovery and Data Mining","https://dblp.org/db/conf/kdd/index.html"
+"Machine learning & data mining","NeurIPS/NIPS","Conference on Neural Information Processing Systems; CVPR","https://dblp.org/db/conf/nips/index.html"
+"Natural language processing","ACL","Annual Meeting of the Association for Computational Linguistics ","https://dblp.org/db/conf/acl/index.html"
+"Natural language processing","EMNLP","Conference on Empirical Methods in Natural Language Processing ","https://dblp.org/db/conf/emnlp/index.html"
+"Natural language processing","NAACL","North American Chapter of the Association for Computational Linguistics; Human Language Technology: Conference of the North American Chapter of the Association of Computational Linguistics (HLT-NAACL)","https://dblp.org/db/conf/naacl/index.html"
+"The Web & information retrieval","SIGIR","Annual International ACM SIGIR Conference on Research and Development in Information Retrieval; International Conference on Information Storage and Retrieval","https://dblp.org/db/conf/sigir/index.html"
+"The Web & information retrieval","WWW","The Web Conference, International World Wide Web Conferences","https://dblp.org/db/conf/www/index.html"
+"Computer architecture","ASPLOS","International Conference on Architectural Support for Programming Languages and Operating Systems; Symposium on Architectural Support for Programming Languages and Operating Systems","https://dblp.org/db/conf/asplos/index.html"
+"Computer architecture","ISCA","International Symposium on Computer Architecture","https://dblp.org/db/conf/isca/index.html"
+"Computer architecture","MICRO","Annual IEEE/ACM International Symposium on Microarchitecture","https://dblp.org/db/conf/micro/index.html"
+"Computer architecture","HPCA","International Symposium on High-Performance Computer Architecture; International Workshop on High-Performance Interconnection Networks in the Exascale and Big-Data Era (HiPINEB)","https://dblp.org/db/conf/hpca/index.html"
+"Computer networks","SIGCOMM","Conference on Applications, Technologies, Architectures, and Protocols for Computer Communication","https://dblp.org/db/conf/sigcomm/index.html"
+"Computer networks","NSDI","Symposium on Networked Systems Design and Implementation; USENIX","https://dblp.org/db/conf/nsdi/index.html"
+"Computer security","CCS","Conference on Computer and Communications Security","https://dblp.org/db/conf/ccs/index.html"
+"Computer security","IEEE S&P (""Oakland"")","IEEE Symposium on Security and Privacy","https://dblp.org/db/conf/sp/index.html"
+"Computer security","USENIX Security","USENIX Security Symposium","https://dblp.org/db/conf/uss/index.html"
+"Computer security","NDSS","Network and Distributed System Security Symposium","https://dblp.org/db/conf/ndss/index.html"
+"Databases","SIGMOD","ACM SIGMOD Conference; ACM SIGFIDET Workshop on Data Description, Access and Control; SIGFIDET","https://dblp.org/db/conf/sigmod/index.html"
+"Databases","VLDB","Very Large Data Bases Conference","https://dblp.org/db/conf/vldb/index.html"
+"Databases","ICDE","IEEE International Conference on Data Engineering; International Workshop on Research Issues in Data Engineering; RIDE","https://dblp.org/db/conf/icde/index.html"
+"Databases","PODS","ACM SIGACT-SIGMOD-SIGART Symposium on Principles of Database Systems","https://dblp.org/db/conf/pods/index.html"
+"Design automation","DAC","Design Automation Conference; ACM SIGDA","https://dblp.org/db/conf/dac/index.html"
+"Design automation","ICCAD","International Conference on Computer Aided Design","https://dblp.org/db/conf/iccad/index.html"
+"Embedded & real-time systems","EMSOFT","International Conference on Embedded Software; Embedded Systems Week; ESWEEK","https://dblp.org/db/conf/emsoft/index.html"
+"Embedded & real-time systems","RTAS","IEEE Real Time Technology and Applications Symposium","https://dblp.org/db/conf/rtas/index.html"
+"Embedded & real-time systems","RTSS","IEEE Real-Time Systems Symposium","https://dblp.org/db/conf/rtss/index.html"
+"High-performance computing","HPDC","IEEE International Symposium on High-Performance Parallel Distributed Computing; IEEE International Symposium on High Performance Distributed Computing","https://dblp.org/db/conf/hpdc/index.html"
+"High-performance computing","ICS","International Conference on Supercomputing","https://dblp.org/db/conf/ics/index.html"
+"High-performance computing","SC","International Conference for High Performance Computing, Networking, Storage and Analysis; High Performance Computing, Networking and Storage Conference; High Performance Networking and Computing Conference; ACM/IEEE International Conference on High Performance Computing and Communications; ACM/IEEE Supercomputing Conference","https://dblp.org/db/conf/sc/index.html"
+"Mobile computing","MobiCom","ACM/IEEE International Conference on Mobile Computing and Networking","https://dblp.org/db/conf/mobicom/index.html"
+"Mobile computing","MobiSys","ACM SIGMOBILE International Conference on Mobile Systems, Applications, and Services","https://dblp.org/db/conf/mobisys/index.html"
+"Mobile computing","SenSys","ACM International Conference on Embedded Networked Sensor Systems","https://dblp.org/db/conf/sensys/index.html"
+"Measurement & perf. analysis","IMC","ACM/SIGCOMM Internet Measurement Conference; ACM/SIGCOMM Internet Measurement Workshop (IMW)","https://dblp.org/db/conf/imc/index.html"
+"Measurement & perf. analysis","SIGMETRICS","Measurement and Modeling of Computer Systems; International Conference on Measurement and Modeling of Computer Systems","https://dblp.org/db/conf/sigmetrics/index.html"
+"Operating systems","OSDI","USENIX Symposium on Operating Systems Design and Implementation","https://dblp.org/db/conf/osdi/index.html"
+"Operating systems","SOSP","Symposium on Operating Systems Principles","https://dblp.org/db/conf/sosp/index.html"
+"Operating systems","EuroSys","European Conference on Computer Systems; SIGOPS European Workshop; SIGOPS","https://dblp.org/db/conf/eurosys/index.html"
+"Operating systems","FAST","USENIX Conference on File and Storage Technologies","https://dblp.org/db/conf/fast/index.html"
+"Operating systems","USENIX ATC","USENIX Annual Technical Conference","https://dblp.org/db/conf/usenix/index.html"
+"Programming languages","PLDI","ACM-SIGPLAN Symposium on Programming Language Design and Implementation; Symposium on Interpreters and Interpretive Techniques;  SIGPLAN Symposium on Compiler Construction","https://dblp.org/db/conf/pldi/index.html"
+"Programming languages","POPL","ACM-SIGACT Symposium on Principles of Programming Languages","https://dblp.org/db/conf/popl/index.html"
+"Programming languages","ICFP","ACM SIGPLAN International Conference on Functional Programming; Conference on Functional Programming Languages and Computer Architecture (FPCA); ACM Conference on LISP and Functional Programming (LFP)","https://dblp.org/db/conf/icfp/index.html"
+"Programming languages","OOPSLA","ACM SIGPLAN International Conference on Object-Oriented Programming Systems, Languages, and Applications","https://dblp.org/db/conf/oopsla/index.html"
+"Software engineering","FSE","ACM SIGSOFT Conference on the Foundations of Software Engineering; ","https://dblp.org/db/conf/sigsoft/index.html"
+"Software engineering","ICSE","International Conference on Software Engineering","https://dblp.org/db/conf/icse/index.html"
+"Software engineering","ASE","International Conference on Automated Software Engineering ; Knowledge-Based Software Engineering Conference (KBSE)","https://dblp.org/db/conf/kbse/index.html"
+"Software engineering","ISSTA","International Symposium on Software Testing and Analysis; Symposium on Testing, Analysis, and Verification (TAV)","https://dblp.org/db/conf/issta/index.html"
+"Algorithms & complexity","FOCS","IEEE Annual Symposium on Foundations of Computer Science; IEEE Annual Symposium on Switching and Automata Theory (SWAT); Annual Symposium on Switching Circuit Theory and Logical Design (SWCT)","https://dblp.org/db/conf/focs/index.html"
+"Algorithms & complexity","SODA","ACM-SIAM Symposium on Discrete Algorithms","https://dblp.org/db/conf/soda/index.html"
+"Algorithms & complexity","STOC","Symposium on the Theory of Computing","https://dblp.org/db/conf/stoc/index.html"
+"Cryptography","CRYPTO","Annual International Cryptology Conference","https://dblp.org/db/conf/crypto/index.html"
+"Cryptography","EuroCrypt","International Conference on the Theory and Application of Cryptographic Techniques","https://dblp.org/db/conf/eurocrypt/index.html"
+"Logic & verification","CAV","International Conference on Computer Aided Verification","https://dblp.org/db/conf/cav/index.html"
+"Logic & verification","LICS","ACM/IEEE Symposium on Logic in Computer Science; Annual IEEE Symposium on Logic in Computer Science","https://dblp.org/db/conf/lics/index.html"
+"Comp. bio & bioinformatics","ISMB","Intelligent Systems in Molecular Biology; International Conference on Intelligent Systems for Molecular Biology","https://dblp.org/db/conf/ismb/index.html"
+"Comp. bio & bioinformatics","RECOMB","Annual International Conference on Research in Computational Molecular Biology; ","https://dblp.org/db/conf/recomb/index.html"
+"Computer graphics","SIGGRAPH","International Conference on Computer Graphics and Interactive Techniques","https://dblp.org/db/conf/siggraph/index.html"
+"Computer graphics","SIGGRAPH Asia","ACM SIGGRAPH Conference and Exhibition on Computer Graphics and Interactive Techniques in Asia","https://dblp.org/db/conf/siggrapha/index.html"
+"Economics & computation","EC","ACM Conference on Economics and Computation; ACM Conference on Electronic Commerce","https://dblp.org/db/conf/sigecom/index.html"
+"Economics & computation","WINE","Workshop on Internet and Network Economics","https://dblp.org/db/conf/wine/index.html"
+"Human-computer interaction","CHI","ACM Conference on Human Factors in Computing Systems","https://dblp.org/db/conf/chi/index.html"
+"Human-computer interaction","UbiComp","Ubiquitous Computing; Handheld and Ubiquitous Computing (HUC)","https://dblp.org/db/conf/huc/index.html"
+"Human-computer interaction","Pervasive","International Conference on Pervasive Computing","https://dblp.org/db/conf/pervasive/index.html"
+"Human-computer interaction","IMWUT","Proceedings of the ACM on Interactive, Mobile, Wearable and Ubiquitous Technologies","https://dblp.org/db/journals/imwut/index.html"
+"Human-computer interaction","UIST","ACM Symposium on User Interface Software and Technology","https://dblp.org/db/conf/uist/index.html"
+"Robotics","ICRA","IEEE International Conference on Robotics and Automation","https://dblp.org/db/conf/icra/index.html"
+"Robotics","IROS","IEEE/RJS International Conference on Intelligent Robots and Systems","https://dblp.org/db/conf/iros/index.html"
+"Robotics","RSS","Robotics: Science and Systems Conference","https://dblp.org/db/conf/rss/index.html"
+"Visualization","VIS","IEEE Visualization Conference","https://dblp.org/db/conf/visualization/index.html"
+"Visualization","VR","IEEE Conference on Virtual Reality and 3D User Interfaces; IEEE Virtual Reality Conference (VR); IEEE Virtual Reality Annual International Symposium (VRAIS)","https://dblp.org/db/conf/vr/index.html"
