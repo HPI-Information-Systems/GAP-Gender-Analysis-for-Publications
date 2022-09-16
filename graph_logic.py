@@ -70,7 +70,9 @@ def display_filters(cursor):
         col1, col2 = st.columns([1, 1])
         with col1:
             widget_cont = st.multiselect(
-                'Filter by Continent:', st.session_state.filters[0], key='cont', on_change=update_available_countries(cursor))
+                'Filter by Continent:', st.session_state.filters[0], key='cont')
+
+
             
             widget_venue = st.multiselect(
                 'Filter by Conference/Journals:', st.session_state.filters[2], key='venue')
@@ -121,16 +123,16 @@ def clear_history():
     clear_graphs()
     
 
-def update_available_countries(cursor):
-    if not st.session_state.cont:
+def update_available_countries(cursor, value):
+    if not value:
         sql = '''SELECT DISTINCT Country FROM AllTogether ORDER BY Country ASC;'''
     else:
         continent_filter = 'WHERE '
 
-        for i in range(len(st.session_state.cont)):
+        for i in range(len(value)):
             if i != 0:
                 continent_filter = continent_filter + " OR "
-            continent_filter = continent_filter + f"Continent=\"{st.session_state.cont[i]}\""
+            continent_filter = continent_filter + f"Continent=\"{value[i]}\""
 
         sql = f'''SELECT DISTINCT Country, Continent FROM AllTogether {continent_filter} ORDER BY Country ASC;'''
          
@@ -267,10 +269,7 @@ def populate_graph(conn: Connection, venue, country, cont, publication_type, aut
 
 
             y = []
-            print(year)
             for i in year:
-                print('I: ' + str(i))
-                print(out)
                 if(i in out_all and i in out):
                     out_all[i] = out[i]*100/out_all[i]
                 else:
@@ -286,9 +285,7 @@ def populate_graph(conn: Connection, venue, country, cont, publication_type, aut
             y = pd.array(y)
 
             # construction of line_chart's data
-            print(st.session_state.y_columns)
             st.session_state.y_columns.append([y_name, True, out, out_all])
-            print(st.session_state.y_columns)
         
             y = pd.array(y)
     
@@ -343,7 +340,6 @@ def get_selected_df():
     
 
 def clear_graphs():
-    print('Graphs cleared')
     st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
     st.session_state.y_columns = []
     st.session_state.graph = None
