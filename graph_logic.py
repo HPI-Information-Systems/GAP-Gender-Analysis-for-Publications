@@ -3,6 +3,8 @@ import pandas as pd
 from sqlite3 import Connection, connect
 from PIL import Image
 import prototype as pt
+import plotly.figure_factory as ff
+from utils import log
 
 # Display all the filters that the user can select
 def display_filters(cursor):
@@ -15,10 +17,21 @@ def display_filters(cursor):
         cursor.execute(sql)
         result = cursor.fetchall()
         options_Continent = []
+        #print(result)
         for row in result:
             options_Continent.append(row[0])
         options_Continent = tuple(options_Continent)
         st.session_state.filters.append(options_Continent)
+        # sql = '''SELECT DISTINCT Country, Continent FROM AllTogether ORDER BY Continent ASC;'''
+        # cursor.execute(sql)
+        # result = cursor.fetchall()
+        # options_Continent = []
+        # #print(result)
+        # # for row in result:
+        # #     options_Continent.append(row[0])
+        # options_Continent = pd.DataFrame(result, columns=['Country', 'Continent'])
+        # st.session_state.filters.append(options_Continent)
+        # print(st.session_state.filters)
 
         sql = '''SELECT DISTINCT Country FROM AllTogether ORDER BY Country ASC;'''
         cursor.execute(sql)
@@ -48,50 +61,117 @@ def display_filters(cursor):
         st.session_state.filters.append(options_Type)
 
 
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        widget_cont = st.multiselect(
-            'Filter by Continent:', st.session_state.filters[0], key='Cont')
-        widget_venue = st.multiselect(
-            'Filter by Conference/Journals:', st.session_state.filters[2], key='venue')
-    with col2:
-        widget_count = st.multiselect(
-            'Filter by Country:', st.session_state.filters[1], key='country')
-        widget_pub_type = st.multiselect(
-            'Filter by publication type:', st.session_state.filters[3], key='publication_type')
-        widget_auth_pos = st.radio(
-            'Filter by Woman Author Position:', ('First author woman', 'Middle author woman', 'Last author woman', 'Any author woman'), key='author_pos')
+    placeholder = st.empty()
 
-    logtxtbox = st.empty()
+    with st.form("Filters"):
 
-    # year-range selector for the drop-down lists for selection
-    st.subheader("Global Options")
-    col1, col2 = st.columns([3, 1])
-    st.session_state.year_range[0], st.session_state.year_range[1] = col1.slider(
-        "Select years range:",  min_value=st.session_state.min_max[0], value=st.session_state.year_range, max_value=st.session_state.min_max[1])
-    st.session_state.data_representation = col2.radio(
-            'Select if the data will be shown in percentage or absolute numbers:', ['Absolute numbers', 'Relative numbers'])
 
-    st.button('Clear History', on_click=clear_graphs)
-    return(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, logtxtbox)
+
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            widget_cont = st.multiselect(
+                'Filter by Continent:', st.session_state.filters[0], key='cont', on_change=update_available_countries(cursor))
+            
+            widget_venue = st.multiselect(
+                'Filter by Conference/Journals:', st.session_state.filters[2], key='venue')
+        with col2:
+            widget_count = st.multiselect(
+                    'Filter by Country:', st.session_state.filters[1], key='country')
+            widget_pub_type = st.multiselect(
+                'Filter by publication type:', st.session_state.filters[3], key='publication_type')
+
+        
+
+        # year-range selector for the drop-down lists for selection
+        st.subheader("Global Options")
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            year_range = st.slider(
+            "Select years range:",  min_value=st.session_state.min_max[0], value=st.session_state.year_range, max_value=st.session_state.min_max[1], key='year_range')
+            # if (st.session_state.year_range[0] != year_range[0]) or (st.session_state.year_range[1] != year_range1[1]):
+            # on_change=update_graph
+            #     st.session_state.year_range = year_range
+        with col2:
+            widget_auth_pos = st.radio(
+                'Filter by Woman Author Position:', ('First author woman', 'Middle author woman', 'Last author woman', 'Any author woman'), key='author_pos')
+            widget_data_representation = st.radio(
+                'Select if the data will be shown in percentage or absolute numbers:', ['Absolute numbers', 'Relative numbers'], ) # on_change=update_graph
+
+        clear_history_button = st.form_submit_button('Clear History', on_click=clear_history)
+
+        button = st.form_submit_button('Submit and Compare')
+
+        if button:
+            update_graph(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, widget_data_representation)
+
+        # if clear_history_button:
+        #     clear_history()
+
+   # return(widget_venue, widget_count, widget_pub_type, widget_auth_pos)
+
+def clear_history():
+    st.session_state["auth_pos"] = "First author woman"
+    
+    st.session_state["cont"] = []
+    st.session_state["venue"] = []
+    st.session_state["country"] = []
+    st.session_state["publication_type"] = []
+    st.session_state["year_range"] = [2000, 2022]
+
+    clear_graphs()
+    
+
+def update_available_countries(cursor):
+    if not st.session_state.cont:
+        sql = '''SELECT DISTINCT Country FROM AllTogether ORDER BY Country ASC;'''
+    else:
+        continent_filter = 'WHERE '
+
+        for i in range(len(st.session_state.cont)):
+            if i != 0:
+                continent_filter = continent_filter + " OR "
+            continent_filter = continent_filter + f"Continent=\"{st.session_state.cont[i]}\""
+
+        sql = f'''SELECT DISTINCT Country, Continent FROM AllTogether {continent_filter} ORDER BY Country ASC;'''
+         
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    options_Country = []
+    for row in result:
+        options_Country.append(row[0])
+    options_Country = tuple(options_Country)
+    st.session_state.filters[1] = options_Country
+
+    
+
+def update_graph(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, widget_data_representation):
+    st.session_state.widget_venue, st.session_state.widget_count, st.session_state.widget_count, st.session_state.widget_pub_type, st.session_state.widget_auth_pos, st.session_state.widget_data_representation = widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, widget_data_representation
+    populate_graph(st.session_state.connection, widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos)
+
 
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
-def populate_graph(conn: Connection, venue='', country='', cont='', publication_type='', auth_pos=''):
+def populate_graph(conn: Connection, venue, country, cont, publication_type, auth_pos):
     sql_start = '''SELECT Year, count(PublicationID) as count\nFROM AllTogether '''
     sql_filter = '''\nWHERE '''
     sql_woman_filter = ''' AND (Gender = "woman")'''
     sql_end = '''\nGROUP BY Year;'''
 
+    # if venue == '':
+    #     venue = st.session_state.widget_venue
+    # if country == '':
+    #     country = st.session_state.widget_count
+    # if cont == '':
+    #     cont = st.session_state.widget_cont
+    # if publication_type == '':
+    #     publication_type = st.session_state.widget_pub_type
+    # if auth_pos == '':
+    #     auth_pos = st.session_state.widget_auth_pos
+
     # the column/fiter names for each selection
     y_name = ''
 
     change_year_range_df()
-
-    # if(st.session_state.year_range != st.session_state.pyr):
-    #     clear_graphs()
-    #     st.session_state.pyr = st.session_state.year_range
-
     # RETRIEVING OPTIONS AND FILLING UP THE DROP DOWN LISTS TO POPULATE GRAPH
     # creating query
     if(venue == []):
@@ -187,8 +267,10 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
 
 
             y = []
+            print(year)
             for i in year:
-
+                print('I: ' + str(i))
+                print(out)
                 if(i in out_all and i in out):
                     out_all[i] = out[i]*100/out_all[i]
                 else:
@@ -204,47 +286,39 @@ def populate_graph(conn: Connection, venue='', country='', cont='', publication_
             y = pd.array(y)
 
             # construction of line_chart's data
+            print(st.session_state.y_columns)
             st.session_state.y_columns.append([y_name, True, out, out_all])
+            print(st.session_state.y_columns)
         
-        # if(st.session_state.year_range != st.session_state.pyr):
-
-        #     for i in range(len(st.session_state.y_columns)):
-        #         y = []
-
-        #         for Y in year:
-        #             try:
-        #                 y.append(st.session_state.y_columns[i][2][Y])
-        #             except:
-        #                 y.append(0)
-        #         st.session_state.df_compare[0][y_name] = y
-
-
-        #         y = []
-        #         for x in year:
-
-        #             if(x in st.session_state.y_columns[i][3] and x in st.session_state.y_columns[i][2]):
-        #                 st.session_state.y_columns[i][3][x] = st.session_state.y_columns[i][2][x]*100/st.session_state.y_columns[i][3][x]
-        #             else:
-        #                 st.session_state.y_columns[i][3][x] = 0
-
-        #             try:
-        #                 y.append(st.session_state.y_columns[i][3][x])
-        #             except:
-        #                 y.append(0)
-
-        #         st.session_state.df_compare[1][y_name] = y
-
-        #     st.session_state.pyr = st.session_state.pyr
-
             y = pd.array(y)
+    
+
+    pd.options.plotting.backend = "plotly"
+
     line_graph_data = get_selected_df()
-    line_graph_data['Year'] = [str(i) for i in year]
+    line_graph_data['Year'] = [int(i) for i in year]
+
     line_graph_data = line_graph_data.set_index('Year')
 
+    # if 'line_graph' not in st.session_state:
+    #     st.session_state.line_graph = None
 
-    st.line_chart(line_graph_data)
+    fig = line_graph_data.plot()
+    fig.update_layout(legend_title = 'Filters')
+
+    if st.session_state.widget_data_representation == 'Relative numbers':
+        fig.update_layout(yaxis_title='Percentage', yaxis_ticksuffix='%')
+        # fig.layout.yaxis.ticksuffix = '%'
+        # fig.layout.yaxis.title = 'Percentage'
+    else:
+        fig.update_layout(yaxis_title='Number of Publications')
+
+    st.session_state.graph = fig
+    #st.plotly_chart(fig, use_container_width=True) 
 
 def change_year_range_df():
+    st.session_state.line_chart = st.empty()
+
     if st.session_state.year_range != st.session_state.pyr:
         clear_graphs()
         st.session_state.pyr[0] = st.session_state.year_range[0]
@@ -255,10 +329,10 @@ def change_year_range_df():
 def get_selected_df():
 
     true_df = pd.DataFrame()
-
+    #print(st.session_state.y_columns)
     for i in range(len(st.session_state.y_columns)):
         if st.session_state.y_columns[i][1] == True:
-            if st.session_state.data_representation == 'Absolute numbers':
+            if st.session_state.widget_data_representation == 'Absolute numbers':
                 true_df.insert(
                     loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[0][st.session_state.y_columns[i][0]])
             else:
@@ -266,34 +340,20 @@ def get_selected_df():
                     loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[1][st.session_state.y_columns[i][0]])
 
     return true_df
+    
 
-# the action of clearing all graphs and texts for the reset button
 def clear_graphs():
+    print('Graphs cleared')
     st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
     st.session_state.y_columns = []
-    return
+    st.session_state.graph = None
 
 # Generate the checkboxes for the graphs to be displayed
 def display_graph_checkboxes():
     st.subheader('Graph history')
 
-    if len(st.session_state.y_columns) == 0:
-        st.markdown(
-            "<h5 style='text-align: center;'>You have not selected any graphs yet </h5>", unsafe_allow_html=True)
+    if len(st.session_state.y_columns) != 0:
 
-        image = Image.open('assets/no_data.png')
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.write('')
-
-        with col2:
-            st.image(image, use_column_width=True)
-
-        with col3:
-            st.write('')
-    else:
         st.session_state.y_columns.sort(key=lambda x: x[1], reverse=True)
 
         for i in range(len(st.session_state.y_columns)):
