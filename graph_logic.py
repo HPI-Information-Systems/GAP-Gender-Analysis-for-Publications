@@ -288,17 +288,28 @@ def populate_graph(conn: Connection, venue, country, cont, publication_type, aut
             st.session_state.y_columns.append([y_name, True, out, out_all])
         
             y = pd.array(y)
+   
+    #st.session_state.line_graph_data = line_graph_data
+    st.session_state.graph_years = year
+
+    paint_graph()
     
 
+    
+    #st.plotly_chart(fig, use_container_width=True) 
+
+def paint_graph():
     pd.options.plotting.backend = "plotly"
-
-    line_graph_data = get_selected_df()
-    line_graph_data['Year'] = [int(i) for i in year]
-
-    line_graph_data = line_graph_data.set_index('Year')
 
     # if 'line_graph' not in st.session_state:
     #     st.session_state.line_graph = None
+
+    line_graph_data = st.session_state.line_graph_data
+
+    line_graph_data = get_selected_df()
+    line_graph_data['Year'] = [int(i) for i in st.session_state.graph_years]
+
+    line_graph_data = line_graph_data.set_index('Year')
 
     fig = line_graph_data.plot()
     fig.update_layout(legend_title = 'Filters')
@@ -311,7 +322,6 @@ def populate_graph(conn: Connection, venue, country, cont, publication_type, aut
         fig.update_layout(yaxis_title='Number of Publications')
 
     st.session_state.graph = fig
-    #st.plotly_chart(fig, use_container_width=True) 
 
 def change_year_range_df():
     st.session_state.line_chart = st.empty()
@@ -348,14 +358,23 @@ def clear_graphs():
 def display_graph_checkboxes():
     st.subheader('Graph history')
 
+    print('-----------------')
+
     if len(st.session_state.y_columns) != 0:
 
         st.session_state.y_columns.sort(key=lambda x: x[1], reverse=True)
 
         for i in range(len(st.session_state.y_columns)):
             globals()['graph_checkbox_%s' % i] = st.checkbox(
-                st.session_state.y_columns[i][0], value=st.session_state.y_columns[i][1], key=i)
-            if globals()['graph_checkbox_%s' % i]:
-                st.session_state.y_columns[i][1] = True
-            else:
-                st.session_state.y_columns[i][1] = False
+                st.session_state.y_columns[i][0], value=st.session_state.y_columns[i][1], key=f'graph_checkbox_{i}', on_change=change_graph_checkbox, args=(i,))
+            st.session_state.y_columns[i][1] = globals()['graph_checkbox_%s' % i]
+            print(st.session_state.y_columns[i][1])
+            globals()['graph_checkbox_%s' % i] = globals()['graph_checkbox_%s' % i]
+                #globals()['graph_checkbox_%s' % i] = False
+
+def change_graph_checkbox(i):
+    if st.session_state[f'graph_checkbox_{i}']:
+        st.session_state.y_columns[i][1] = True
+    if not st.session_state[f'graph_checkbox_{i}']:
+         st.session_state.y_columns[i][1] = False
+    paint_graph()

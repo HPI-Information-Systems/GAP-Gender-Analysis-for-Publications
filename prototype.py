@@ -32,6 +32,8 @@ def main():
             st.session_state.cursor = st.session_state.connection.cursor()
 
     with st.spinner('Loading filters 1/2...'):
+
+        #TODO: Check if all session states are still needed
         if 'df_compare' not in st.session_state:
             st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
         if 'y_columns' not in st.session_state:
@@ -74,8 +76,19 @@ def main():
         if 'ui_widget_auth_pos' not in st.session_state:
             st.session_state.ui_widget_auth_pos = ''
 
-    st.subheader("Filters")
-    with st.spinner('Loading filters 2/2...'):
+
+        if 'line_graph_data' not in st.session_state:
+            st.session_state.line_graph_data = None
+        if 'graph_years' not in st.session_state:
+            st.session_state.graph_years = None
+
+#     st.markdown("""
+#         <style>
+# ul.streamlit-expander {
+#     border: 0 !important;
+# </style>
+# """, unsafe_allow_html=True),
+    with st.spinner('Loading filters 2/2...'):  
         gl.display_filters(
             st.session_state.cursor)
 
@@ -114,7 +127,7 @@ def main():
     #             with col3:
     #                 st.write('')
 
-    if 'graph' not in st.session_state or st.session_state.graph == None:
+    if 'graph' not in st.session_state or st.session_state.graph == None or not st.session_state.graph.data:
         st.markdown(
             "<h5 style='text-align: center;'>You have not selected any graphs yet </h5>", unsafe_allow_html=True)
 
@@ -131,6 +144,7 @@ def main():
         with col3:
             st.write('')
     else:
+        print('Showing')
         st.plotly_chart(st.session_state.graph, use_container_width = True)
 
     gl.display_graph_checkboxes()
