@@ -17,7 +17,6 @@ def display_filters(cursor):
         cursor.execute(sql)
         result = cursor.fetchall()
         options_Continent = []
-        #print(result)
         for row in result:
             options_Continent.append(row[0])
         options_Continent = tuple(options_Continent)
@@ -63,48 +62,49 @@ def display_filters(cursor):
 
     placeholder = st.empty()
 
-    with st.form("Filters"):
+    #with st.form("Filters"):
 
 
 
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            widget_cont = st.multiselect(
-                'Filter by Continent:', st.session_state.filters[0], key='cont')
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        widget_cont = st.multiselect(
+            'Filter by Continent:', st.session_state.filters[0], key='cont')
 
-
-            
-            widget_venue = st.multiselect(
-                'Filter by Conference/Journals:', st.session_state.filters[2], key='venue')
-        with col2:
-            widget_count = st.multiselect(
-                    'Filter by Country:', st.session_state.filters[1], key='country')
-            widget_pub_type = st.multiselect(
-                'Filter by publication type:', st.session_state.filters[3], key='publication_type')
+        if widget_cont != st.session_state.widget_cont:
+            st.session_state.widget_cont = widget_cont
+            update_available_countries(cursor)
 
         
+        widget_venue = st.multiselect(
+            'Filter by Conference/Journals:', st.session_state.filters[2], key='venue')
+    with col2:
+        widget_count = st.multiselect(
+                'Filter by Country:', st.session_state.filters[1], key='country')
+        widget_pub_type = st.multiselect(
+            'Filter by publication type:', st.session_state.filters[3], key='publication_type')
 
-        # year-range selector for the drop-down lists for selection
-        st.subheader("Global Options")
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            year_range = st.slider(
-            "Select years range:",  min_value=st.session_state.min_max[0], value=st.session_state.year_range, max_value=st.session_state.min_max[1], key='year_range')
-            # if (st.session_state.year_range[0] != year_range[0]) or (st.session_state.year_range[1] != year_range1[1]):
-            # on_change=update_graph
-            #     st.session_state.year_range = year_range
-        with col2:
-            widget_auth_pos = st.radio(
-                'Filter by Woman Author Position:', ('First author woman', 'Middle author woman', 'Last author woman', 'Any author woman'), key='author_pos')
-            widget_data_representation = st.radio(
-                'Select if the data will be shown in percentage or absolute numbers:', ['Absolute numbers', 'Relative numbers'], ) # on_change=update_graph
+    
 
-        clear_history_button = st.form_submit_button('Clear History', on_click=clear_history)
+    # year-range selector for the drop-down lists for selection
+    st.subheader("Global Options")
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        year_range = st.slider(
+        "Select years range:",  min_value=st.session_state.min_max[0], value=st.session_state.year_range, max_value=st.session_state.min_max[1], key='year_range')
+        # if (st.session_state.year_range[0] != year_range[0]) or (st.session_state.year_range[1] != year_range1[1]):
+        # on_change=update_graph
+        #     st.session_state.year_range = year_range
+    with col2:
+        widget_auth_pos = st.radio(
+            'Filter by Woman Author Position:', ('First author woman', 'Middle author woman', 'Last author woman', 'Any author woman'), key='author_pos')
 
-        button = st.form_submit_button('Submit and Compare')
+    clear_history_button = st.button('Clear History', on_click=clear_history)
 
-        if button:
-            update_graph(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, widget_data_representation)
+    button = st.button('Submit and Compare')
+
+    if button:
+        update_graph(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, st.session_state.widget_data_representation)
 
         # if clear_history_button:
         #     clear_history()
@@ -123,16 +123,16 @@ def clear_history():
     clear_graphs()
     
 
-def update_available_countries(cursor, value):
-    if not value:
+def update_available_countries(cursor):
+    if not st.session_state.widget_cont:
         sql = '''SELECT DISTINCT Country FROM AllTogether ORDER BY Country ASC;'''
     else:
         continent_filter = 'WHERE '
 
-        for i in range(len(value)):
+        for i in range(len(st.session_state.widget_cont)):
             if i != 0:
                 continent_filter = continent_filter + " OR "
-            continent_filter = continent_filter + f"Continent=\"{value[i]}\""
+            continent_filter = continent_filter + f"Continent=\"{st.session_state.widget_cont[i]}\""
 
         sql = f'''SELECT DISTINCT Country, Continent FROM AllTogether {continent_filter} ORDER BY Country ASC;'''
          
@@ -307,6 +307,7 @@ def paint_graph():
     line_graph_data = st.session_state.line_graph_data
 
     line_graph_data = get_selected_df()
+    print(line_graph_data)
     line_graph_data['Year'] = [int(i) for i in st.session_state.graph_years]
 
     line_graph_data = line_graph_data.set_index('Year')
@@ -321,7 +322,11 @@ def paint_graph():
     else:
         fig.update_layout(yaxis_title='Number of Publications')
 
+    print(3)
+
     st.session_state.graph = fig
+
+    print(4)
 
 def change_year_range_df():
     st.session_state.line_chart = st.empty()
@@ -340,9 +345,11 @@ def get_selected_df():
     for i in range(len(st.session_state.y_columns)):
         if st.session_state.y_columns[i][1] == True:
             if st.session_state.widget_data_representation == 'Absolute numbers':
+                print('1')
                 true_df.insert(
                     loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[0][st.session_state.y_columns[i][0]])
             else:
+                print('2')
                 true_df.insert(
                     loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[1][st.session_state.y_columns[i][0]])
 
@@ -358,7 +365,6 @@ def clear_graphs():
 def display_graph_checkboxes():
     st.subheader('Graph history')
 
-    print('-----------------')
 
     if len(st.session_state.y_columns) != 0:
 
@@ -368,7 +374,6 @@ def display_graph_checkboxes():
             globals()['graph_checkbox_%s' % i] = st.checkbox(
                 st.session_state.y_columns[i][0], value=st.session_state.y_columns[i][1], key=f'graph_checkbox_{i}', on_change=change_graph_checkbox, args=(i,))
             st.session_state.y_columns[i][1] = globals()['graph_checkbox_%s' % i]
-            print(st.session_state.y_columns[i][1])
             globals()['graph_checkbox_%s' % i] = globals()['graph_checkbox_%s' % i]
                 #globals()['graph_checkbox_%s' % i] = False
 

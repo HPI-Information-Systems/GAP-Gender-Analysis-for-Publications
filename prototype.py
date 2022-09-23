@@ -5,12 +5,9 @@ import streamlit as st
 import numpy as np
 import os
 from PIL import Image
-
 from utils import log
 import graph_logic as gl
 import general_statistics as gs
-
-
 
 
 def main():
@@ -18,14 +15,34 @@ def main():
 
     img = Image.open('assets/page_icon.ico')
     st.set_page_config(
-        page_title='GAP • Hasso-Plattner-Institut', page_icon=img, layout="wide")
+        page_title='GAP • Hasso-Plattner-Institut',
+        page_icon=img,
+        layout="wide",
+        menu_items={
+            'About': "htt"
+        }
+    )
+
+    hide_hamburger_menu = '''
+        <style>
+            #MainMenu {
+                content:url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/HPI_logo.svg/1200px-HPI_logo.svg.png"); 
+                width: 50px;
+                height: 50px;
+                visibility: visible;      
+            }
+        </style>
+    '''
+
+    st.markdown(hide_hamburger_menu, unsafe_allow_html=True)
 
     st.title('GAP: Gender Analysis for Publications')
 
     # Connect to SQLite database
     with st.spinner('Opening datasbase connection (This can take a while)...'):
         if 'connection' not in st.session_state:
-            st.session_state.connection = connect('gap.db', check_same_thread=False)
+            st.session_state.connection = connect('gap.db',
+                                                  check_same_thread=False)
 
         # Create cursor object
         if 'cursor' not in st.session_state:
@@ -42,11 +59,9 @@ def main():
             sql = '''SELECT min(Year),max(Year) FROM AllTogether;'''
             st.session_state.min_max = query_action(sql, 'check')[0]
         if 'year_range' not in st.session_state:
-            st.session_state.year_range = [
-                2000, 2022]
+            st.session_state.year_range = [2000, 2022]
         if 'pyr' not in st.session_state:
-            st.session_state.pyr = [
-                2000, 2022]
+            st.session_state.pyr = [2000, 2022]
         if 'widget_data_representation' not in st.session_state:
             st.session_state.widget_data_representation = 'Absolute numbers'
 
@@ -55,13 +70,13 @@ def main():
         if 'widget_count' not in st.session_state:
             st.session_state.widget_count = ''
         if 'widget_cont' not in st.session_state:
-            st.session_state.widget_cont = ''
+            st.session_state.widget_cont = []
         if 'widget_pub_type' not in st.session_state:
             st.session_state.widget_pub_type = ''
         if 'widget_auth_pos' not in st.session_state:
             st.session_state.widget_auth_pos = ''
         if 'widget_data_representation' not in st.session_state:
-            st.session_state.widget_data_representation = ''
+            st.session_state.widget_data_representation = 'Absolute numbers'
         if 'logtxtbox' not in st.session_state:
             st.session_state.logtxtbox = ''
 
@@ -76,60 +91,19 @@ def main():
         if 'ui_widget_auth_pos' not in st.session_state:
             st.session_state.ui_widget_auth_pos = ''
 
-
         if 'line_graph_data' not in st.session_state:
             st.session_state.line_graph_data = None
         if 'graph_years' not in st.session_state:
             st.session_state.graph_years = None
 
-#     st.markdown("""
-#         <style>
-# ul.streamlit-expander {
-#     border: 0 !important;
-# </style>
-# """, unsafe_allow_html=True),
-    with st.spinner('Loading filters 2/2...'):  
-        gl.display_filters(
-            st.session_state.cursor)
+    with st.spinner('Loading filters 2/2...'):
+        gl.display_filters(st.session_state.cursor)
 
-    #col1, col2 = st.columns([1, 3])
-
-    # button = col1.button('Submit and Compare')
-
-    # is_submit_pressed = button_states()
-
-    # if button:
-    #     # any changes need to be performed in place
-    #     is_submit_pressed.update({"pressed": True})
-    #     gl.populate_graph(st.session_state.connection)
-
-    # if is_submit_pressed["pressed"]:
-    #     gl.populate_graph(st.session_state.connection)
-
-
-    #st.session_state['graph'] = st.empty()
-
-    # if len(st.session_state.y_columns) == 0:
-    #         with graph_col:
-    #             st.markdown(
-    #                 "<h5 style='text-align: center;'>You have not selected any graphs yet </h5>", unsafe_allow_html=True)
-
-    #             image = Image.open('assets/no_data.png')
-
-    #             col1, col2, col3 = st.columns(3)
-
-    #             with col1:
-    #                 st.write('')
-
-    #             with col2:
-    #                 st.image(image, use_column_width=True)
-
-    #             with col3:
-    #                 st.write('')
 
     if 'graph' not in st.session_state or st.session_state.graph == None or not st.session_state.graph.data:
         st.markdown(
-            "<h5 style='text-align: center;'>You have not selected any graphs yet </h5>", unsafe_allow_html=True)
+            "<h5 style='text-align: center;'>You have not selected any graphs yet </h5>",
+            unsafe_allow_html=True)
 
         image = Image.open('assets/no_data.png')
 
@@ -144,8 +118,13 @@ def main():
         with col3:
             st.write('')
     else:
-        print('Showing')
-        st.plotly_chart(st.session_state.graph, use_container_width = True)
+        col1, col2 = st.columns([4, 1])
+        widget_data_representation = col2.radio(
+            'Select if the data will be shown in percentage or absolute numbers:', ['Absolute numbers', 'Relative numbers'], index=0) # on_change=change_data_representation() 
+        if widget_data_representation != st.session_state.widget_data_representation:
+            st.session_state.widget_data_representation = widget_data_representation
+            gl.populate_graph(st.session_state.connection, st.session_state.widget_venue, st.session_state.widget_count, st.session_state.widget_cont, st.session_state.widget_pub_type, st.session_state.widget_auth_pos)
+        col1.plotly_chart(st.session_state.graph, use_container_width=True)
 
     gl.display_graph_checkboxes()
 
@@ -153,43 +132,38 @@ def main():
 
     display_footer()
 
-
-# Keep the state of the button press between actions
-# @st.cache(allow_output_mutation=True)
-# def button_states():
-#     return {"pressed": None}
-
 def display_footer():
     st.title("")
-    st.markdown('<hr style="height:1px;border:none;color:#D3D3D3;background-color:#D3D3D3;"/>',
-                unsafe_allow_html=True)
     st.markdown(
-        "<h6 style='text-align: center;'>Presented to you by <a href=\"https://hpi.de/naumann/home.html\" style=\"color: #fe4c4a\">HPI Information Systems Group</a></h6>", unsafe_allow_html=True)
+        '<hr style="height:1px;border:none;color:#D3D3D3;background-color:#D3D3D3;"/>',
+        unsafe_allow_html=True)
+    st.markdown(
+        "<h6 style='text-align: center;'>Presented to you by <a href=\"https://hpi.de/naumann/home.html\" style=\"color: #b1073b\">HPI Information Systems Group</a></h6>",
+        unsafe_allow_html=True)
     col1, col2, col3 = st.columns([2, 1, 2])
     col1.markdown("")
     col2.image('assets/hpi_logo.png')
     col3.markdown("")
 
     st.title("")
-    col1, col2 = st.columns(2)
-    col1.markdown("<a href='https://hpi.de/impressum.html' style='color: #fe4c4a'>Imprint</a>", unsafe_allow_html=True)
-    col2.markdown("<a href='https://hpi.de/datenschutz.html' style='color: #fe4c4a'>Privacy policy</a>", unsafe_allow_html=True)
+    st.markdown(
+        "<style>a {display: grid; justify-content: center;} </style>  <a href='https://hpi.de/impressum.html' style='color: #b1073b'>Imprint</a> <a href='https://hpi.de/datenschutz.html' style='color: #b1073b'>Privacy policy</a>",
+        unsafe_allow_html=True)
 
 
     hide_streamlit_style = '''
-            <style>
-            footer {visibility: hidden;}
-            footer:after {
-	            content:'Made by HPI Information Systems Group'; 
-	            visibility: visible;
-                display: block;
-                position: relative;
-                #background-color: red;
-                padding: 5px;
-                top: 2px;
-            }
-            </style>
-            '''
+        <style>
+        footer {visibility: hidden;}
+        footer:after {
+            content:'Made by HPI Information Systems Group'; 
+            visibility: visible;
+            display: block;
+            position: relative;
+            #background-color: red;
+            padding: 5px;
+            top: 2px;
+        }
+    '''
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
@@ -202,11 +176,11 @@ def query_action(sql, action='run'):
         store = {}
         # Fetching rows from the result table
         result = st.session_state.cursor.fetchall()
-        if(action == 'check'):
+        if (action == 'check'):
             return result
         for row in result:
             store[row[0]] = row[1]
-        return(store)
+        return (store)
 
 
 if __name__ == "__main__":
