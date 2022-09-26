@@ -91,7 +91,7 @@ def display_filters(cursor):
     col1, col2 = st.columns([3, 1])
     with col1:
         year_range = st.slider(
-        "Select years range:",  min_value=st.session_state.min_max[0], value=st.session_state.year_range, max_value=st.session_state.min_max[1], key='year_range')
+        "Select years range:",  min_value=st.session_state.min_max[0], max_value=st.session_state.min_max[1], key='year_range')
         # if (st.session_state.year_range[0] != year_range[0]) or (st.session_state.year_range[1] != year_range1[1]):
         # on_change=update_graph
         #     st.session_state.year_range = year_range
