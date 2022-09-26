@@ -54,14 +54,15 @@ def main():
         if 'df_compare' not in st.session_state:
             st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
         if 'y_columns' not in st.session_state:
+            print('Executing')
             st.session_state.y_columns = []
         if 'min_max' not in st.session_state:
             sql = '''SELECT min(Year),max(Year) FROM AllTogether;'''
             st.session_state.min_max = query_action(sql, 'check')[0]
         if 'year_range' not in st.session_state:
-            st.session_state.year_range = [2000, 2022]
+            st.session_state.year_range = (2000, 2022)
         if 'pyr' not in st.session_state:
-            st.session_state.pyr = [2000, 2022]
+            st.session_state.pyr = (2000, 2022)
         if 'widget_data_representation' not in st.session_state:
             st.session_state.widget_data_representation = 'Absolute numbers'
 
@@ -133,7 +134,7 @@ def main():
     display_footer()
 
 def display_footer():
-    st.title("")
+    st.header("")
     st.markdown(
         '<hr style="height:1px;border:none;color:#D3D3D3;background-color:#D3D3D3;"/>',
         unsafe_allow_html=True)
@@ -145,7 +146,7 @@ def display_footer():
     col2.image('assets/hpi_logo.png')
     col3.markdown("")
 
-    st.title("")
+    st.header("")
     st.markdown(
         "<style>a {display: grid; justify-content: center;} </style>  <a href='https://hpi.de/impressum.html' style='color: #b1073b'>Imprint</a> <a href='https://hpi.de/datenschutz.html' style='color: #b1073b'>Privacy policy</a>",
         unsafe_allow_html=True)

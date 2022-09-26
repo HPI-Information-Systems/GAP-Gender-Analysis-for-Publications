@@ -285,7 +285,11 @@ def populate_graph(conn: Connection, venue, country, cont, publication_type, aut
             y = pd.array(y)
 
             # construction of line_chart's data
+            print('####################################')
+            print(st.session_state.y_columns)
             st.session_state.y_columns.append([y_name, True, out, out_all])
+            print(st.session_state.y_columns)
+            print('####################################')
         
             y = pd.array(y)
    
@@ -330,34 +334,39 @@ def paint_graph():
 
 def change_year_range_df():
     st.session_state.line_chart = st.empty()
+    print(st.session_state.year_range)
+    print(st.session_state.pyr)
 
     if st.session_state.year_range != st.session_state.pyr:
+        print('Executing 3')
+        st.session_state.pyr = st.session_state.year_range
         clear_graphs()
-        st.session_state.pyr[0] = st.session_state.year_range[0]
-        st.session_state.pyr[1] = st.session_state.year_range[1]
+
         
 
 # get only the dataframes that the user selected below the chart
 def get_selected_df():
-
+    print('---------------------------------------------------')
     true_df = pd.DataFrame()
     #print(st.session_state.y_columns)
+    print(st.session_state.y_columns)
     for i in range(len(st.session_state.y_columns)):
         if st.session_state.y_columns[i][1] == True:
             if st.session_state.widget_data_representation == 'Absolute numbers':
-                print('1')
                 true_df.insert(
                     loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[0][st.session_state.y_columns[i][0]])
             else:
-                print('2')
                 true_df.insert(
                     loc=0, column=st.session_state.y_columns[i][0], value=st.session_state.df_compare[1][st.session_state.y_columns[i][0]])
+            print(true_df)
 
     return true_df
     
 
 def clear_graphs():
     st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
+    print('Executing 2')
+    print(st.session_state.y_columns)
     st.session_state.y_columns = []
     st.session_state.graph = None
 
