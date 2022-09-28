@@ -139,7 +139,7 @@ def display_footer():
         '<hr style="height:1px;border:none;color:#D3D3D3;background-color:#D3D3D3;"/>',
         unsafe_allow_html=True)
     st.markdown(
-        "<h6 style='text-align: center;'>Presented to you by <a href=\"https://hpi.de/naumann/home.html\" style=\"color: #b1073b\">HPI Information Systems Group</a></h6>",
+        "<h6 style='text-align: center;'>Presented by <a href=\"https://hpi.de/naumann/home.html\" style=\"color: #b1073b\">HPI Information Systems Group</a></h6>",
         unsafe_allow_html=True)
     col1, col2, col3 = st.columns([2, 1, 2])
     col1.markdown("")
