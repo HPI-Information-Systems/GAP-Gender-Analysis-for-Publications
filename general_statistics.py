@@ -67,27 +67,27 @@ def display_general_statistics(cursor):
 
     col1.markdown(
         f'**Publications count:**  \n{st.session_state.publication_count}')
-    col2.markdown(f'**Author count:**  \n{st.session_state.author_count}')
+    col2.markdown(f'**Number of distinct authors:**  \n{st.session_state.author_count}')
     col3.markdown(
-        f'**Affiliation count:**  \n{st.session_state.affiliation_count}')
+        f'**Number of distinct affiliations:**  \n{st.session_state.affiliation_count}')
 
-    col1.markdown(f'**Venue count:**  \n{st.session_state.venue_count}')
+    col1.markdown(f'**Number of distinct venues:**  \n{st.session_state.venue_count}')
     col2.markdown(
-        f'**Publication Author count**:  \n{st.session_state.publication_author_count}')
+        f'**Number of distinct authorships**:  \n{st.session_state.publication_author_count}')
     col3.markdown(
         f'**Last time updated database:**  \n{datetime.strptime(st.session_state.last_time_updated, "%Y-%m-%d %H:%M:%S").strftime("%d %b %Y")}')
 
     col1.markdown(
-        f'**Woman author count**:  \n{st.session_state.female_author_count}')
+        f'**Numnber of distinct woman authors:  \n{st.session_state.female_author_count}')
     col2.markdown(
-        f'**Man author count**:  \n{st.session_state.male_author_count}')
+        f'**Numnber of distinct man authors**:  \n{st.session_state.male_author_count}')
     col3.markdown(
-        f'**Authors with unkown gender**:  \n{st.session_state.unkown_author_count}')
+        f'**Numnber of distinct authors with unkown gender**:  \n{st.session_state.unkown_author_count}')
 
     col1.markdown(
-        f'**Authors with Affiliation that has a Country assigned:**  \n{st.session_state.authors_with_country}')
+        f'**Authors with affiliation that has a country assigned:**  \n{st.session_state.authors_with_country}')
     col2.markdown(
-        f'**Authors with Affiliation that has not a Country assigned:**  \n{st.session_state.authors_without_country}')
+        f'**Authors with affiliation that has no country assigned:**  \n{st.session_state.authors_without_country}')
     col3.markdown(
         f'**Created by:**  \n[HPI Information Systems](https://hpi.de/naumann/home.html)')
 
@@ -96,8 +96,8 @@ def display_general_statistics(cursor):
         f'**Gender determination:**  \n[GenderAPI](https://gender-api.com/)')
     col3.markdown(f'**Illustrations by:**  \n[Undraw](https://undraw.co/)')
 
-    st.markdown('<h5>Important information</h5>', unsafe_allow_html=True)
-    st.markdown('''Dear User,  \nwe hope you like our gender analysis tool. Our goal is to provide you the best insights about the data that we show. When clicking “Submit and Compare” you will see the number of publications where the First author, Middle author, Last author or any author (depends on your selection) is a woman. In “Global Options” you can set a year range and select whether the data is shown in absolute numbers or in per cent. If you select "Relative numbers", the number of publications with women that match the criteria will be compared with the global number (any gender).  \nThe continent filter and the country filter refer to the Country/Continent of the affiliation the author belongs to.  \nFiltering by Conference/Journal means, that you only count the publications published in this journal.''')
+    st.markdown('<h5>Instructions</h5>', unsafe_allow_html=True)
+    st.markdown('''When clicking “Submit and Compare” you will see the number of publications where the first author, middle author (any but first or last), last author or any author is a woman author, based on their first name. In “Global Options” you can set a year range and select whether the data is shown in absolute or relative numbers. For "Relative numbers", the number of publications with women that match the criteria is compared with the global number (any gender).  \nThe continent filter and the country filter refer to the Country/Continent of the affiliation the author belongs to. Here, the data under consideration is reduced to those publications for which DBLP has affiliation information. \nFiltering by a specific venue (conference or journal) counts only the publications published in this journal.''')
 
 def seperate_integer(string):
     return " ".join([str(string[::-1][i:i+3][::-1]) for i in range(0, len(string), 3)][::-1])
