@@ -61,12 +61,12 @@ def display_general_statistics(cursor):
             cursor.execute(sql)
             st.session_state.authors_without_country = seperate_integer(cursor.fetchall()[0][0])
 
-    st.subheader('General statistics & Important information')
-
+    st.subheader('General statistics')
+    
     col1, col2, col3 = st.columns(3)
 
     col1.markdown(
-        f'**Publications count:**  \n{st.session_state.publication_count}')
+        f'**Number of publications:**  \n{st.session_state.publication_count}')
     col2.markdown(f'**Number of distinct authors:**  \n{st.session_state.author_count}')
     col3.markdown(
         f'**Number of distinct affiliations:**  \n{st.session_state.affiliation_count}')
@@ -91,7 +91,7 @@ def display_general_statistics(cursor):
     col3.markdown(
         f'**Created by:**  \n[HPI Information Systems](https://hpi.de/naumann/home.html)')
 
-    col1.markdown(f'**Data source:**  \n[dblp](https://dblp.org/)')
+    col1.markdown(f'**Data source for publications:**  \n[dblp](https://dblp.org/)')
     col2.markdown(
         f'**Gender determination:**  \n[GenderAPI](https://gender-api.com/)')
     col3.markdown(f'**Illustrations by:**  \n[Undraw](https://undraw.co/)')
