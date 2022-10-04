@@ -4,8 +4,8 @@ import os
 import pandas as pd
 from utils import log
 
-if not os.path.exists('csv'):
-    os.makedirs('csv')
+if not os.path.exists("csv"):
+    os.makedirs("csv")
 
 
 def extract_title(title_element):
@@ -14,7 +14,9 @@ def extract_title(title_element):
     :param title_element: xml element
     :return:    string
     """
-    title = re.sub('<.*?>', '', etree.tostring(title_element).decode('utf-8')).rstrip("\n")
+    title = re.sub("<.*?>", "", etree.tostring(title_element).decode("utf-8")).rstrip(
+        "\n"
+    )
     return title
 
 
@@ -36,23 +38,25 @@ def extract_feature(elem, features):
     for sub in elem:
         if sub.tag not in features:
             continue
-        elif sub.tag == 'title':
+        elif sub.tag == "title":
             text = extract_title(sub)
         else:
             text = sub.text
         if text is not None and len(text) > 0:
             # If a sub-element has attributes, create a dictionary out of them and add its text
             if sub.attrib:
-                text = str({**sub.attrib, **{'text': text}}) if sub.attrib else text
+                text = str({**sub.attrib, **{"text": text}}) if sub.attrib else text
             # Concatenate text/dict of multiple sub-elements with the same tag with line breaks
-            attribs[sub.tag] = (attribs.get(sub.tag, '') + "\n" + text).lstrip("\n")
+            attribs[sub.tag] = (attribs.get(sub.tag, "") + "\n" + text).lstrip("\n")
     # Remove content of processed elem from the tree to save memory
     elem.clear()
 
     return attribs
 
 
-def extract_entity(entity, features, dblp_path, save_path=None, ignorable_elements=None):
+def extract_entity(
+    entity, features, dblp_path, save_path=None, ignorable_elements=None
+):
     """
     Parse specific elements according to the given type name and features.
     :param entity:              string, has to be same as the xml element tag
@@ -66,7 +70,9 @@ def extract_entity(entity, features, dblp_path, save_path=None, ignorable_elemen
     """
     log(f"PROCESS: Start parsing for {entity}...")
     results = []
-    for _, elem in etree.iterparse(source=dblp_path, dtd_validation=True, load_dtd=True):
+    for _, elem in etree.iterparse(
+        source=dblp_path, dtd_validation=True, load_dtd=True
+    ):
         if elem.tag == entity:
             attrib_values = extract_feature(elem, features)
             results.append(attrib_values)
@@ -81,25 +87,81 @@ def extract_entity(entity, features, dblp_path, save_path=None, ignorable_elemen
 
 
 def main():
-    dblp_path = 'dblp/dblp.xml'
+    dblp_path = "dblp/dblp.xml"
 
-    key_features = {'article': ['author', 'ee', 'journal', 'number', 'pages', 'title', 'url', 'volume', 'year'],
-                    'book': ['author', 'ee', 'isbn', 'pages', 'publisher', 'series', 'title', 'volume', 'year'],
-                    'inproceedings': ['author', 'booktitle', 'crossref', 'ee', 'pages', 'title', 'url', 'year'],
-                    'proceedings': ['booktitle', 'editor', 'ee', 'isbn', 'publisher', 'series', 'title', 'url',
-                                    'volume', 'year'],
-                    'incollection': ['author', 'booktitle', 'crossref', 'ee', 'pages', 'title', 'url', 'year'],
-                    'phdthesis': ['author', 'ee', 'isbn', 'pages', 'school', 'title', 'year'],
-                    'mastersthesis': ['author', 'ee', 'note', 'school', 'title', 'year'],
-                    'www': ['author', 'note', 'title', 'url']}
+    key_features = {
+        "article": [
+            "author",
+            "ee",
+            "journal",
+            "number",
+            "pages",
+            "title",
+            "url",
+            "volume",
+            "year",
+        ],
+        "book": [
+            "author",
+            "ee",
+            "isbn",
+            "pages",
+            "publisher",
+            "series",
+            "title",
+            "volume",
+            "year",
+        ],
+        "inproceedings": [
+            "author",
+            "booktitle",
+            "crossref",
+            "ee",
+            "pages",
+            "title",
+            "url",
+            "year",
+        ],
+        "proceedings": [
+            "booktitle",
+            "editor",
+            "ee",
+            "isbn",
+            "publisher",
+            "series",
+            "title",
+            "url",
+            "volume",
+            "year",
+        ],
+        "incollection": [
+            "author",
+            "booktitle",
+            "crossref",
+            "ee",
+            "pages",
+            "title",
+            "url",
+            "year",
+        ],
+        "phdthesis": ["author", "ee", "isbn", "pages", "school", "title", "year"],
+        "mastersthesis": ["author", "ee", "note", "school", "title", "year"],
+        "www": ["author", "note", "title", "url"],
+    }
 
     for element in key_features.keys():
-        save_path = 'csv/' + str(element) + '.csv'
+        save_path = "csv/" + str(element) + ".csv"
         # Set list of ignorable elements for less memory usage
         ignorable_elements = list(key_features.keys())
         ignorable_elements.remove(element)
-        extract_entity(element, key_features[element], dblp_path, save_path, ignorable_elements=ignorable_elements)
+        extract_entity(
+            element,
+            key_features[element],
+            dblp_path,
+            save_path,
+            ignorable_elements=ignorable_elements,
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

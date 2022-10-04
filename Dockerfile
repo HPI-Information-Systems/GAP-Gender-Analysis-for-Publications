@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10.4
 EXPOSE 6501
 WORKDIR /app
 COPY requirements.txt ./requirements.txt
