@@ -45,7 +45,7 @@ def main():
         if "cursor" not in st.session_state:
             st.session_state.cursor = st.session_state.connection.cursor()
 
-    with st.spinner("Loading filters 1/2..."):
+    with st.spinner("Loading filters"):
 
         # TODO: Check if all session states are still needed
         if "df_compare" not in st.session_state:
@@ -72,19 +72,11 @@ def main():
             st.session_state.widget_auth_pos = ""
         if "widget_data_representation" not in st.session_state:
             st.session_state.widget_data_representation = "Absolute numbers"
-        if "logtxtbox" not in st.session_state:
-            st.session_state.logtxtbox = ""
+        
+        if "country_continent_dataframe" not in st.session_state:
+            st.session_state.country_continent_dataframe = pd.DataFrame()
 
-        if "ui_widget_venue" not in st.session_state:
-            st.session_state.ui_widget_venue = ""
-        if "ui_widget_count" not in st.session_state:
-            st.session_state.ui_widget_count = ""
-        if "ui_widget_cont" not in st.session_state:
-            st.session_state.ui_widget_cont = ""
-        if "ui_widget_pub_type" not in st.session_state:
-            st.session_state.ui_widget_pub_type = ""
-        if "ui_widget_auth_pos" not in st.session_state:
-            st.session_state.ui_widget_auth_pos = ""
+
 
         if "line_graph_data" not in st.session_state:
             st.session_state.line_graph_data = None
@@ -103,7 +95,7 @@ def main():
     # print('----------------------------------')
     # print(query.fetchall())
 
-    with st.spinner("Loading filters 2/2..."):
+    with st.spinner("Loading filters"):
         gl.display_filters(st.session_state.cursor)
 
     if (
@@ -138,7 +130,6 @@ def main():
         if widget_data_representation != st.session_state.widget_data_representation:
             st.session_state.widget_data_representation = widget_data_representation
             gl.populate_graph(
-                st.session_state.connection,
                 st.session_state.widget_venue,
                 st.session_state.widget_count,
                 st.session_state.widget_cont,
@@ -161,14 +152,15 @@ def display_footer():
         unsafe_allow_html=True,
     )
     st.markdown(
-        "<h6 style='text-align: center;'>Presented by <a href=\"https://hpi.de/naumann/home.html\" style=\"color: #b1073b\">HPI Information Systems Group</a></h6>",
-        unsafe_allow_html=True)
+        '<h6 style=\'text-align: center;\'>Presented by <a href="https://hpi.de/naumann/home.html" style="color: #b1073b">HPI Information Systems Group</a></h6>',
+        unsafe_allow_html=True,
+    )
     col1, col2, col3 = st.columns([2, 1, 2])
-    col1.markdown("")
+    # col1.markdown("")
     col2.image("assets/hpi_logo.png")
-    col3.markdown("")
-
-    st.header("")
+    # col3.markdown("")
+    for i in range(1, 3):
+        st.write("&nbsp;")
     st.markdown(
         "<style>a {display: grid; justify-content: center;} </style>  <a href='https://hpi.de/impressum.html' style='color: #b1073b'>Imprint</a> <a href='https://hpi.de/datenschutz.html' style='color: #b1073b'>Privacy policy</a>",
         unsafe_allow_html=True,

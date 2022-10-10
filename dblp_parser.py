@@ -1,6 +1,6 @@
-from lxml import etree
 import re
 import os
+from lxml import etree
 import pandas as pd
 from utils import log
 

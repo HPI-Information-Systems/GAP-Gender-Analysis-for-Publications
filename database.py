@@ -7,6 +7,7 @@ import os
 import ast
 import re
 import glob
+import pathlib
 
 if not os.path.exists("csv/db"):
     os.makedirs("csv/db")
@@ -111,7 +112,8 @@ def main():
     # drop(conn, 'Affiliation')
     # drop(conn, 'Country')
     # drop(conn, 'AllTogether')
-    drop(conn, "GeneralStatistics")
+    # drop(conn, "GeneralStatistics")
+    drop(conn, "Filters")
 
     # drop_index(conn, 'all_together_index')
 
@@ -132,7 +134,8 @@ def main():
 
     # create_indices(conn)
 
-    fill_statistics(conn)
+    # fill_statistics(conn)
+    fill_filters(conn)
 
 
 def drop(conn, table):
@@ -918,6 +921,89 @@ def fill_statistics(conn: Connection):
     conn.commit()
 
     log("Process of filling statistics finished")
+
+
+def fill_filters(conn: Connection):
+    log("Process of filling filters started")
+
+    pathlib.Path('filters').mkdir(parents=True)
+
+
+    returnPubType = pd.read_sql_query(
+        """SELECT distinct PublicationType\nFROM AllTogether;""",
+        conn,
+    )
+
+    returnPubType.to_csv('filters/PublicationTypes.csv', index=False)
+
+    returnVenue = pd.read_sql_query(
+        """SELECT distinct Venue\nFROM AllTogether;""",
+        conn,
+    )
+
+    returnVenue.to_csv('filters/Venues.csv', index=False)
+
+    returnContCount = pd.read_sql_query(
+        """SELECT distinct Country, Continent\nFROM AllTogether""",
+        conn,
+    )
+
+    returnContCount.to_csv('filters/Countries.csv', index=False)
+
+
+# def fill_filters(conn: Connection):
+#     log("Process of filling filters started")
+#     conn.execute(
+#         """
+#         CREATE TABLE "Filters" (
+# 	    "PublicationTypes" TEXT,
+# 	    "Venues" TEXT,
+# 	    "Continents" TEXT,
+# 	    "Countries" TEXT)
+#     """
+#     )
+#     returnPubType = conn.execute(
+#         """SELECT distinct PublicationType\nFROM AllTogether;"""
+#     )
+#     returnVenue = conn.execute(
+#         """SELECT distinct Venue\nFROM AllTogether;"""
+#     )
+
+#     returnContCount = conn.execute(
+#         """SELECT Continent, distinct Country\nFROM AllTogether"""
+#     )
+
+#     #TODO: ERROR
+#     resultPubType = returnPubType.fetchall()
+#     resultVenue = returnVenue.fetchall()
+#     resultContCount = returnContCount.fetchall()
+#     # for i in range((max(len(resultPubType), len(resultVenue)))):
+#     #     result.append(resultPubType[i] if i < len(resultPubType) else ("",) + resultVenue[i] if i < len(resultVenue) else (,""))
+
+#     # conn.execute(
+#     #     f"""INSERT INTO Filters(PublicationTypes, Venues) VALUES(?)""",
+#     #     (result,)
+#     # )
+
+#     # returnVal = conn.execute(
+#     #     """SELECT distinct Venue as count\nFROM AllTogether;"""
+#     # )
+#     # result = returnVal.fetchall()
+#     # conn.executemany(
+#     #     f"""INSERT INTO Filters(Venues) VALUES(?);""",
+#     #     (result),
+#     # )
+
+#     # returnVal = conn.execute(
+#     #     """SELECT distinct Country, Continent as count\nFROM AllTogether;"""
+#     # )
+#     # result = returnVal.fetchall()
+#     # conn.executemany(
+#     #     f"""INSERT INTO Filters(Continents) VALUES(?, ??);""",
+#     #     (result, result),
+#     # )
+#     conn.commit()
+#     log("Process of filling filters finished")
 
 
 def _assign_country_code(affiliation):
