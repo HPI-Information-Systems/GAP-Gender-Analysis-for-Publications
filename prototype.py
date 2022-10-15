@@ -8,10 +8,13 @@ from PIL import Image
 from utils import log
 import graph_logic as gl
 import general_statistics as gs
+import sys
 
 
 def main():
     global logtxt
+
+    print(sys.version)
 
     img = Image.open("assets/page_icon.ico")
     st.set_page_config(

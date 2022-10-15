@@ -74,7 +74,7 @@ def display_filters(cursor):
             st.session_state.filters[3],
             key="publication_type",
         )
-        
+
     # year-range selector for the drop-down lists for selection
     st.subheader("Global Options")
     year_range = st.slider(
@@ -105,10 +105,17 @@ def clear_history():
     st.session_state["venue"] = []
     st.session_state["country"] = []
     st.session_state["publication_type"] = []
-    st.session_state["year_range"] = [2000, 2022]
-    clear_graphs()    
+    st.session_state["year_range"] = (2000, 2022)
+    clear_graphs()
 
 def update_year_range():
+
+    print(type(st.session_state.year_range), flush=True)
+    #print(type(list(st.session_state.year_range)), flush=True)
+    print(st.session_state.year_range[0], flush=True)
+    print(st.session_state.year_range[1], flush=True)
+#    print(list(st.session_state.year_range)[0], flush=True)
+#    print(list(st.session_state.year_range)[1], flush=True)
     st.session_state.graph_years = list(
         range(
             list(st.session_state.year_range)[0],
@@ -137,7 +144,7 @@ def update_available_countries(cursor):
 
     # At the end, the tuple will get sorted
     filtered_countries = sorted(filtered_countries)
-    
+
     st.session_state.filters[1] = filtered_countries
 
 
