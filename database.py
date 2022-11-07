@@ -113,7 +113,7 @@ def main():
     # drop(conn, 'Country')
     # drop(conn, 'AllTogether')
     # drop(conn, "GeneralStatistics")
-    drop(conn, "Filters")
+    # drop(conn, "Filters")
 
     # drop_index(conn, 'all_together_index')
 
@@ -133,6 +133,7 @@ def main():
     # get_unknown_first_names(conn)
 
     # create_indices(conn)
+    insert_research_areas(conn)
 
     # fill_statistics(conn)
     fill_filters(conn)
@@ -829,6 +830,62 @@ def create_indices(conn: Connection):
     log("Index created")
 
 
+def insert_research_areas(conn: Connection):
+    research_areas = pd.read_csv("Research_area.csv")
+    # TODO: Remove dropping column, as it will already be done with other functions
+    conn.execute("""ALTER TABLE AllTogether DROP COLUMN ResearchArea""")
+    conn.execute(
+        """
+        ALTER TABLE AllTogether
+            ADD ResearchArea VARCHAR;"""
+    )
+
+    for i in range(len(research_areas)):
+        conference_name = (
+            research_areas["Research Area"][i],
+            research_areas["Venue"][i],
+        )
+        conference_aliases = [
+            (
+                research_areas["Research Area"][i],
+                research_areas["Alias(es)(; separated)"][i].split(";")[x],
+            )
+            for x in range(len(research_areas["Alias(es)(; separated)"][i].split(";")))
+        ]
+        conference_aliases.insert(0, conference_name)
+
+        for y in range(len(conference_aliases)):
+            print(conference_aliases[y])
+            sql = f"""
+            SELECT
+                CASE WHEN EXISTS(
+                    SELECT Venue
+                    FROM AllTogether
+                    WHERE Venue = ?
+                )
+                THEN 'True'
+                ELSE 'False'
+            END
+            """
+
+            result = conn.execute(sql, (conference_aliases[y][1].lstrip(),))
+            if result.fetchall()[0][0] == "True":
+                sql = f"""
+                    UPDATE AllTogether
+                    SET ResearchArea = ?
+                    WHERE Venue = ?
+                """
+                conn.execute(
+                    sql,
+                    (
+                        conference_aliases[y][0].lstrip(),
+                        conference_aliases[y][1].lstrip(),
+                    ),
+                )
+                break
+    conn.commit()
+
+
 def fill_statistics(conn: Connection):
     log("Process of filling statistics started")
     conn.execute("""CREATE TABLE GeneralStatistics(Name TEXT, Value TEXT);""")
@@ -926,84 +983,35 @@ def fill_statistics(conn: Connection):
 def fill_filters(conn: Connection):
     log("Process of filling filters started")
 
-    pathlib.Path('filters').mkdir(parents=True)
-
+    pathlib.Path("filters").mkdir(parents=True)
 
     returnPubType = pd.read_sql_query(
         """SELECT distinct PublicationType\nFROM AllTogether;""",
         conn,
     )
 
-    returnPubType.to_csv('filters/PublicationTypes.csv', index=False)
+    returnPubType.to_csv("filters/PublicationTypes.csv", index=False)
 
     returnVenue = pd.read_sql_query(
         """SELECT distinct Venue\nFROM AllTogether;""",
         conn,
     )
 
-    returnVenue.to_csv('filters/Venues.csv', index=False)
+    returnVenue.to_csv("filters/Venues.csv", index=False)
 
     returnContCount = pd.read_sql_query(
         """SELECT distinct Country, Continent\nFROM AllTogether""",
         conn,
     )
 
-    returnContCount.to_csv('filters/Countries.csv', index=False)
+    returnContCount.to_csv("filters/Countries.csv", index=False)
 
+    returnResAreas = pd.read_sql_query(
+        """SELECT distinct ResearchArea\nFROM AllTogether""",
+        conn,
+    )
 
-# def fill_filters(conn: Connection):
-#     log("Process of filling filters started")
-#     conn.execute(
-#         """
-#         CREATE TABLE "Filters" (
-# 	    "PublicationTypes" TEXT,
-# 	    "Venues" TEXT,
-# 	    "Continents" TEXT,
-# 	    "Countries" TEXT)
-#     """
-#     )
-#     returnPubType = conn.execute(
-#         """SELECT distinct PublicationType\nFROM AllTogether;"""
-#     )
-#     returnVenue = conn.execute(
-#         """SELECT distinct Venue\nFROM AllTogether;"""
-#     )
-
-#     returnContCount = conn.execute(
-#         """SELECT Continent, distinct Country\nFROM AllTogether"""
-#     )
-
-#     #TODO: ERROR
-#     resultPubType = returnPubType.fetchall()
-#     resultVenue = returnVenue.fetchall()
-#     resultContCount = returnContCount.fetchall()
-#     # for i in range((max(len(resultPubType), len(resultVenue)))):
-#     #     result.append(resultPubType[i] if i < len(resultPubType) else ("",) + resultVenue[i] if i < len(resultVenue) else (,""))
-
-#     # conn.execute(
-#     #     f"""INSERT INTO Filters(PublicationTypes, Venues) VALUES(?)""",
-#     #     (result,)
-#     # )
-
-#     # returnVal = conn.execute(
-#     #     """SELECT distinct Venue as count\nFROM AllTogether;"""
-#     # )
-#     # result = returnVal.fetchall()
-#     # conn.executemany(
-#     #     f"""INSERT INTO Filters(Venues) VALUES(?);""",
-#     #     (result),
-#     # )
-
-#     # returnVal = conn.execute(
-#     #     """SELECT distinct Country, Continent as count\nFROM AllTogether;"""
-#     # )
-#     # result = returnVal.fetchall()
-#     # conn.executemany(
-#     #     f"""INSERT INTO Filters(Continents) VALUES(?, ??);""",
-#     #     (result, result),
-#     # )
-#     conn.commit()
-#     log("Process of filling filters finished")
+    returnResAreas.to_csv("filters/ResearchAreas.csv", index=False)
 
 
 def _assign_country_code(affiliation):

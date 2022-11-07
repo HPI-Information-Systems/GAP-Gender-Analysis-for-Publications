@@ -4,8 +4,9 @@ from sqlite3 import Connection, connect
 from datetime import datetime
 
 # Get general statistics about the data
-
 def display_general_statistics(cursor):
+
+    # Load all the general statistics out of the corresponding table
     with st.spinner("Loading general statistics..."):
         if "publication_count" not in st.session_state:
             sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "PublicationCount";"""
@@ -76,6 +77,7 @@ def display_general_statistics(cursor):
                 cursor.fetchall()[0][0]
             )
 
+    # Display the data in a formatted way
     st.subheader("General statistics")
 
     col1, col2, col3 = st.columns(3)
@@ -93,7 +95,7 @@ def display_general_statistics(cursor):
         f"**Number of distinct authorships**:  \n{st.session_state.publication_author_count}"
     )
     col3.markdown(
-        f'**Last time updated database**:  \n{datetime.strptime(st.session_state.last_time_updated, "%Y-%m-%d %H:%M:%S").strftime("%d %b %Y")}'
+        f'**Last time updated database**:  \n{datetime.strptime(st.session_state.last_time_updated, "%Y-%m-%d %H:%M:%S").strftime("%d %b %Y")} '
     )
 
     col1.markdown(
@@ -113,12 +115,26 @@ def display_general_statistics(cursor):
         f"**Authors with affiliation that has no country assigned**:  \n{st.session_state.authors_without_country}"
     )
     col3.markdown(
-        f"**Created by**:  \n[HPI Information Systems](https://hpi.de/naumann/home.html)"
+        f"""
+        **Created by**:
+        <a href="https://hpi.de/naumann/home.html" style="color: #b1073b; text-decoration: underline;">HPI Information Systems</a>
+        """,
+        unsafe_allow_html=True,
     )
 
-    col1.markdown(f"**Data source for publications**:  \n[dblp](https://dblp.org/)")
-    col2.markdown(f"**Gender determination**:  \n[GenderAPI](https://gender-api.com/)")
-    col3.markdown(f"**Illustrations by**:  \n[Undraw](https://undraw.co/)")
+    # [HPI Information Systems](https://hpi.de/naumann/home.html)
+    col1.markdown(
+        f"""**Data source for publications**:  <a href="https://dblp.org/" style="color: #b1073b; text-decoration: underline;">dblp</a>""",
+        unsafe_allow_html=True,
+    )
+    col2.markdown(
+        f"""**Gender determination**:  <a href="https://gender-api.com/)" style="color: #b1073b; text-decoration: underline;">GenderAPI</a>""",
+        unsafe_allow_html=True,
+    )
+    col3.markdown(
+        f"""**Illustrations by**:  <a href="https://undraw.co/" style="color: #b1073b; text-decoration: underline;">Undraw</a>""",
+        unsafe_allow_html=True,
+    )
 
     st.subheader("Instructions")
     st.markdown(

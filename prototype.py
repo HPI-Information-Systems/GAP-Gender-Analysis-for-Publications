@@ -2,28 +2,27 @@ import pandas as pd
 from sqlite3 import Connection, connect
 from datetime import datetime
 import streamlit as st
+import streamlit.components.v1 as stcomp
 import numpy as np
 import os
 from PIL import Image
 from utils import log
 import graph_logic as gl
 import general_statistics as gs
-import sys
 
 
 def main():
     global logtxt
 
-    print(sys.version)
-
+    # Basic page configurations
     img = Image.open("assets/page_icon.ico")
     st.set_page_config(
         page_title="GAP • Hasso-Plattner-Institut",
         page_icon=img,
         layout="wide",
-        menu_items={"About": "htt"},
     )
 
+    # Hide the hamburger menu provided by streamlit
     hide_hamburger_menu = """
         <style>
             #MainMenu {
@@ -34,7 +33,6 @@ def main():
             }
         </style>
     """
-
     st.markdown(hide_hamburger_menu, unsafe_allow_html=True)
 
     st.title("GAP: Gender Analysis for Publications")
@@ -48,11 +46,10 @@ def main():
         if "cursor" not in st.session_state:
             st.session_state.cursor = st.session_state.connection.cursor()
 
+    # Initialize all the necessary session states
     with st.spinner("Loading filters"):
 
         # TODO: Check if all session states are still needed
-        if "df_compare" not in st.session_state:
-            st.session_state.df_compare = [pd.DataFrame(), pd.DataFrame()]
         if "y_columns" not in st.session_state:
             st.session_state.y_columns = []
         if "min_max" not in st.session_state:
@@ -73,34 +70,21 @@ def main():
             st.session_state.widget_pub_type = ""
         if "widget_auth_pos" not in st.session_state:
             st.session_state.widget_auth_pos = ""
-        if "widget_data_representation" not in st.session_state:
-            st.session_state.widget_data_representation = "Absolute numbers"
-        
+        if "widget_research_area" not in st.session_state:
+            st.session_state.widget_research_area = ""
         if "country_continent_dataframe" not in st.session_state:
             st.session_state.country_continent_dataframe = pd.DataFrame()
-
-
 
         if "line_graph_data" not in st.session_state:
             st.session_state.line_graph_data = None
         if "graph_years" not in st.session_state:
             st.session_state.graph_years = None
 
-    # query = st.session_state.cursor.execute('''
-    # SELECT anzahl, COUNT(*) as anzahl2
-    # FROM
-    # (SELECT Venue, COUNT(*) as anzahl FROM AllTogether
-    # GROUP BY Venue)
-    # WHERE anzahl < 51
-    # GROUP BY anzahl
-    # ORDER BY anzahl DESC
-    # ''')
-    # print('----------------------------------')
-    # print(query.fetchall())
-
+    # Get all the filters out of the pre-calculated filter csv files
     with st.spinner("Loading filters"):
         gl.display_filters(st.session_state.cursor)
 
+    # If there is no graph created yet, display a placeholder
     if (
         "graph" not in st.session_state
         or st.session_state.graph == None
@@ -123,13 +107,17 @@ def main():
 
         with col3:
             st.write("")
+
+    # If there is data already, start process of showing the chart
     else:
         col1, col2 = st.columns([4, 1])
+
+        # Show the data representation at the side
         widget_data_representation = col2.radio(
             "Select if the data will be shown in percentage or absolute numbers:",
             ["Absolute numbers", "Relative numbers"],
             index=0,
-        )  # on_change=change_data_representation()
+        )
         if widget_data_representation != st.session_state.widget_data_representation:
             st.session_state.widget_data_representation = widget_data_representation
             gl.populate_graph(
@@ -138,37 +126,52 @@ def main():
                 st.session_state.widget_cont,
                 st.session_state.widget_pub_type,
                 st.session_state.widget_auth_pos,
+                st.session_state.widget_research_area,
             )
+
+        # Show the chart
+        # Because it is connected to session state, it will automatically update
+        # when "graph" session state updates
         col1.plotly_chart(st.session_state.graph, use_container_width=True)
 
+    # Display the graph history checkboxes
     gl.display_graph_checkboxes()
 
+    # Display statistics
     gs.display_general_statistics(st.session_state.cursor)
 
     display_footer()
 
 
 def display_footer():
-    st.header("")
+    # Show a small divider
     st.markdown(
         '<hr style="height:1px;border:none;color:#D3D3D3;background-color:#D3D3D3;"/>',
         unsafe_allow_html=True,
     )
+
+    # Show a reference to HPI
     st.markdown(
         '<h6 style=\'text-align: center;\'>Presented by <a href="https://hpi.de/naumann/home.html" style="color: #b1073b">HPI Information Systems Group</a></h6>',
         unsafe_allow_html=True,
     )
     col1, col2, col3 = st.columns([2, 1, 2])
-    # col1.markdown("")
     col2.image("assets/hpi_logo.png")
-    # col3.markdown("")
+
+    # Create empty lines with the approximate size of a heading
+    # Don't use a heading, because this creates the bug that
+    # The site scrolls down automatically at loading
     for i in range(1, 3):
         st.write("&nbsp;")
+
+    # Legal references (Imporint, Privacy policy)
     st.markdown(
         "<style>a {display: grid; justify-content: center;} </style>  <a href='https://hpi.de/impressum.html' style='color: #b1073b'>Imprint</a> <a href='https://hpi.de/datenschutz.html' style='color: #b1073b'>Privacy policy</a>",
         unsafe_allow_html=True,
     )
 
+    # Hide the streamlit footer and display
+    # a very small HPI footer
     hide_streamlit_style = """
         <style>
         footer {visibility: hidden;}
@@ -203,5 +206,3 @@ def query_action(sql, action="run"):
 
 if __name__ == "__main__":
     main()
-    # Closing the connection
-    # st.session_state.connection.close()
