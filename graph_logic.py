@@ -199,7 +199,6 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     # Basic SQL query structure
     sql_start = """SELECT Year, count(PublicationID) as count\nFROM AllTogether """
     sql_filter_start = """\nWHERE """
-    sql_filter = ""
     sql_woman_filter = """(Gender = "woman")"""
     sql_end = """\nGROUP BY Year;"""
 
@@ -286,9 +285,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     # Combine each filter group with an AND operation
     if not all(not f for f in sql_logic):
         for f in sql_logic:
-            print('Hello + '+ f)
             if f != "":
-                print('Inside')
                 if f_count > 0:
                     newf = newf + " AND "
                 f_count += 1
@@ -311,14 +308,12 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
 
             # If the query wasn't already requested, combine the filters,
             # One including the woman filter, one not
-            sql = sql_start + sql_filter_start + sql_filter + newf + sql_woman_filter + sql_end
-            print(sql_filter)
-            print("")
-            sql_non_woman = sql_start + (sql_filter_start if sql_filter else "") + sql_filter + newf + sql_end
+            sql = sql_start + sql_filter_start + newf + sql_woman_filter + sql_end
+            sql_non_woman = sql_start + (sql_filter_start if newf else "") + newf + sql_end
 
             # Execute both of these queries
-            print(sql_non_woman)
             out = pt.query_action(sql, "store")
+
             out_all = pt.query_action(sql_non_woman, "store")
 
             # Get all the available years that the user could have selected
