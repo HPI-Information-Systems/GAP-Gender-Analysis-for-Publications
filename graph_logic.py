@@ -224,7 +224,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
         f_2 = "("
         for ra in research_area:
             if ra != research_area[0]:
-                f_2 = f_2 + "or"
+                f_2 = f_2 + " or "
             f_2 = f_2 + 'ResearchArea = "' + str(ra) + '"'
             y_name = y_name + str(ra) + "/"
         f_2 = f_2 + ")"
@@ -434,13 +434,13 @@ def get_selected_df():
             # and the same for relative numbers
             if st.session_state.widget_data_representation == "Absolute numbers":
                 true_df.insert(
-                    loc=0,
+                    loc=i,
                     column=st.session_state.y_columns[i][0],
                     value=list(st.session_state.y_columns[i][2].values()),
                 )
             else:
                 true_df.insert(
-                    loc=0,
+                    loc=i,
                     column=st.session_state.y_columns[i][0],
                     value=list(st.session_state.y_columns[i][3].values()),
                 )
