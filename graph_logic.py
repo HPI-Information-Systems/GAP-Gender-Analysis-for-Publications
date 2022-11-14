@@ -337,12 +337,12 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                     out_all[i] = 0
 
             # Remove possible None keys  due to sql query
-            # and sort the dicts ascending
             if None in list(out.keys()): 
                 out.pop(None)
             if None in list(out_all.keys()):
                 out_all.pop(None)
 
+            # Sort the dicts ascending
             out = dict(sorted(out.items(), key=lambda x: x[0]))
             out_all = dict(sorted(out_all.items(), key=lambda x: x[0]))
             

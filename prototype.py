@@ -1,14 +1,16 @@
-import pandas as pd
-from sqlite3 import Connection, connect
+import os
 from datetime import datetime
+from sqlite3 import Connection, connect
+
+import numpy as np
+import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as stcomp
-import numpy as np
-import os
 from PIL import Image
-from utils import log
-import graph_logic as gl
+
 import general_statistics as gs
+import graph_logic as gl
+from utils import log
 
 
 def main():
@@ -75,8 +77,6 @@ def main():
         if "country_continent_dataframe" not in st.session_state:
             st.session_state.country_continent_dataframe = pd.DataFrame()
 
-        if "line_graph_data" not in st.session_state:
-            st.session_state.line_graph_data = None
         if "graph_years" not in st.session_state:
             st.session_state.graph_years = None
 
