@@ -416,8 +416,7 @@ def paint_graph():
     # background color to the background color of all
     # the other fields, like dropdown etc.
     fig.update_layout(legend_title="Filters")
-    fig.update_yaxes(rangemode="tozero", fixedrange=True)
-    fig.update_xaxes(fixedrange=True)
+    fig.update_yaxes(rangemode="tozero",)
     fig.layout.plot_bgcolor = "#f1f3f6"
 
     # If Relative numbers is selected, set the y-Axis title to "Percentage"
