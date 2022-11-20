@@ -117,8 +117,8 @@ def main():
 
     drop_index(conn, 'all_together_index')
 
-    # # Do not enable the foreign key constraint checks before dropping the tables as this would make the dropping process
-    # # incredibly slow
+    # Do not enable the foreign key constraint checks before dropping the tables as this would make the dropping process
+    # incredibly slow
     enable_foreign_key_constraints(conn)
 
     fill_countries(conn, to_csv=True)
@@ -127,15 +127,16 @@ def main():
     fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
     fill_venues(conn, to_csv=True)
     fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
+    
     fill_all_together(conn)
 
     # # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
     get_unknown_first_names(conn)
 
-    # create_indices(conn)
+    create_indices(conn)
     insert_research_areas(conn)
 
-    # fill_statistics(conn)
+    fill_statistics(conn)
     fill_filters(conn)
 
 
@@ -832,8 +833,6 @@ def create_indices(conn: Connection):
 
 def insert_research_areas(conn: Connection):
     research_areas = pd.read_csv("Research_area.csv")
-    # TODO: Remove dropping column, as it will already be done with other functions
-    conn.execute("""ALTER TABLE AllTogether DROP COLUMN ResearchArea""")
     conn.execute(
         """
         ALTER TABLE AllTogether
@@ -982,8 +981,8 @@ def fill_statistics(conn: Connection):
 
 def fill_filters(conn: Connection):
     log("Process of filling filters started")
-
-    pathlib.Path("filters").mkdir(parents=True)
+    if not os.path.exists('filters'):
+        pathlib.Path("filters").mkdir(parents=True)
 
     returnPubType = pd.read_sql_query(
         """SELECT distinct PublicationType\nFROM AllTogether;""",

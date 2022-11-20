@@ -1,143 +1,143 @@
 Country,Continent
-France,Europe
-Japan,Asia
-Germany,Europe
-United Kingdom,Europe
 USA,North America
-Spain,Europe
-Singapore,Asia
-China,Asia
-Austria,Europe
-Netherlands,Europe
-Australia,Oceania
-Iran,Asia
+Cyprus,Europe
 Switzerland,Europe
 Italy,Europe
-South Korea,Asia
-Finland,Europe
-Sweden,Europe
-Belgium,Europe
-Egypt,Africa
-Taiwan,Asia
-India,Asia
-Brazil,South America
-Hong Kong,Asia
 Canada,North America
-Turkey,Europe
-Portugal,Europe
-New Zealand,Oceania
-Colombia,South America
-Tunisia,Africa
-Norway,Europe
-Russia,Europe
-Slovenia,Europe
-Hungary,Europe
-Saudi Arabia,Asia
-Luxembourg,Europe
+Germany,Europe
+Netherlands,Europe
 Israel,Asia
-Denmark,Europe
+Belgium,Europe
+Austria,Europe
+France,Europe
+United Kingdom,Europe
 Greece,Europe
-United Arab Emirates,Asia
-Thailand,Asia
 Czechia,Europe
-Chile,South America
-Cuba,North America
-Morocco,Africa
-Poland,Europe
-Algeria,Africa
-Malaysia,Asia
+Brazil,South America
+India,Asia
+Australia,Oceania
+Japan,Asia
 Ireland,Europe
-Pakistan,Asia
-Romania,Europe
-Mexico,North America
-Albania,Europe
-Slovakia,Europe
-Guatemala,North America
-Uruguay,South America
-Qatar,Asia
-South Africa,Africa
-Fiji,Oceania
-Bangladesh,Asia
-Myanmar,Asia
-Vietnam,Asia
-Philippines,Asia
+Russia,Europe
+China,Asia
+New Zealand,Oceania
+Spain,Europe
+Singapore,Asia
+Portugal,Europe
+Sweden,Europe
+Poland,Europe
+Taiwan,Asia
 Estonia,Europe
+Norway,Europe
+Denmark,Europe
+Hong Kong,Asia
+United Arab Emirates,Asia
+Tunisia,Africa
+Luxembourg,Europe
+Morocco,Africa
+South Africa,Africa
+Algeria,Africa
+Benin,Africa
+Mexico,North America
+Egypt,Africa
+Finland,Europe
+Turkey,Europe
+Qatar,Asia
+Saudi Arabia,Asia
+North Macedonia,Europe
+Uruguay,South America
+Chile,South America
+Peru,South America
+South Korea,Asia
+Malaysia,Asia
+Iran,Asia
+Iceland,Europe
+Bulgaria,Europe
+Romania,Europe
+Hungary,Europe
+Slovenia,Europe
+Thailand,Asia
+Oman,Asia
+Colombia,South America
+Belarus,Europe
+Nigeria,Africa
+Bangladesh,Asia
+Pakistan,Asia
+Serbia,Europe
 Namibia,Africa
 Kenya,Africa
-Iceland,Europe
-Cameroon,Africa
-Indonesia,Asia
-Guam,Oceania
-Peru,South America
-Mauritius,Africa
-Ecuador,South America
-Bulgaria,Europe
-North Macedonia,Europe
-Ukraine,Europe
-Serbia,Europe
-Argentina,South America
-Lebanon,Asia
-Venezuela,South America
-Nigeria,Africa
-Cyprus,Europe
-Iraq,Asia
-Jordan,Asia
-Puerto Rico,North America
-Oman,Asia
-Kuwait,Asia
-Palestine,Asia
-Latvia,Europe
-Ghana,Africa
-Malta,Europe
-Sri Lanka,Asia
-Mongolia,Asia
-Kazakhstan,Asia
-Ethiopia,Africa
-Macao,Asia
-Belarus,Europe
-Panama,North America
-Bosnia and Herzegovina,Europe
-Costa Rica,North America
-Croatia,Europe
 Senegal,Africa
-Sudan,Africa
-Benin,Africa
-Burkina Faso,Africa
-Rwanda,Africa
-Uganda,Africa
-Malawi,Africa
-Bahrain,Asia
-Montenegro,Europe
-Georgia,Europe
-Barbados,North America
-Lithuania,Europe
-Trinidad and Tobago,North America
-Liechtenstein,Europe
-Afghanistan,Asia
-Yemen,Asia
-Paraguay,South America
-Botswana,Africa
-Dominican Republic,North America
-Faroe Islands,Europe
+Argentina,South America
+Ukraine,Europe
 Armenia,Europe
+Georgia,Europe
+Lebanon,Asia
+Kuwait,Asia
+Ethiopia,Africa
+Vietnam,Asia
+Venezuela,South America
+Iraq,Asia
+Fiji,Oceania
+Jordan,Asia
+Cuba,North America
+Ecuador,South America
+Sri Lanka,Asia
+Bosnia and Herzegovina,Europe
+Slovakia,Europe
+Indonesia,Asia
+Latvia,Europe
+Costa Rica,North America
+Macao,Asia
+Philippines,Asia
+Albania,Europe
+Lithuania,Europe
 Moldova,Europe
-Nepal,Asia
-Cambodia,Asia
-Uzbekistan,Asia
-Burundi,Africa
-Jamaica,North America
-Zimbabwe,Africa
-North Korea,Asia
+Malta,Europe
+Barbados,North America
+Palestine,Asia
+Puerto Rico,North America
+Yemen,Asia
+Botswana,Africa
+Montenegro,Europe
+Uganda,Africa
+Sudan,Africa
+Liechtenstein,Europe
+Croatia,Europe
 Azerbaijan,Europe
-Eswatini,Africa
+Ghana,Africa
+Myanmar,Asia
+Cameroon,Africa
 Madagascar,Africa
-Samoa,Oceania
-Zambia,Africa
+Zimbabwe,Africa
+Afghanistan,Asia
+Kazakhstan,Asia
+Paraguay,South America
+Jamaica,North America
+Guatemala,North America
+Panama,North America
+Mauritius,Africa
+Burundi,Africa
+Bahrain,Asia
+Faroe Islands,Europe
+Nepal,Asia
+Trinidad and Tobago,North America
+Rwanda,Africa
+North Korea,Asia
+Guam,Oceania
 Chad,Africa
+Malawi,Africa
 El Salvador,North America
+Uzbekistan,Asia
+Mongolia,Asia
+Samoa,Oceania
+Burkina Faso,Africa
+Dominican Republic,North America
 New Caledonia,Oceania
+Cambodia,Asia
 Libya,Africa
+Zambia,Africa
+Mali,Africa
+Eswatini,Africa
 Martinique,North America
 Andorra,Europe
 Monaco,Europe
-Mali,Africa

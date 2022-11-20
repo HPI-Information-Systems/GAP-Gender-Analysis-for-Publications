@@ -349,7 +349,26 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             # Add all the gotten data into the y_columns session state, 
             # That provides the data for the graph history, change between
             # Relative and Absolute numbers and some other features
-            st.session_state.y_columns.append([y_name, True, out, out_all])
+            
+            # Set the specific graph color with colors and the modulo
+            # of the length of colors. This ensures, that the graph color of
+            # one specific graph does not change if another graph is added
+            # The first color is the theme color, the other ones the standard
+            # plotly colors
+            colors = [
+                "#b1073b",
+                "#636EFA",
+                "#00CC96",
+                "#AB63FA",
+                "#FFA15A",
+                "#19D3F3",
+                "#FF6692",
+                "#B6E880",
+                "#FF97FF",
+                "#FECB52",
+            ]
+            color_index = len(st.session_state.y_columns) % len(colors)
+            st.session_state.y_columns.append([y_name, True, out, out_all, colors[color_index]])
     
     # The graph_years are important for displaying only the 
     # Selected years on the chart
@@ -378,23 +397,19 @@ def paint_graph():
     line_graph_data = line_graph_data.set_index("Year")
 
     # --- Customizing the chart---
+    colors = []
 
-    # Set the first graph color to the theme color
-    # The following ones to the standard plotly colors
+    # Select the y_columns that are also in the dataframe
+    # And get the specific colors of them
+    data_column_names = list(line_graph_data.columns)
+    y_column_names = [i[0] for i in st.session_state.y_columns]
+    for i in range(len(st.session_state.y_columns)):
+        if st.session_state.y_columns[i][0] in data_column_names:
+            colors.append(st.session_state.y_columns[i][4])
+
     fig = px.line(
         line_graph_data,
-        color_discrete_sequence=[
-            "#b1073b",
-            "#636EFA",
-            "#00CC96",
-            "#AB63FA",
-            "#FFA15A",
-            "#19D3F3",
-            "#FF6692",
-            "#B6E880",
-            "#FF97FF",
-            "#FECB52",
-        ],
+        color_discrete_sequence=colors,
     )
 
     # Set legend title, y-axis to start with 0, 
@@ -434,13 +449,13 @@ def get_selected_df():
             # and the same for relative numbers
             if st.session_state.widget_data_representation == "Absolute numbers":
                 true_df.insert(
-                    loc=i,
+                    loc=len(true_df.columns),
                     column=st.session_state.y_columns[i][0],
                     value=list(st.session_state.y_columns[i][2].values()),
                 )
             else:
                 true_df.insert(
-                    loc=i,
+                    loc=len(true_df.columns),
                     column=st.session_state.y_columns[i][0],
                     value=list(st.session_state.y_columns[i][3].values()),
                 )

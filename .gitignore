@@ -3,6 +3,5 @@ gap.db
 .vscode/
 dblp/
 csv/
-test_query.sql
 database/
 __pycache__/
