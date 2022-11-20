@@ -128,10 +128,15 @@ def display_general_statistics(cursor):
         unsafe_allow_html=True,
     )
     col2.markdown(
-        f"""**Gender determination**:  <a href="https://gender-api.com/)" style="color: #b1073b; text-decoration: underline;">GenderAPI</a>""",
+        f"""**Gender determination**:  <a href="https://gender-api.com/" style="color: #b1073b; text-decoration: underline;">GenderAPI</a>""",
         unsafe_allow_html=True,
     )
+
     col3.markdown(
+        f"""**Research area determination**:  <a href="https://csrankings.org/" style="color: #b1073b; text-decoration: underline;">CSRankings</a>""",
+        unsafe_allow_html=True,
+    )
+    col1.markdown(
         f"""**Illustrations by**:  <a href="https://undraw.co/" style="color: #b1073b; text-decoration: underline;">Undraw</a>""",
         unsafe_allow_html=True,
     )
