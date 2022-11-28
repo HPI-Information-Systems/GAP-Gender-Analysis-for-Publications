@@ -216,7 +216,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             if v != venue[0]:
                 f_1 = f_1 + " or "
             f_1 = f_1 + 'Venue = "' + str(v) + '"'
-            y_name = y_name + str(v) + "/"
+            y_name = y_name + str(v) + ", "
         f_1 = f_1 + ")"
     if research_area == []:
         f_2 = ""
@@ -226,7 +226,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             if ra != research_area[0]:
                 f_2 = f_2 + " or "
             f_2 = f_2 + 'ResearchArea = "' + str(ra) + '"'
-            y_name = y_name + str(ra) + "/"
+            y_name = y_name + str(ra) + ", "
         f_2 = f_2 + ")"
     if country == []:
         f_3 = ""
@@ -236,7 +236,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             if c != country[0]:
                 f_3 = f_3 + " or "
             f_3 = f_3 + 'Country = "' + str(c) + '"'
-            y_name = y_name + str(c) + "/"
+            y_name = y_name + str(c) + ", "
         f_3 = f_3 + ")"
     if cont == []:
         f_4 = ""
@@ -246,7 +246,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             if C != cont[0]:
                 f_4 = f_4 + " or "
             f_4 = f_4 + 'Continent = "' + str(C) + '"'
-            y_name = y_name + str(C) + "/"
+            y_name = y_name + str(C) + ", "
         f_4 = f_4 + ")"
     if auth_pos == "":
         f_5 = ""
@@ -254,19 +254,19 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     # TODO: Not tested yet
     elif auth_pos == "Any author woman":
         f_5 = ""
-        y_name = y_name + "Any author woman/"
+        y_name = y_name + "Any author woman"
     else:
         f_5 = "("
         if auth_pos == "First author woman":
             f_5 = f_5 + 'Position = "1"'
-            y_name = y_name + "First author woman/"
+            y_name = y_name + "First author woman"
             # If any author, everyone, including first author
         elif auth_pos == "Last author woman":
             f_5 = f_5 + "CAST(Position AS INT) = AuthorCount"
-            y_name = y_name + "Last author woman/"
+            y_name = y_name + "Last author woman"
         elif auth_pos == "Middle author woman":
             f_5 = f_5 + "Position > 1 AND CAST(Position AS INT) < AuthorCount"
-            y_name = y_name + "Middle author woman/"
+            y_name = y_name + "Middle author woman"
         f_5 = f_5 + ")"
     if publication_type == []:
         f_6 = ""
@@ -276,7 +276,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             if p != publication_type[0]:
                 f_6 = f_6 + " or "
             f_6 = f_6 + 'PublicationType = "' + str(p) + '"'
-            y_name = y_name + str(p) + "/"
+            y_name = y_name + str(p) + ", "
         f_6 = f_6 + ")"
     sql_logic = [f_1, f_2, f_3, f_4, f_5, f_6]
     newf = ""
@@ -291,7 +291,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                 f_count += 1
                 newf = newf + f
         sql_woman_filter = ' AND ' + sql_woman_filter
-    
+
 
     # Convert the data from the range selector into a list
     # that includes all the ears within this range
@@ -415,7 +415,19 @@ def paint_graph():
     # Set legend title, y-axis to start with 0, 
     # background color to the background color of all
     # the other fields, like dropdown etc.
-    fig.update_layout(legend_title="Filters")
+    fig.update_layout(
+        legend_title="Filters",
+        autosize=False,
+        height=600,
+
+        # legend = dict(
+        #     # orientation="v",
+        #     yanchor = "bottom",
+        #     # y=-0.5,
+        #     xanchor = "left",
+        #     # x=0,
+        # ),
+    )
     fig.update_yaxes(rangemode="tozero",)
     fig.layout.plot_bgcolor = "#f1f3f6"
 
