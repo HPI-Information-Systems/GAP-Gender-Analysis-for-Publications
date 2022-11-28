@@ -410,25 +410,28 @@ def paint_graph():
     fig = px.line(
         line_graph_data,
         color_discrete_sequence=colors,
+        #markers=True,
+        
     )
 
-    # Set legend title, y-axis to start with 0, 
-    # background color to the background color of all
-    # the other fields, like dropdown etc.
+    # Set legend title, y-axis to start with 0 etc.
     fig.update_layout(
         legend_title="Filters",
-        autosize=False,
-        height=600,
-
-        # legend = dict(
-        #     # orientation="v",
-        #     yanchor = "bottom",
-        #     # y=-0.5,
-        #     xanchor = "left",
-        #     # x=0,
-        # ),
+        autosize=True,
+        minreducedheight=700,
+        height=800,
+        legend = dict(
+            orientation="v",
+            yanchor = "top",
+            y=-0.1,
+            xanchor = "left",
+            x=0,
+        ),
     )
-    fig.update_yaxes(rangemode="tozero",)
+
+    fig.update_yaxes(automargin=True)
+
+    fig.update_yaxes(rangemode="tozero",),
     fig.layout.plot_bgcolor = "#f1f3f6"
 
     # If Relative numbers is selected, set the y-Axis title to "Percentage"

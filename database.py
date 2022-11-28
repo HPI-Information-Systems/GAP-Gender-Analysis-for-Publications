@@ -104,41 +104,41 @@ NO_MIDDLE_NAMES = [
 def main():
     conn = connect(DB)
 
-    # drop(conn, 'PublicationAuthor')
-    # drop(conn, 'Publication')
-    # drop(conn, 'Venue')
-    # drop(conn, 'AuthorName')
-    # drop(conn, 'Author')
-    # drop(conn, 'GenderAPIResults')
-    # drop(conn, 'Affiliation')
-    # drop(conn, 'Country')
-    # drop(conn, 'AllTogether')
-    # drop(conn, "GeneralStatistics")
-    # drop(conn, "Filters")
+    drop(conn, 'PublicationAuthor')
+    drop(conn, 'Publication')
+    drop(conn, 'Venue')
+    drop(conn, 'AuthorName')
+    drop(conn, 'Author')
+    drop(conn, 'GenderAPIResults')
+    drop(conn, 'Affiliation')
+    drop(conn, 'Country')
+    drop(conn, 'AllTogether')
+    drop(conn, "GeneralStatistics")
+    drop(conn, "Filters")
 
-    # drop_index(conn, 'all_together_index')
+    drop_index(conn, 'all_together_index')
 
     # Do not enable the foreign key constraint checks before dropping the tables as this would make the dropping process
     # incredibly slow
     enable_foreign_key_constraints(conn)
 
-    # fill_countries(conn, to_csv=True)
-    # fill_affiliations(conn, to_csv=True)
-    # fill_gender_api_results(conn)
-    # fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
-    # fill_venues(conn, to_csv=True)
-    # fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
+    fill_countries(conn, to_csv=True)
+    fill_affiliations(conn, to_csv=True)
+    fill_gender_api_results(conn)
+    fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
+    fill_venues(conn, to_csv=True)
+    fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
     
-    # fill_all_together(conn)
+    fill_all_together(conn)
 
     # # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
-    # get_unknown_first_names(conn)
+    get_unknown_first_names(conn)
 
-    # create_indices(conn)
+    create_indices(conn)
     insert_research_areas(conn)
 
-    # fill_statistics(conn)
-    # fill_filters(conn)
+    fill_statistics(conn)
+    fill_filters(conn)
 
 
 def drop(conn, table):
