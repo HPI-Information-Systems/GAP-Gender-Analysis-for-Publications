@@ -19,7 +19,7 @@ ujson = "==4.3.0"
 zipp = "==3.6.0"
 streamlit = "==1.12.1"
 pillow = "==9.2.0"
-plotly = "==5.10.0"
+plotly = "==5.11.0"
 pathlib = "==1.0.1"
 
 [dev-packages]
