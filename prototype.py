@@ -24,6 +24,15 @@ def main():
         layout="wide",
     )
 
+    st.markdown("""
+        <style>
+            a:link, a:visited {
+                color: #b1073b; 
+                text-decoration: underline;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
     # Hide the hamburger menu provided by streamlit
     hide_hamburger_menu = """
         <style>
@@ -164,9 +173,10 @@ def display_footer():
     for i in range(1, 3):
         st.write("&nbsp;")
 
-    # Legal references (Imporint, Privacy policy)
+    # Legal references (Imprint, Privacy policy)
     st.markdown(
-        "<style>a {display: grid; justify-content: center;} </style>  <a href='https://hpi.de/impressum.html' style='color: #b1073b'>Imprint</a> <a href='https://hpi.de/datenschutz.html' style='color: #b1073b'>Privacy policy</a>",
+        """
+        <p align="center"><a href='https://hpi.de/impressum.html' style='color: #b1073b'>Imprint</a><br><a href='https://hpi.de/datenschutz.html' style='color: #b1073b'>Privacy policy</a></p>""",
         unsafe_allow_html=True,
     )
 
