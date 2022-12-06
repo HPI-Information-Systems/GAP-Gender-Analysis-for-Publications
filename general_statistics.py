@@ -116,28 +116,26 @@ def display_general_statistics(cursor):
     )
     col3.markdown(
         f"""
-        **Created by**:
-        <a href="https://hpi.de/naumann/home.html" style="color: #b1073b; text-decoration: underline;">HPI Information Systems</a>
+        **Created by**:  \n[HPI Information Systems](https://hpi.de/naumann/home.html)
         """,
         unsafe_allow_html=True,
     )
 
-    # [HPI Information Systems](https://hpi.de/naumann/home.html)
     col1.markdown(
-        f"""**Data source for publications**:  <a href="https://dblp.org/" style="color: #b1073b; text-decoration: underline;">dblp</a>""",
+        f"""**Data source for publications**:  \n[dblp](https://dblp.org/)""",
         unsafe_allow_html=True,
     )
     col2.markdown(
-        f"""**Gender determination**:  <a href="https://gender-api.com/" style="color: #b1073b; text-decoration: underline;">GenderAPI</a>""",
+        f"""**Gender determination**:  \n[GenderAPI](https://gender-api.com/)""",
         unsafe_allow_html=True,
     )
 
     col3.markdown(
-        f"""**Research area determination**:  <a href="https://csrankings.org/" style="color: #b1073b; text-decoration: underline;">CSRankings</a>""",
+        f"""**Research area determination**:  \n[CSRankings](https://csrankings.org/)""",
         unsafe_allow_html=True,
     )
     col1.markdown(
-        f"""**Illustrations by**:  <a href="https://undraw.co/" style="color: #b1073b; text-decoration: underline;">Undraw</a>""",
+        f"""**Illustrations by**:  \n[Undraw](https://undraw.co/)""",
         unsafe_allow_html=True,
     )
 
@@ -145,7 +143,9 @@ def display_general_statistics(cursor):
     st.markdown(
         """When clicking “Submit and Compare” you will see the number of publications where the first author, middle author (any but first or last), last author or any author is a woman author, based on their first name. In “Global Options” you can set a year range and select whether the data is shown in absolute or relative numbers. For "Relative numbers", the number of publications with women that match the criteria is compared with the global number (any gender).  \nThe continent filter and the country filter refer to the Country/Continent of the affiliation the author belongs to. Here, the data under consideration is reduced to those publications for which DBLP has affiliation information. \nFiltering by a specific venue (conference or journal) counts only the publications published in this journal. \nFiltering by Research Area groups the most important publications of each area into one graph. The data for the most important publications were taken from csrankings.org."""
     )
-
+    st.markdown("""Acknowledgements: The initial ideas for these analyses are based on work together with Angela Bonifati, Michael Mior and Nele Noack: [VLDB Paper](http://www.vldb.org/pvldb/vol2/vldb09-98.pdf)""")
+    st.markdown("""
+    Contact: For questions and comments on the tool and the underlying data, please contact <a href="mailto: Felix.Naumann@hpi.de">Felix Naumann</a>. You are also welcome to visit our <a href="https://github.com/HPI-Information-Systems/GenderAnalysis">GitHub Page</a>.""", unsafe_allow_html=True)
 
 def seperate_integer(string):
     return " ".join(

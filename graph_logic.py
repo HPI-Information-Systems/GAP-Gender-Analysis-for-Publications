@@ -418,8 +418,8 @@ def paint_graph():
     fig.update_layout(
         legend_title="Filters",
         autosize=True,
-        minreducedheight=700,
-        height=800,
+        minreducedheight=400,
+        height=500,
         legend = dict(
             orientation="v",
             yanchor = "top",
