@@ -1,5 +1,11 @@
 # GAP: Gender Analysis for Publications
 
+## Before Using this Project
+
+We are very pleased that you would like to use our tool.
+If you want to skip the possibly hour-long [initial setup](#setting-up-the-data-source), we recommend recommend you to visit the already set up version at **[csgender.org](https://csgender.org/)**.
+You can instantly start analyzing the data and we also try our best to update the data used there every 3 months.
+
 ## Setting up the Data Source
 
 ### Prepare the Environment

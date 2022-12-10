@@ -93,11 +93,9 @@ def display_filters(cursor):
         on_change=update_year_range(),
     )
 
-    clear_history_button = st.button("Clear History & Filters", on_click=clear_history_and_filters)
-
     # Only submit the newest changes after the Button was clicked, prevents the
     # graph to update if the user hasn't done all filters yet
-    button = st.button("Submit and Compare")
+    button = st.button("**Submit and Compare**")
     if button:
         update_graph(
             widget_venue,
@@ -416,9 +414,9 @@ def paint_graph():
 
     # Set legend title, y-axis to start with 0 etc.
     fig.update_layout(
+        font_size=13,
         legend_title="Filters",
         autosize=True,
-        minreducedheight=400,
         height=500,
         legend = dict(
             orientation="v",
