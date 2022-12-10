@@ -33,6 +33,11 @@ def main():
             .css-13m4bxd, .e19lei0e1 {
                 visibility: hidden;
             }
+
+            .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
+                visibility: collapse;
+                height: 0px;
+            }
         </style>
     """, unsafe_allow_html=True)
 
