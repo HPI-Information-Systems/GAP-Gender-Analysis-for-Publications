@@ -30,6 +30,14 @@ def main():
                 color: #b1073b; 
                 text-decoration: underline;
             }
+            .css-13m4bxd, .e19lei0e1 {
+                visibility: hidden;
+            }
+
+            .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
+                visibility: collapse;
+                height: 0px;
+            }
         </style>
     """, unsafe_allow_html=True)
 
@@ -40,7 +48,7 @@ def main():
                 content:url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/HPI_logo.svg/1200px-HPI_logo.svg.png"); 
                 width: 50px;
                 height: 50px;
-                visibility: visible;      
+                visibility: visible;   
             }
         </style>
     """
@@ -142,6 +150,8 @@ def main():
         # Because it is connected to session state, it will automatically update
         # when "graph" session state updates
         col1.plotly_chart(st.session_state.graph, use_container_width=True)
+
+        clear_history_button = st.button("Clear History & Filters", on_click=gl.clear_history_and_filters)
 
     # Display the graph history checkboxes
     gl.display_graph_checkboxes()
