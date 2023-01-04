@@ -451,7 +451,7 @@ def paint_graph():
     # Set legend title, y-axis to start with 0 etc.
     fig.update_layout(
         font_size=13,
-        legend_title="Filters (Click to toggle on/off)",
+        legend_title="Filters (click to toggle on/off)",
         autosize=True,
         height=500,
         legend=dict(
