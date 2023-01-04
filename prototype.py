@@ -24,7 +24,8 @@ def main():
         layout="wide",
     )
 
-    st.markdown("""
+    st.markdown(
+        """
         <style>
             a:link, a:visited {
                 color: #b1073b; 
@@ -39,7 +40,9 @@ def main():
                 height: 0px;
             }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     # Hide the hamburger menu provided by streamlit
     hide_hamburger_menu = """
@@ -55,18 +58,22 @@ def main():
     st.markdown(hide_hamburger_menu, unsafe_allow_html=True)
 
     st.title("GAP: Gender Analysis for Publications")
+    st.markdown(
+        "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community."
+    )
 
     # Connect to SQLite database
     with st.spinner("Opening datasbase connection (This can take a while)..."):
         if "connection" not in st.session_state:
-            st.session_state.connection = connect("gap.db", check_same_thread=False)
+            st.session_state.connection = connect("gap.db",
+                                                  check_same_thread=False)
 
         # Create cursor object
         if "cursor" not in st.session_state:
             st.session_state.cursor = st.session_state.connection.cursor()
 
     # Initialize all the necessary session states
-    with st.spinner("Loading filters"):
+    with st.spinner("Initializing..."):
 
         # TODO: Check if all session states are still needed
         if "y_columns" not in st.session_state:
@@ -93,20 +100,19 @@ def main():
             st.session_state.widget_research_area = ""
         if "country_continent_dataframe" not in st.session_state:
             st.session_state.country_continent_dataframe = pd.DataFrame()
+        if "is_first_run" not in st.session_state:
+            st.session_state.is_first_run = True
 
         if "graph_years" not in st.session_state:
             st.session_state.graph_years = None
 
     # Get all the filters out of the pre-calculated filter csv files
-    with st.spinner("Loading filters"):
-        gl.display_filters(st.session_state.cursor)
+        with st.spinner("Loading filters..."):
+            gl.display_filters(st.session_state.cursor)
 
     # If there is no graph created yet, display a placeholder
-    if (
-        "graph" not in st.session_state
-        or st.session_state.graph == None
-        or not st.session_state.graph.data
-    ):
+    if "graph" not in st.session_state or st.session_state.graph == None or not st.session_state.graph.data:
+
         st.markdown(
             "<h5 style='text-align: center;'>You have not selected any graphs yet </h5>",
             unsafe_allow_html=True,
@@ -133,7 +139,7 @@ def main():
         widget_data_representation = col2.radio(
             "Select if the data will be shown in percentage or absolute numbers:",
             ["Absolute numbers", "Relative numbers"],
-            index=0,
+            index=1,
         )
         if widget_data_representation != st.session_state.widget_data_representation:
             st.session_state.widget_data_representation = widget_data_representation
@@ -151,8 +157,6 @@ def main():
         # when "graph" session state updates
         col1.plotly_chart(st.session_state.graph, use_container_width=True)
 
-        clear_history_button = st.button("Clear History & Filters", on_click=gl.clear_history_and_filters)
-
     # Display the graph history checkboxes
     gl.display_graph_checkboxes()
 
@@ -160,6 +164,22 @@ def main():
     gs.display_general_statistics(st.session_state.cursor)
 
     display_footer()
+
+
+def query_action(sql, action="run"):
+    # global cursor
+    # Executing the query
+    st.session_state.cursor.execute(sql)
+
+    if action != "run":
+        store = {}
+        # Fetching rows from the result table
+        result = st.session_state.cursor.fetchall()
+        if action == "check":
+            return result
+        for row in result:
+            store[row[0]] = row[1]
+        return store
 
 
 def display_footer():
@@ -180,6 +200,7 @@ def display_footer():
     # Create empty lines with the approximate size of a heading
     # Don't use a heading, because this creates the bug that
     # The site scrolls down automatically at loading
+    # -> This is something Streamlit does
     for i in range(1, 3):
         st.write("&nbsp;")
 
@@ -206,22 +227,6 @@ def display_footer():
         }
     """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-
-def query_action(sql, action="run"):
-    # global cursor
-    # Executing the query
-    st.session_state.cursor.execute(sql)
-
-    if action != "run":
-        store = {}
-        # Fetching rows from the result table
-        result = st.session_state.cursor.fetchall()
-        if action == "check":
-            return result
-        for row in result:
-            store[row[0]] = row[1]
-        return store
 
 
 if __name__ == "__main__":
