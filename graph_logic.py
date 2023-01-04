@@ -54,24 +54,29 @@ def display_filters(cursor):
         )
 
     # Display all the filters
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        widget_cont = st.multiselect("Filter by Continent:", st.session_state.filters[0], key="cont")
-        if widget_cont != st.session_state.widget_cont:
-            st.session_state.widget_cont = widget_cont
-            update_available_countries()
-        widget_venue = st.multiselect("Filter by Conference/Journals:", st.session_state.filters[2], key="venue")
+    #col1, col2 = st.columns([1, 1])
+
+    prefill_graph()
+
+    with st.sidebar:
+        st.subheader("Filters")
         widget_research_area = st.multiselect(
             "Filter by Research Areas:", st.session_state.filters[4], key="research_area"
         )
-
-    with col2:
-        widget_count = st.multiselect("Filter by Country:", st.session_state.filters[1], key="country")
         widget_pub_type = st.multiselect(
             "Filter by publication type:",
             st.session_state.filters[3],
             key="publication_type",
         )
+        widget_venue = st.multiselect("Filter by Conference/Journals:", st.session_state.filters[2], key="venue")
+
+        widget_cont = st.multiselect("Filter by Continent:", st.session_state.filters[0], key="cont")
+        if widget_cont != st.session_state.widget_cont:
+            st.session_state.widget_cont = widget_cont
+            update_available_countries()
+
+        widget_count = st.multiselect("Filter by Country:", st.session_state.filters[1], key="country")
+
         widget_auth_pos = st.radio(
             "Filter by Woman Author Position:",
             (
@@ -83,42 +88,46 @@ def display_filters(cursor):
             key="author_pos",
         )
 
+        clear_filters_button = st.button("Clear Filters", on_click=clear_filters)
+
     # Selector for the year range displayed in the chart
-    st.subheader("Global Options")
-    year_range = st.slider(
-        "Select years range:",
-        min_value=st.session_state.min_max[0],
-        max_value=st.session_state.min_max[1],
-        key="year_range",
-        on_change=update_year_range(),
-    )
+        st.subheader("Global Options")
+        year_range = st.slider(
+            "Select years range:",
+            min_value=st.session_state.min_max[0],
+            max_value=st.session_state.min_max[1],
+            key="year_range",
+            on_change=update_year_range(),
+        )
 
     # Only submit the newest changes after the Button was clicked, prevents the
     # graph to update if the user hasn't done all filters yet
-    button = st.button("**Submit and Compare**")
-    if button:
-        update_graph(
-            widget_venue,
-            widget_count,
-            widget_cont,
-            widget_pub_type,
-            widget_auth_pos,
-            widget_research_area,
-            st.session_state.widget_data_representation,
-        )
+        button = st.button("**Submit and Compare**")
+        if button:
+            update_graph(
+                widget_venue,
+                widget_count,
+                widget_cont,
+                widget_pub_type,
+                widget_auth_pos,
+                widget_research_area,
+                st.session_state.widget_data_representation,
+            )
 
- 
-def clear_history_and_filters():
+def clear_history():
+    st.session_state.y_columns = []
+    st.session_state.graph = None
+
+
+def clear_filters():
     st.session_state["auth_pos"] = "First author woman"
     st.session_state["cont"] = []
     st.session_state["venue"] = []
     st.session_state["country"] = []
     st.session_state["publication_type"] = []
-    st.session_state["year_range"] = (2000, 2022)
+    # st.session_state["year_range"] = (2000, 2022)
     st.session_state["research_area"] = []
-    
-    st.session_state.y_columns = []
-    st.session_state.graph = None
+
 
 # Update the year range
 # As soon as the year range changes, the graph
@@ -157,8 +166,28 @@ def update_available_countries():
     # At the end, the tuple will get sorted
     filtered_countries = sorted(filtered_countries)
 
-    # And gets inserted into the country filter
+    # And gets inserted into the country filter 
     st.session_state.filters[1] = filtered_countries
+
+
+def prefill_graph():
+    if st.session_state.is_first_run == True:
+
+        continents = ["Europe", "Asia", "North America", "South America", "Africa", "Oceania"]
+        for i in continents:
+            update_graph(
+                [],
+                [],
+                [i],
+                [],
+                "First author woman",
+                [],
+                "Relative numbers",
+            )
+        st.session_state["cont"] = ["Oceania"]
+
+        st.session_state.is_first_run = False
+
 
 # Insert all the data gotten by the form into the session state and populate the graph
 def update_graph(
@@ -194,8 +223,15 @@ def update_graph(
 # runs the query to generate the count to populate the line graphs
 def populate_graph(venue, country, cont, publication_type, auth_pos, research_area):
 
+    print(venue)
+    print(country)
+    print(cont)
+    print(publication_type)
+    print(auth_pos)
+    print(research_area)
+
     # Basic SQL query structure
-    sql_start = """SELECT Year, count(PublicationID) as count\nFROM AllTogether """
+    sql_start = """SELECT Year, count(distinct PublicationID) as count\nFROM AllTogether """
     sql_filter_start = """\nWHERE """
     sql_woman_filter = """(Gender = "woman")"""
     sql_end = """\nGROUP BY Year;"""
@@ -288,8 +324,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                     newf = newf + " AND "
                 f_count += 1
                 newf = newf + f
-        sql_woman_filter = ' AND ' + sql_woman_filter
-
+        sql_woman_filter = " AND " + sql_woman_filter
 
     # Convert the data from the range selector into a list
     # that includes all the ears within this range
@@ -307,6 +342,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             # If the query wasn't already requested, combine the filters,
             # One including the woman filter, one not
             sql = sql_start + sql_filter_start + newf + sql_woman_filter + sql_end
+            print(sql)
             sql_non_woman = sql_start + (sql_filter_start if newf else "") + newf + sql_end
 
             # Execute both of these queries
@@ -319,7 +355,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
 
             # And check if some of them are not in the output data
             # This is the case, when the query counted 0 for a specific year
-            # 
+            #
             # It is necessary to have every year, including these with 0 values
             # inside of the list for further operations
             for i in available_years:
@@ -335,7 +371,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                     out_all[i] = 0
 
             # Remove possible None keys  due to sql query
-            if None in list(out.keys()): 
+            if None in list(out.keys()):
                 out.pop(None)
             if None in list(out_all.keys()):
                 out_all.pop(None)
@@ -343,11 +379,11 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             # Sort the dicts ascending
             out = dict(sorted(out.items(), key=lambda x: x[0]))
             out_all = dict(sorted(out_all.items(), key=lambda x: x[0]))
-            
-            # Add all the gotten data into the y_columns session state, 
+
+            # Add all the gotten data into the y_columns session state,
             # That provides the data for the graph history, change between
             # Relative and Absolute numbers and some other features
-            
+
             # Set the specific graph color with colors and the modulo
             # of the length of colors. This ensures, that the graph color of
             # one specific graph does not change if another graph is added
@@ -367,13 +403,14 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             ]
             color_index = len(st.session_state.y_columns) % len(colors)
             st.session_state.y_columns.append([y_name, True, out, out_all, colors[color_index]])
-    
-    # The graph_years are important for displaying only the 
+
+    # The graph_years are important for displaying only the
     # Selected years on the chart
     st.session_state.graph_years = year
 
     # Visualize the collected data
     paint_graph()
+
 
 # Functionality for visualizing the collected data
 def paint_graph():
@@ -408,28 +445,29 @@ def paint_graph():
     fig = px.line(
         line_graph_data,
         color_discrete_sequence=colors,
-        #markers=True,
-        
+        # markers=True,
     )
 
     # Set legend title, y-axis to start with 0 etc.
     fig.update_layout(
         font_size=13,
-        legend_title="Filters",
+        legend_title="Filters (click to toggle on/off)",
         autosize=True,
         height=500,
-        legend = dict(
+        legend=dict(
             orientation="v",
-            yanchor = "top",
+            yanchor="top",
             y=-0.1,
-            xanchor = "left",
+            xanchor="left",
             x=0,
         ),
     )
 
     fig.update_yaxes(automargin=True)
 
-    fig.update_yaxes(rangemode="tozero",),
+    fig.update_yaxes(
+        rangemode="tozero",
+    ),
     fig.layout.plot_bgcolor = "#f1f3f6"
 
     # If Relative numbers is selected, set the y-Axis title to "Percentage"
@@ -445,6 +483,7 @@ def paint_graph():
     # automatically rebuild the chart
     st.session_state.graph = fig
 
+
 # Get all the graphs that the user selected in "Graph History"
 def get_selected_df():
     true_df = pd.DataFrame()
@@ -456,7 +495,7 @@ def get_selected_df():
         # Do further operations for displaying it
         if st.session_state.y_columns[i][1] is True:
 
-            # Access the different stored values. 
+            # Access the different stored values.
             # If Absolute numbers is selected, get the data for absolute numbers
             # and the same for relative numbers
             if st.session_state.widget_data_representation == "Absolute numbers":
@@ -471,7 +510,7 @@ def get_selected_df():
                     column=st.session_state.y_columns[i][0],
                     value=list(st.session_state.y_columns[i][3].values()),
                 )
-    
+
     # Insert year column
     #
     # There will be enough values for every filter for sure,
@@ -486,14 +525,15 @@ def get_selected_df():
     )
     return true_df
 
+
 # Display the checkboxes for the Graph history with the logic of selecting/unselecting the checkboxes
 def display_graph_checkboxes():
-    st.subheader("Graph history")
     if len(st.session_state.y_columns) != 0:
+        st.subheader("Graph history")
 
         # Sort the graph names ascending
         st.session_state.y_columns.sort(key=lambda x: x[1], reverse=True)
-        
+
         # Create dynamic variables for each graph checkbox,
         # So every checkbox can be handled individually
         for i in range(len(st.session_state.y_columns)):
@@ -512,6 +552,8 @@ def display_graph_checkboxes():
             # Over which we have no influence on
             globals()["graph_checkbox_%s" % i] = globals()["graph_checkbox_%s" % i]
 
+        clear_history_button = st.button("Clear History", on_click=clear_history)
+
 
 def change_graph_checkbox(i):
     if st.session_state[f"graph_checkbox_{i}"]:
@@ -519,6 +561,6 @@ def change_graph_checkbox(i):
     if not st.session_state[f"graph_checkbox_{i}"]:
         st.session_state.y_columns[i][1] = False
 
-    # After a checkbox has been changed, 
+    # After a checkbox has been changed,
     # Automatically repaint the graph
     paint_graph()

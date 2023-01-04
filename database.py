@@ -855,7 +855,6 @@ def insert_research_areas(conn: Connection):
         conference_aliases.insert(0, conference_name)
 
         for y in range(len(conference_aliases)):
-            print(conference_aliases[y])
             sql = f"""
             SELECT
                 CASE WHEN EXISTS(
