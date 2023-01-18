@@ -815,8 +815,8 @@ def fill_all_together(conn: Connection):
         INNER JOIN PublicationAuthor ON PublicationAuthor.PublicationID = Publication.PublicationID
         INNER JOIN Author ON PublicationAuthor.DBLPName = Author.DBLPName
         INNER JOIN Venue ON Publication.VenueID = Venue.VenueID
-        INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
-        INNER JOIN Country ON Affiliation.CountryCode = Country.CountryCode;
+        LEFT JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
+        LEFT JOIN Country ON Affiliation.CountryCode = Country.CountryCode;
     """
     )
     log("All together written to database")
@@ -840,7 +840,7 @@ def insert_research_areas(conn: Connection):
             ADD ResearchArea VARCHAR;"""
     )
 
-    for i in range(len(research_areas)):
+    for i in range(len(research_areas)): 
         conference_name = (
             research_areas["Research Area"][i],
             research_areas["Venue"][i],
@@ -1385,7 +1385,9 @@ def _map_gender_terms(gender):
     :param gender:  String
     :return:        String
     """
-    mapping = {"female": "woman", "male": "man", "unknown": "neutral"}
+    mapping = {"female": "woman", "male": "man", "neutral": "unknown"}
+
+
     if gender in mapping:
         return mapping[gender]
     else:

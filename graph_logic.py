@@ -1,14 +1,3 @@
-# query = st.session_state.cursor.execute('''
-# SELECT anzahl, COUNT(*) as anzahl2
-# FROM
-# (SELECT Venue, COUNT(*) as anzahl FROM AllTogether
-# GROUP BY Venue)
-# WHERE anzahl < 51
-# GROUP BY anzahl
-# ORDER BY anzahl DESC
-# ''')
-# print('----------------------------------')
-# print(query.fetchall())
 import streamlit as st
 import pandas as pd
 from sqlite3 import Connection
@@ -89,16 +78,6 @@ def display_filters(cursor):
         )
 
         clear_filters_button = st.button("Clear Filters", on_click=clear_filters)
-
-    # Selector for the year range displayed in the chart
-        st.subheader("Global Options")
-        year_range = st.slider(
-            "Select years range:",
-            min_value=st.session_state.min_max[0],
-            max_value=st.session_state.min_max[1],
-            key="year_range",
-            on_change=update_year_range(),
-        )
 
     # Only submit the newest changes after the Button was clicked, prevents the
     # graph to update if the user hasn't done all filters yet
@@ -222,14 +201,6 @@ def update_graph(
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
 def populate_graph(venue, country, cont, publication_type, auth_pos, research_area):
-
-    print(venue)
-    print(country)
-    print(cont)
-    print(publication_type)
-    print(auth_pos)
-    print(research_area)
-
     # Basic SQL query structure
     sql_start = """SELECT Year, count(distinct PublicationID) as count\nFROM AllTogether """
     sql_filter_start = """\nWHERE """
@@ -342,11 +313,12 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             # If the query wasn't already requested, combine the filters,
             # One including the woman filter, one not
             sql = sql_start + sql_filter_start + newf + sql_woman_filter + sql_end
-            print(sql)
+
             sql_non_woman = sql_start + (sql_filter_start if newf else "") + newf + sql_end
 
             # Execute both of these queries
             out = pt.query_action(sql, "store")
+            print(out[2021])
 
             out_all = pt.query_action(sql_non_woman, "store")
 
