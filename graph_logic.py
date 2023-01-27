@@ -42,9 +42,6 @@ def display_filters(cursor):
             tuple(sorted(list(pd.read_csv("filters/ResearchAreas.csv")["ResearchArea"]))),
         )
 
-    # Display all the filters
-    #col1, col2 = st.columns([1, 1])
-
     prefill_graph()
 
     with st.sidebar:
@@ -79,8 +76,8 @@ def display_filters(cursor):
 
         clear_filters_button = st.button("Clear Filters", on_click=clear_filters)
 
-    # Only submit the newest changes after the Button was clicked, prevents the
-    # graph to update if the user hasn't done all filters yet
+        # Only submit the newest changes after the Button was clicked, prevents the
+        # graph to update if the user hasn't done all filters yet
         button = st.button("**Submit and Compare**")
         if button:
             update_graph(
@@ -92,6 +89,7 @@ def display_filters(cursor):
                 widget_research_area,
                 st.session_state.widget_data_representation,
             )
+
 
 def clear_history():
     st.session_state.y_columns = []
@@ -115,10 +113,30 @@ def clear_filters():
 # automatically get converted into a list between
 # these two values
 def update_year_range():
+
+    # When the user sets the year range to 2 exact same values, e.g. 2023 and 2023,
+    # it will apply a range that is the selected year and the seelcted year - 5
+    # If the user selects the minimum possible values twice, it will apply a range
+    # with the selected year and the selected year + 5
+    if list(st.session_state.year_range)[0] == list(st.session_state.year_range)[1]:
+        if st.session_state.year_range[0] < st.session_state.min_max[0] + 5:
+            st.session_state["year_range"] = (
+                list(st.session_state.year_range)[0],
+                list(st.session_state.year_range)[1] + 5,
+            )
+        else:
+            st.session_state["year_range"] = (
+                list(st.session_state.year_range)[0] - 5,
+                list(st.session_state.year_range)[1],
+            )
+
     st.session_state.graph_years = list(
         range(
             list(st.session_state.year_range)[0],
-            list(st.session_state.year_range)[1],
+            # "+ 1" is to include the highest selected year. 
+            # If, for example, the highest year selected is 2023, it
+            # wouldn't include 2023 in the query without the + 1
+            list(st.session_state.year_range)[1] + 1,
         )
     )
     paint_graph()
@@ -145,7 +163,7 @@ def update_available_countries():
     # At the end, the tuple will get sorted
     filtered_countries = sorted(filtered_countries)
 
-    # And gets inserted into the country filter 
+    # And gets inserted into the country filter
     st.session_state.filters[1] = filtered_countries
 
 
@@ -302,7 +320,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     year = list(
         range(
             list(st.session_state.year_range)[0],
-            list(st.session_state.year_range)[1],
+            list(st.session_state.year_range)[1] + 1,
         )
     )
 
@@ -311,14 +329,13 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
         with st.spinner("Creating graph..."):
 
             # If the query wasn't already requested, combine the filters,
-            # One including the woman filter, one not
+            # One including the woman filter, one not, for the relative numbers
             sql = sql_start + sql_filter_start + newf + sql_woman_filter + sql_end
-
             sql_non_woman = sql_start + (sql_filter_start if newf else "") + newf + sql_end
+
 
             # Execute both of these queries
             out = pt.query_action(sql, "store")
-            print(out[2021])
 
             out_all = pt.query_action(sql_non_woman, "store")
 

@@ -24,7 +24,6 @@ def main():
         layout="wide",
     )
 
-
     st.title("GAP: Gender Analysis for Publications")
     st.markdown(
         "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community."
@@ -33,8 +32,7 @@ def main():
     # Connect to SQLite database
     with st.spinner("Opening datasbase connection (This can take a while)..."):
         if "connection" not in st.session_state:
-            st.session_state.connection = connect("gap.db",
-                                                  check_same_thread=False)
+            st.session_state.connection = connect("gap.db", check_same_thread=False)
 
         # Create cursor object
         if "cursor" not in st.session_state:
@@ -74,7 +72,7 @@ def main():
         if "graph_years" not in st.session_state:
             st.session_state.graph_years = None
 
-    # Get all the filters out of the pre-calculated filter csv files
+        # Get all the filters out of the pre-calculated filter csv files
         with st.spinner("Loading filters..."):
             gl.display_filters(st.session_state.cursor)
 
@@ -174,13 +172,16 @@ def main():
     """
     st.markdown(hide_hamburger_menu, unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(
+        """
   <style>
     .css-1gx893w, .egzxvld2 {
       margin-top: -60px;
     }
   </style>
-""", unsafe_allow_html=True)
+""",
+        unsafe_allow_html=True,
+    )
 
 
 def query_action(sql, action="run"):
