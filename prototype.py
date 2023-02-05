@@ -166,7 +166,8 @@ def main():
                 content:url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/HPI_logo.svg/1200px-HPI_logo.svg.png"); 
                 width: 50px;
                 height: 50px;
-                visibility: visible;   
+                visibility: visible;
+                pointer-events: none; 
             }
         </style>
     """
