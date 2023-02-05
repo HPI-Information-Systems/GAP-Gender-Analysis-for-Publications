@@ -220,9 +220,26 @@ def update_graph(
 # runs the query to generate the count to populate the line graphs
 def populate_graph(venue, country, cont, publication_type, auth_pos, research_area):
     # Basic SQL query structure
-    sql_start = """SELECT Year, count(distinct PublicationID) as count\nFROM AllTogether """
+
+    # The query creates a table with Year | Absolute | Relative columns
+    # It first counts all the Publications that match the WHERE conditions and where at least one woman is found
+    # The same is done for relative, but this also includes a calculation of the
+    # percentage where the publications with woman gender are divided by all the unique publications
+    sql_start = """SELECT 
+  Year, 
+  COUNT(DISTINCT 
+    CASE 
+      WHEN Gender = 'woman' THEN PublicationID 
+    END
+  ) AS Absolute, 
+  COUNT(DISTINCT 
+    CASE 
+      WHEN Gender = 'woman' THEN PublicationID 
+    END
+  ) * 100 / COUNT(DISTINCT PublicationID) AS Relative
+  FROM AllTogether
+    """
     sql_filter_start = """\nWHERE """
-    sql_woman_filter = """(Gender = "woman")"""
     sql_end = """\nGROUP BY Year;"""
 
     # the column/fiter names for each selection
@@ -271,10 +288,19 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             f_4 = f_4 + 'Continent = "' + str(C) + '"'
             y_name = y_name + str(C) + ", "
         f_4 = f_4 + ")"
+    if publication_type == []:
+        f_6 = ""
+    else:
+        f_6 = "("
+        for p in publication_type:
+            if p != publication_type[0]:
+                f_6 = f_6 + " or "
+            f_6 = f_6 + 'PublicationType = "' + str(p) + '"'
+            y_name = y_name + str(p) + ", "
+        f_6 = f_6 + ")"
+
     if auth_pos == "":
         f_5 = ""
-
-    # TODO: Not tested yet
     elif auth_pos == "Any author woman":
         f_5 = ""
         y_name = y_name + "Any author woman"
@@ -291,16 +317,6 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             f_5 = f_5 + "Position > 1 AND CAST(Position AS INT) < AuthorCount"
             y_name = y_name + "Middle author woman"
         f_5 = f_5 + ")"
-    if publication_type == []:
-        f_6 = ""
-    else:
-        f_6 = "("
-        for p in publication_type:
-            if p != publication_type[0]:
-                f_6 = f_6 + " or "
-            f_6 = f_6 + 'PublicationType = "' + str(p) + '"'
-            y_name = y_name + str(p) + ", "
-        f_6 = f_6 + ")"
     sql_logic = [f_1, f_2, f_3, f_4, f_5, f_6]
     newf = ""
     f_count = 0
@@ -313,7 +329,6 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                     newf = newf + " AND "
                 f_count += 1
                 newf = newf + f
-        sql_woman_filter = " AND " + sql_woman_filter
 
     # Convert the data from the range selector into a list
     # that includes all the ears within this range
@@ -321,57 +336,41 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
         range(
             list(st.session_state.year_range)[0],
             list(st.session_state.year_range)[1] + 1,
-        )
-    )
+        ))
 
     # Checks if the query was already requested
     if not [item for item in st.session_state.y_columns if y_name in item]:
         with st.spinner("Creating graph..."):
 
-            # If the query wasn't already requested, combine the filters,
-            # One including the woman filter, one not, for the relative numbers
-            sql = sql_start + sql_filter_start + newf + sql_woman_filter + sql_end
-            sql_non_woman = sql_start + (sql_filter_start if newf else "") + newf + sql_end
 
+            # If the query wasn't already requested, combine the different parts of it
+            sql_query = sql_start + (sql_filter_start
+                                         if newf else "") + newf + sql_end
 
-            # Execute both of these queries
-            out = pt.query_action(sql, "store")
+            # Run the sql query and convert it to a pandas dataframe
+            output = pd.read_sql(sql_query, st.session_state.connection)
 
-            out_all = pt.query_action(sql_non_woman, "store")
+            # Drop the columns that are not needed for the specific use case
+            # And set the Year as the index
+            grouped_absolute = output.drop('Relative', axis=1).set_index('Year')
+            grouped_relative = output.drop(
+                'Absolute', axis=1).set_index('Year')
 
             # Get all the available years that the user could have selected
-            available_years = list(range(st.session_state.min_max[0], st.session_state.min_max[1] + 1))
-
-            # And check if some of them are not in the output data
-            # This is the case, when the query counted 0 for a specific year
+            # and check if some of them are not in the output data
             #
             # It is necessary to have every year, including these with 0 values
-            # inside of the list for further operations
+            # inside of the list for further operation
+            available_years = list(
+                range(st.session_state.min_max[0],
+                      st.session_state.min_max[1] + 1))
+
+
             for i in available_years:
-                if i not in out:
-                    out.update({i: 0})
-                if i not in out_all:
-                    out_all.update({i: 0})
-
-                # Calculate the percentages for "Relative Numbers"
-                try:
-                    out_all[i] = out[i] * 100 / out_all[i]
-                except:
-                    out_all[i] = 0
-
-            # Remove possible None keys  due to sql query
-            if None in list(out.keys()):
-                out.pop(None)
-            if None in list(out_all.keys()):
-                out_all.pop(None)
-
-            # Sort the dicts ascending
-            out = dict(sorted(out.items(), key=lambda x: x[0]))
-            out_all = dict(sorted(out_all.items(), key=lambda x: x[0]))
-
-            # Add all the gotten data into the y_columns session state,
-            # That provides the data for the graph history, change between
-            # Relative and Absolute numbers and some other features
+                if i not in grouped_absolute.index:
+                    grouped_absolute.loc[i] = {'Absolute': 0}
+                if i not in grouped_relative.index:
+                    grouped_relative.loc[i] = {'Relative': 0}
 
             # Set the specific graph color with colors and the modulo
             # of the length of colors. This ensures, that the graph color of
@@ -391,7 +390,15 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                 "#FECB52",
             ]
             color_index = len(st.session_state.y_columns) % len(colors)
-            st.session_state.y_columns.append([y_name, True, out, out_all, colors[color_index]])
+
+            # Add all the gotten data into the y_columns session state,
+            # That provides the data for the graph history, change between
+            # Relative and Absolute numbers and some other features
+            st.session_state.y_columns.append([
+                y_name, True,
+                grouped_absolute.sort_index().to_dict()['Absolute'],
+                grouped_relative.sort_index().to_dict()['Relative'], colors[color_index]
+            ])
 
     # The graph_years are important for displaying only the
     # Selected years on the chart
@@ -454,9 +461,7 @@ def paint_graph():
 
     fig.update_yaxes(automargin=True)
 
-    fig.update_yaxes(
-        rangemode="tozero",
-    ),
+    fig.update_yaxes(rangemode="tozero"),
     fig.layout.plot_bgcolor = "#f1f3f6"
 
     # If Relative numbers is selected, set the y-Axis title to "Percentage"
