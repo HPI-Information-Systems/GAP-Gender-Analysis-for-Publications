@@ -24,39 +24,6 @@ def main():
         layout="wide",
     )
 
-    st.markdown(
-        """
-        <style>
-            a:link, a:visited {
-                color: #b1073b; 
-                text-decoration: underline;
-            }
-            .css-13m4bxd, .e19lei0e1 {
-                visibility: hidden;
-            }
-
-            .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
-                visibility: collapse;
-                height: 0px;
-            }
-        </style>
-    """,
-        unsafe_allow_html=True,
-    )
-
-    # Hide the hamburger menu provided by streamlit
-    hide_hamburger_menu = """
-        <style>
-            #MainMenu {
-                content:url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/HPI_logo.svg/1200px-HPI_logo.svg.png"); 
-                width: 50px;
-                height: 50px;
-                visibility: visible;   
-            }
-        </style>
-    """
-    st.markdown(hide_hamburger_menu, unsafe_allow_html=True)
-
     st.title("GAP: Gender Analysis for Publications")
     st.markdown(
         "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community."
@@ -65,8 +32,7 @@ def main():
     # Connect to SQLite database
     with st.spinner("Opening datasbase connection (This can take a while)..."):
         if "connection" not in st.session_state:
-            st.session_state.connection = connect("gap.db",
-                                                  check_same_thread=False)
+            st.session_state.connection = connect("gap.db", check_same_thread=False)
 
         # Create cursor object
         if "cursor" not in st.session_state:
@@ -82,7 +48,7 @@ def main():
             sql = """SELECT min(Year),max(Year) FROM AllTogether;"""
             st.session_state.min_max = query_action(sql, "check")[0]
         if "year_range" not in st.session_state:
-            st.session_state.year_range = (2000, 2022)
+            st.session_state.year_range = (2000, 2023)
         if "widget_data_representation" not in st.session_state:
             st.session_state.widget_data_representation = "Absolute numbers"
 
@@ -106,7 +72,7 @@ def main():
         if "graph_years" not in st.session_state:
             st.session_state.graph_years = None
 
-    # Get all the filters out of the pre-calculated filter csv files
+        # Get all the filters out of the pre-calculated filter csv files
         with st.spinner("Loading filters..."):
             gl.display_filters(st.session_state.cursor)
 
@@ -141,6 +107,14 @@ def main():
             ["Absolute numbers", "Relative numbers"],
             index=1,
         )
+        # Selector for the year range displayed in the chart
+        year_range = col2.slider(
+            "Select years range:",
+            min_value=st.session_state.min_max[0],
+            max_value=st.session_state.min_max[1],
+            key="year_range",
+            on_change=gl.update_year_range(),
+        )
         if widget_data_representation != st.session_state.widget_data_representation:
             st.session_state.widget_data_representation = widget_data_representation
             gl.populate_graph(
@@ -164,6 +138,51 @@ def main():
     gs.display_general_statistics(st.session_state.cursor)
 
     display_footer()
+
+    st.markdown(
+        """
+        <style>
+            a:link, a:visited {
+                color: #b1073b; 
+                text-decoration: underline;
+            }
+            .css-13m4bxd, .e19lei0e1 {
+                visibility: hidden;
+            }
+
+            .css-nps9tx, .e1m3hlzs0, .css-1p0bytv, .e1m3hlzs1 {
+                visibility: collapse;
+                height: 0px;
+            }
+        </style>
+    """,
+        unsafe_allow_html=True,
+    )
+
+    # Hide the hamburger menu provided by streamlit
+    hide_hamburger_menu = """
+        <style>
+            #MainMenu {
+                content:url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/HPI_logo.svg/1200px-HPI_logo.svg.png"); 
+                width: 50px;
+                height: 50px;
+                visibility: visible;
+                pointer-events: none; 
+            }
+        </style>
+    """
+    st.markdown(hide_hamburger_menu, unsafe_allow_html=True)
+
+    st.markdown(
+        """
+  <style>
+    .css-1gx893w, .egzxvld2 {
+      margin-top: -60px;
+    }
+  </style>
+""",
+        unsafe_allow_html=True,
+    )
 
 
 def query_action(sql, action="run"):

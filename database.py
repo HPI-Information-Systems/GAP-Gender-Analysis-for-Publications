@@ -37,12 +37,8 @@ NA_VALUES = [
     "nan",
     "null",
 ]
-COUNTRY_VARIATIONS = pd.read_csv(
-    "country_name_variations.csv", keep_default_na=False, na_values=NA_VALUES
-)
-COUNTRIES = pd.read_csv(
-    "countries_unique.csv", keep_default_na=False, na_values=NA_VALUES
-)
+COUNTRY_VARIATIONS = pd.read_csv("country_name_variations.csv", keep_default_na=False, na_values=NA_VALUES)
+COUNTRIES = pd.read_csv("countries_unique.csv", keep_default_na=False, na_values=NA_VALUES)
 CONTINENTS = pd.read_csv("continents.csv", keep_default_na=False, na_values=NA_VALUES)
 # The, Zu, De, Den, Der, Del, Ul, Al, Da, El, Des, Di, Ten, Ter, Van, Von, Zur, Du, Das, Le actually are first names
 NO_MIDDLE_NAMES = [
@@ -104,19 +100,19 @@ NO_MIDDLE_NAMES = [
 def main():
     conn = connect(DB)
 
-    drop(conn, 'PublicationAuthor')
-    drop(conn, 'Publication')
-    drop(conn, 'Venue')
-    drop(conn, 'AuthorName')
-    drop(conn, 'Author')
-    drop(conn, 'GenderAPIResults')
-    drop(conn, 'Affiliation')
-    drop(conn, 'Country')
-    drop(conn, 'AllTogether')
+    drop(conn, "PublicationAuthor")
+    drop(conn, "Publication")
+    drop(conn, "Venue")
+    drop(conn, "AuthorName")
+    drop(conn, "Author")
+    drop(conn, "GenderAPIResults")
+    drop(conn, "Affiliation")
+    drop(conn, "Country")
+    drop(conn, "AllTogether")
     drop(conn, "GeneralStatistics")
     drop(conn, "Filters")
 
-    drop_index(conn, 'all_together_index')
+    drop_index(conn, "all_together_index")
 
     # Do not enable the foreign key constraint checks before dropping the tables as this would make the dropping process
     # incredibly slow
@@ -128,7 +124,7 @@ def main():
     fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
     fill_venues(conn, to_csv=True)
     fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
-    
+
     fill_all_together(conn)
 
     # # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
@@ -166,9 +162,7 @@ def fill_countries(conn: Connection, to_csv=False):
     log("Continents to country list added")
 
     # Save countries to database
-    Country.rename(
-        {"Country": "DisplayName", "Code": "CountryCode"}, axis="columns", inplace=True
-    )
+    Country.rename({"Country": "DisplayName", "Code": "CountryCode"}, axis="columns", inplace=True)
 
     if to_csv:
         Country.to_csv("csv/db/Country.csv", index=False)
@@ -195,18 +189,12 @@ def fill_affiliations(conn: Connection, to_csv=False):
     :param to_csv:  bool, whether to save the resulting table to csv/db/Affiliation.csv, too.
     """
     log("Progress of filling affiliations started")
-    context = etree.iterparse(
-        source="dblp/dblp.xml", dtd_validation=True, load_dtd=True
-    )
+    context = etree.iterparse(source="dblp/dblp.xml", dtd_validation=True, load_dtd=True)
 
     # Extract affiliations from dblp xml
     raw_affiliations = set()
     for action, elem in context:
-        if (
-            elem.tag == "note"
-            and elem.get("type") == "affiliation"
-            and elem.text is not None
-        ):
+        if elem.tag == "note" and elem.get("type") == "affiliation" and elem.text is not None:
             # Remove leading and trailing spaces
             raw_affiliations.add(elem.text.strip())
         elem.clear()
@@ -236,9 +224,7 @@ def fill_affiliations(conn: Connection, to_csv=False):
         );
     """
     )
-    Affiliation.to_sql(
-        "Affiliation", con=conn, if_exists="append", index_label="AffiliationID"
-    )
+    Affiliation.to_sql("Affiliation", con=conn, if_exists="append", index_label="AffiliationID")
     log("Affiliations written to database")
 
 
@@ -262,9 +248,7 @@ def fill_gender_api_results(
         glob_path = os.path.join(gapi_path, "*.csv")
         GenderAPIResults = pd.DataFrame()
         for csv_file in glob.glob(glob_path):
-            GenderAPIResults = pd.concat(
-                [GenderAPIResults, pd.read_csv(csv_file, sep=";")]
-            )
+            GenderAPIResults = pd.concat([GenderAPIResults, pd.read_csv(csv_file, sep=";")])
 
     # Remove duplicates
     GenderAPIResults.drop_duplicates(inplace=True)
@@ -287,12 +271,8 @@ def fill_gender_api_results(
     # Thus, we sort first such that entries with the highest power (GaSamples) are listed before their unknown
     # duplicates and then drop any but the first entry for each duplicated FirstName
     if not GenderAPIResults.empty:
-        GenderAPIResults.sort_values(
-            by=["FirstName", "GaSamples"], ascending=[True, False], inplace=True
-        )
-        GenderAPIResults.drop_duplicates(
-            subset=["FirstName"], keep="first", inplace=True
-        )
+        GenderAPIResults.sort_values(by=["FirstName", "GaSamples"], ascending=[True, False], inplace=True)
+        GenderAPIResults.drop_duplicates(subset=["FirstName"], keep="first", inplace=True)
 
     conn.execute(
         """
@@ -305,9 +285,7 @@ def fill_gender_api_results(
         );
     """
     )
-    GenderAPIResults.to_sql(
-        "GenderAPIResults", con=conn, if_exists="append", index=False
-    )
+    GenderAPIResults.to_sql("GenderAPIResults", con=conn, if_exists="append", index=False)
     log("GenderAPI results written to database")
 
 
@@ -341,12 +319,10 @@ def fill_authors(conn: Connection, to_csv=False):
     www.drop(columns=["note"], inplace=True)
 
     # Get AffiliationID from table Affiliation by mapping 'affiliation' with Affiliation.FullAffiliation
-    Affiliation = pd.read_sql(
-        "SELECT AffiliationID, FullAffiliation FROM Affiliation", con=conn
+    Affiliation = pd.read_sql("SELECT AffiliationID, FullAffiliation FROM Affiliation", con=conn)
+    Author = www.merge(Affiliation, how="left", left_on="affiliation", right_on="FullAffiliation").astype(
+        {"AffiliationID": "Int64"}
     )
-    Author = www.merge(
-        Affiliation, how="left", left_on="affiliation", right_on="FullAffiliation"
-    ).astype({"AffiliationID": "Int64"})
     Author.drop(columns=["FullAffiliation", "affiliation"], inplace=True)
     log("AffiliationIDs to authors added")
 
@@ -360,9 +336,7 @@ def fill_authors(conn: Connection, to_csv=False):
 
     # Determine genders
     log("Gender determination process started")
-    Author["Gender"], Author["FirstName"] = _determine_genders(
-        Author.DBLPName, alternative_names, conn
-    )
+    Author["Gender"], Author["FirstName"] = _determine_genders(Author.DBLPName, alternative_names, conn)
     # Groups should not have a gender
     Author.loc[Author.publtype == "group", ["Gender", "FirstName"]] = "unknown", None
     log("Genders of authors determined")
@@ -420,9 +394,7 @@ def fill_author_names(author_names, conn: Connection, to_csv=False):
         );
     """
     )
-    author_names.to_sql(
-        "AuthorName", con=conn, if_exists="append", index_label="AuthorNameID"
-    )
+    author_names.to_sql("AuthorName", con=conn, if_exists="append", index_label="AuthorNameID")
     log("Author names written to database")
 
 
@@ -522,9 +494,7 @@ def fill_publications(conn: Connection, to_csv=False):
         dtype={"year": object, "publtype": str, "pages": str},
     )
     # Read column year as object due to multiple years separated by newlines, pick the maximum and convert to int
-    phdtheses.year = phdtheses.year.apply(lambda x: max(x.split("\n"))).astype(
-        pd.Int64Dtype()
-    )
+    phdtheses.year = phdtheses.year.apply(lambda x: max(x.split("\n"))).astype(pd.Int64Dtype())
 
     mastertheses = pd.read_csv(
         "csv/mastersthesis.csv",
@@ -533,12 +503,8 @@ def fill_publications(conn: Connection, to_csv=False):
     )
 
     # Use different queries and request by Type as there are some journals and conferences with the same name
-    Venue_conf = pd.read_sql(
-        "SELECT VenueID, Name FROM Venue where Type = 'Conference | Workshop'", con=conn
-    )
-    Venue_journal = pd.read_sql(
-        "SELECT VenueID, Name FROM Venue where Type = 'Journal'", con=conn
-    )
+    Venue_conf = pd.read_sql("SELECT VenueID, Name FROM Venue where Type = 'Conference | Workshop'", con=conn)
+    Venue_journal = pd.read_sql("SELECT VenueID, Name FROM Venue where Type = 'Journal'", con=conn)
 
     # Prepare inproceedings
     inproceedings.rename(
@@ -553,9 +519,9 @@ def fill_publications(conn: Connection, to_csv=False):
         },
     )
     inproceedings["Type"] = "Inproceedings"
-    inproceedings["VenueID"] = inproceedings.merge(
-        Venue_conf, how="left", left_on="Venue", right_on="Name"
-    ).astype({"VenueID": "Int64"})["VenueID"]
+    inproceedings["VenueID"] = inproceedings.merge(Venue_conf, how="left", left_on="Venue", right_on="Name").astype(
+        {"VenueID": "Int64"}
+    )["VenueID"]
     inproceedings.drop(columns=["Venue"], inplace=True)
 
     # Prepare articles
@@ -571,9 +537,9 @@ def fill_publications(conn: Connection, to_csv=False):
         },
     )
     articles["Type"] = "Article"
-    articles["VenueID"] = articles.merge(
-        Venue_journal, how="left", left_on="Venue", right_on="Name"
-    ).astype({"VenueID": "Int64"})["VenueID"]
+    articles["VenueID"] = articles.merge(Venue_journal, how="left", left_on="Venue", right_on="Name").astype(
+        {"VenueID": "Int64"}
+    )["VenueID"]
     articles.drop(columns=["Venue"], inplace=True)
 
     # Prepare proceedings
@@ -589,9 +555,9 @@ def fill_publications(conn: Connection, to_csv=False):
         },
     )
     proceedings["Type"] = "Proceedings"
-    proceedings["VenueID"] = proceedings.merge(
-        Venue_conf, how="left", left_on="Venue", right_on="Name"
-    ).astype({"VenueID": "Int64"})["VenueID"]
+    proceedings["VenueID"] = proceedings.merge(Venue_conf, how="left", left_on="Venue", right_on="Name").astype(
+        {"VenueID": "Int64"}
+    )["VenueID"]
     proceedings.drop(columns=["Venue"], inplace=True)
 
     # Prepare books
@@ -633,9 +599,7 @@ def fill_publications(conn: Connection, to_csv=False):
     phdtheses["Type"] = "PhD Thesis"
 
     # Prepare mastertheses
-    mastertheses.rename(
-        inplace=True, columns={"key": "PublicationID", "title": "Title", "year": "Year"}
-    )
+    mastertheses.rename(inplace=True, columns={"key": "PublicationID", "title": "Title", "year": "Year"})
     mastertheses["Type"] = "Master Thesis"
 
     Publication = pd.concat(
@@ -650,9 +614,7 @@ def fill_publications(conn: Connection, to_csv=False):
         ]
     )
     publications_with_authors = Publication[["PublicationID", "author"]]
-    Publication["AuthorCount"] = Publication.author.apply(
-        lambda x: len(x.split("\n")) if pd.notnull(x) else 0
-    )
+    Publication["AuthorCount"] = Publication.author.apply(lambda x: len(x.split("\n")) if pd.notnull(x) else 0)
     Publication.drop(columns=["author"], inplace=True)
 
     # Extract actual title if additional title information like bibtex are given via dict
@@ -681,14 +643,10 @@ def fill_publications(conn: Connection, to_csv=False):
     Publication.to_sql("Publication", con=conn, if_exists="append", index=False)
     log("Publications written to database")
 
-    fill_publication_author_relationships(
-        publications_with_authors, conn=conn, to_csv=True
-    )
+    fill_publication_author_relationships(publications_with_authors, conn=conn, to_csv=True)
 
 
-def fill_publication_author_relationships(
-    publications: pd.DataFrame, conn: Connection, to_csv=False
-):
+def fill_publication_author_relationships(publications: pd.DataFrame, conn: Connection, to_csv=False):
     """
     Find for each author in the list of authors of a publication in publications.author the corresponding DBLPName. Add
     the position the author is listed in the list of authors of publication. Save everything to table
@@ -705,28 +663,16 @@ def fill_publication_author_relationships(
 
     publications = publications.copy()
     # Create a row per author in column author and add their position in the author list
-    publications.author = publications.author.apply(
-        lambda x: x.split("\n") if pd.notnull(x) else []
-    )
-    publications["Position"] = publications.author.apply(
-        lambda x: list(range(1, len(x) + 1))
-    )
+    publications.author = publications.author.apply(lambda x: x.split("\n") if pd.notnull(x) else [])
+    publications["Position"] = publications.author.apply(lambda x: list(range(1, len(x) + 1)))
     publications = publications.explode(["author", "Position"])
     log("Positions in author lists added")
-    publications.author = publications.author.apply(
-        lambda x: _extract(x, "text") if pd.notnull(x) else None
-    )
+    publications.author = publications.author.apply(lambda x: _extract(x, "text") if pd.notnull(x) else None)
 
     # Find DBLPName for each author by joining with Author on DBLPName and with AuthorName on FullName
-    PublicationAuthor = publications.merge(
-        Author, how="left", left_on="author", right_on="DBLPName"
-    )
-    PublicationAuthor = PublicationAuthor.merge(
-        AuthorName, how="left", left_on="author", right_on="FullName"
-    )
-    PublicationAuthor["DBLPName"] = PublicationAuthor.DBLPName_x.fillna(
-        PublicationAuthor.DBLPName_y
-    )
+    PublicationAuthor = publications.merge(Author, how="left", left_on="author", right_on="DBLPName")
+    PublicationAuthor = PublicationAuthor.merge(AuthorName, how="left", left_on="author", right_on="FullName")
+    PublicationAuthor["DBLPName"] = PublicationAuthor.DBLPName_x.fillna(PublicationAuthor.DBLPName_y)
     log("DBLPNames for publications found")
 
     PublicationAuthor.drop_duplicates(inplace=True)
@@ -734,15 +680,11 @@ def fill_publication_author_relationships(
     # There are papers mapped to a person twice, most likely due to erroneously mapped alternative names in dblp.
     # These violate our unique constraint on (PublicationID, DBLPName).
     # As long as dblp does not fix these errors, we need to one of the publication author relationships.
-    PublicationAuthor[
-        PublicationAuthor.duplicated(subset=["PublicationID", "DBLPName"], keep=False)
-    ].to_csv("dblp/publications_with_erroneously_duplicated_authors.csv", index=False)
-    PublicationAuthor.drop_duplicates(
-        subset=["PublicationID", "DBLPName"], inplace=True, keep="first"
+    PublicationAuthor[PublicationAuthor.duplicated(subset=["PublicationID", "DBLPName"], keep=False)].to_csv(
+        "dblp/publications_with_erroneously_duplicated_authors.csv", index=False
     )
-    PublicationAuthor.drop(
-        columns=["DBLPName_x", "DBLPName_y", "FullName", "author"], inplace=True
-    )
+    PublicationAuthor.drop_duplicates(subset=["PublicationID", "DBLPName"], inplace=True, keep="first")
+    PublicationAuthor.drop(columns=["DBLPName_x", "DBLPName_y", "FullName", "author"], inplace=True)
 
     if to_csv:
         PublicationAuthor.to_csv("csv/db/PublicationAuthor.csv", index=False)
@@ -760,9 +702,7 @@ def fill_publication_author_relationships(
     """
     )
 
-    PublicationAuthor.to_sql(
-        "PublicationAuthor", con=conn, if_exists="append", index=False
-    )
+    PublicationAuthor.to_sql("PublicationAuthor", con=conn, if_exists="append", index=False)
 
     log("Publication author relationships written to database")
 
@@ -815,8 +755,8 @@ def fill_all_together(conn: Connection):
         INNER JOIN PublicationAuthor ON PublicationAuthor.PublicationID = Publication.PublicationID
         INNER JOIN Author ON PublicationAuthor.DBLPName = Author.DBLPName
         INNER JOIN Venue ON Publication.VenueID = Venue.VenueID
-        INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
-        INNER JOIN Country ON Affiliation.CountryCode = Country.CountryCode;
+        LEFT JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
+        LEFT JOIN Country ON Affiliation.CountryCode = Country.CountryCode;
     """
     )
     log("All together written to database")
@@ -887,69 +827,43 @@ def insert_research_areas(conn: Connection):
 def fill_statistics(conn: Connection):
     log("Process of filling statistics started")
     conn.execute("""CREATE TABLE GeneralStatistics(Name TEXT, Value TEXT);""")
-    returnVal = conn.execute(
-        """SELECT count(distinct PublicationID) as count\nFROM Publication;"""
-    )
+    returnVal = conn.execute("""SELECT count(distinct PublicationID) as count\nFROM Publication;""")
     result = returnVal.fetchall()[0][0]
     conn.execute(
         f"""INSERT INTO GeneralStatistics(Name, Value) VALUES('PublicationCount', ?);""",
         (result,),
     )
 
-    returnVal = conn.execute(
-        """SELECT count(distinct AuthorID) as count\nFROM Author;"""
-    )
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\nFROM Author;""")
     result = returnVal.fetchall()[0][0]
-    conn.execute(
-        """INSERT INTO GeneralStatistics VALUES('AuthorCount', ?);""", (result,)
-    )
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('AuthorCount', ?);""", (result,))
 
-    returnVal = conn.execute(
-        """SELECT count(distinct AffiliationID) as count\nFROM Affiliation;"""
-    )
+    returnVal = conn.execute("""SELECT count(distinct AffiliationID) as count\nFROM Affiliation;""")
     result = returnVal.fetchall()[0][0]
-    conn.execute(
-        """INSERT INTO GeneralStatistics VALUES('AffiliationCount', ?);""", (result,)
-    )
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('AffiliationCount', ?);""", (result,))
 
     returnVal = conn.execute("""SELECT count(distinct VenueID) as count\nFROM Venue;""")
     result = returnVal.fetchall()[0][0]
-    conn.execute(
-        """INSERT INTO GeneralStatistics VALUES('VenueCount', ?);""", (result,)
-    )
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('VenueCount', ?);""", (result,))
 
-    returnVal = conn.execute(
-        """SELECT count(DBLPName) as count\nFROM PublicationAuthor;"""
-    )
+    returnVal = conn.execute("""SELECT count(DBLPName) as count\nFROM PublicationAuthor;""")
     result = returnVal.fetchall()[0][0]
     conn.execute(
         """INSERT INTO GeneralStatistics VALUES('PublicationAuthorCount', ?);""",
         (result,),
     )
 
-    returnVal = conn.execute(
-        """SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"woman\""""
-    )
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"woman\"""")
     result = returnVal.fetchall()[0][0]
-    conn.execute(
-        """INSERT INTO GeneralStatistics VALUES('FemaleAuthorCount', ?)""", (result,)
-    )
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('FemaleAuthorCount', ?)""", (result,))
 
-    returnVal = conn.execute(
-        """SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"man\""""
-    )
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"man\"""")
     result = returnVal.fetchall()[0][0]
-    conn.execute(
-        """INSERT INTO GeneralStatistics VALUES('MaleAuthorCount', ?)""", (result,)
-    )
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('MaleAuthorCount', ?)""", (result,))
 
-    returnVal = conn.execute(
-        """SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"unknown\""""
-    )
+    returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"unknown\"""")
     result = returnVal.fetchall()[0][0]
-    conn.execute(
-        """INSERT INTO GeneralStatistics VALUES('UnkownAuthorCount', ?)""", (result,)
-    )
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('UnkownAuthorCount', ?)""", (result,))
 
     returnVal = conn.execute(
         """SELECT count(distinct AuthorID) FROM Author INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID WHERE Affiliation.CountryCode is not null;"""
@@ -980,7 +894,7 @@ def fill_statistics(conn: Connection):
 
 def fill_filters(conn: Connection):
     log("Process of filling filters started")
-    if not os.path.exists('filters'):
+    if not os.path.exists("filters"):
         pathlib.Path("filters").mkdir(parents=True)
 
     returnPubType = pd.read_sql_query(
@@ -1055,9 +969,7 @@ def _read_country_code(country):
     """
     codes = COUNTRY_VARIATIONS.loc[COUNTRY_VARIATIONS.Country == country, "Code"].values
     if len(codes) > 1:
-        log(
-            f"WARNING: more than one country code is found for extracted country {country}: {codes}"
-        )
+        log(f"WARNING: more than one country code is found for extracted country {country}: {codes}")
     return codes
 
 
@@ -1087,9 +999,7 @@ def _separate_names(authors):
     alternative_names = alternative_names.explode("FullName")
 
     # Extract actual name if additional author information are given via dict
-    alternative_names.FullName = alternative_names.FullName.apply(
-        lambda x: _extract(x, "text")
-    )
+    alternative_names.FullName = alternative_names.FullName.apply(lambda x: _extract(x, "text"))
     alternative_names.reset_index(drop=True, inplace=True)
 
     return dblp_names, alternative_names
@@ -1117,17 +1027,11 @@ def _prepare_affiliations(www):
     www = www[www.type.isin(["affiliation", None])]
 
     # Drop affiliations with labels (usually 'former' or a specific period of time)
-    www = www[
-        ((www.type == "affiliation") & (www.label.isnull())) | (www.type.isnull())
-    ]
+    www = www[((www.type == "affiliation") & (www.label.isnull())) | (www.type.isnull())]
 
     # Pick first affiliation only in case multiple ones are listed and not specified further
-    persons_with_multiple_affiliations = www[
-        www.duplicated(subset=["key"], keep="first")
-    ].shape[0]
-    log(
-        f"Number of persons with multiple affiliations not specified further: {persons_with_multiple_affiliations}"
-    )
+    persons_with_multiple_affiliations = www[www.duplicated(subset=["key"], keep="first")].shape[0]
+    log(f"Number of persons with multiple affiliations not specified further: {persons_with_multiple_affiliations}")
     # www[www.duplicated(subset=['key'], keep=False)].to_csv('csv/persons_with_multiple_affiliations.csv', index=False)
     www.drop_duplicates(subset=["key"], keep="first", inplace=True)
     return www["text"]
@@ -1141,12 +1045,7 @@ def _extract(element, attribute):
     :param attribute:   string, the to be extracted dict value if element contains a dict
     :return:            string or None
     """
-    if (
-        element
-        and element[0] == "{"
-        and element[-1] == "}"
-        and attribute in ast.literal_eval(element)
-    ):
+    if element and element[0] == "{" and element[-1] == "}" and attribute in ast.literal_eval(element):
         return ast.literal_eval(element)[attribute]
     elif attribute == "text":
         return element
@@ -1181,9 +1080,7 @@ def _prepare_urls(urls):
                 homepages.append(url)
 
     orcid_page = "\n".join(orcid_page) if len(orcid_page) > 0 else None
-    google_scholar_page = (
-        "\n".join(google_scholar_page) if len(google_scholar_page) > 0 else None
-    )
+    google_scholar_page = "\n".join(google_scholar_page) if len(google_scholar_page) > 0 else None
     homepages = "\n".join(homepages) if len(homepages) > 0 else None
 
     return orcid_page, google_scholar_page, homepages
@@ -1203,9 +1100,7 @@ def _append_type(url):
         return url
 
 
-def _determine_genders(
-    dblp_names: pd.Series, alternative_names: pd.DataFrame, conn: Connection
-):
+def _determine_genders(dblp_names: pd.Series, alternative_names: pd.DataFrame, conn: Connection):
     """
     Assign a gender to all authors by first checking the first name in a DBLPName (middle name(s) of the DBLPName are
     only used if the first name is abbreviated, see _get_checkable_first_name()).
@@ -1226,22 +1121,16 @@ def _determine_genders(
 
     # Read mappings from first names to genders by GenderAPI from database
     log("read_sql GenderAPIResults started")
-    GenderAPIResults = pd.read_sql(
-        "SELECT FirstName, GaGender FROM GenderAPIResults", con=conn
-    )
+    GenderAPIResults = pd.read_sql("SELECT FirstName, GaGender FROM GenderAPIResults", con=conn)
     log("read_sql GenderAPIResults ended")
 
     log("get_checkable_first_names started")
-    authors["FirstName"] = authors.DBLPName.apply(
-        lambda x: _get_checkable_first_name(x)
-    )
+    authors["FirstName"] = authors.DBLPName.apply(lambda x: _get_checkable_first_name(x))
     log("get_checkable_first_names ended")
 
     # Give DBLPNames a gender based on column FirstName
     log("merge Author and GenderAPIResults started")
-    authors = authors.merge(
-        GenderAPIResults[["FirstName", "GaGender"]], how="left", on="FirstName"
-    )
+    authors = authors.merge(GenderAPIResults[["FirstName", "GaGender"]], how="left", on="FirstName")
     log("merge Author and GenderAPIResults ended")
 
     # WIP:
@@ -1284,11 +1173,7 @@ def _get_checkable_first_name(DBLPName):
     last_name = last_name.strip("()'\"")
 
     # Discard 'nobiliary' particles in middle_names
-    middle_names = [
-        middle_name
-        for middle_name in middle_names
-        if middle_name not in NO_MIDDLE_NAMES
-    ]
+    middle_names = [middle_name for middle_name in middle_names if middle_name not in NO_MIDDLE_NAMES]
 
     # Discard abbreviations and check for middle names if necessary
     if re.match(r"\w+[.]", first_name):
@@ -1343,9 +1228,7 @@ def _check_alternative_names(authors, alternative_names, GenderAPIResults):
     alternative_names.drop(columns=["FirstName"], inplace=True)
 
     log("Reduce the gender started")
-    alternative_names[["FirstName", "GaGender"]] = alternative_names.apply(
-        reduce_gender, axis=1, result_type="expand"
-    )
+    alternative_names[["FirstName", "GaGender"]] = alternative_names.apply(reduce_gender, axis=1, result_type="expand")
     log("Reduce the gender ended")
     alternative_names.to_csv("csv/alternative_names_with_gender.csv", index=False)
     # Todo: _get_gender() could be used as well to determine the gender for the names one by one (less efficient!)
@@ -1385,7 +1268,8 @@ def _map_gender_terms(gender):
     :param gender:  String
     :return:        String
     """
-    mapping = {"female": "woman", "male": "man", "unknown": "neutral"}
+    mapping = {"female": "woman", "male": "man", "neutral": "unknown"}
+
     if gender in mapping:
         return mapping[gender]
     else:
