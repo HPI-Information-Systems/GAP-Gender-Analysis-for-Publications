@@ -48,7 +48,7 @@ def display_filters(cursor):
     with st.sidebar:
         st.subheader("Filters")
         widget_research_area = st.multiselect(
-            "Filter by Continent$\\newline$(only authors with known affiliation):", st.session_state.filters[4], key="research_area"
+            "Filter by Research Area$\\newline$(selected conferences):", st.session_state.filters[4], key="research_area"
         )
         widget_pub_type = st.multiselect(
             "Filter by publication type:",
