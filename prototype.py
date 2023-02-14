@@ -41,14 +41,13 @@ def main():
     # Initialize all the necessary session states
     with st.spinner("Initializing..."):
 
-        # TODO: Check if all session states are still needed
         if "y_columns" not in st.session_state:
             st.session_state.y_columns = []
         if "min_max" not in st.session_state:
-            sql = """SELECT min(Year),max(Year) FROM AllTogether;"""
+            sql = """SELECT min(Year),max(Year) - 1 FROM AllTogether;"""
             st.session_state.min_max = query_action(sql, "check")[0]
         if "year_range" not in st.session_state:
-            st.session_state.year_range = (2000, 2023)
+            st.session_state.year_range = (1980, 2022)
         if "widget_data_representation" not in st.session_state:
             st.session_state.widget_data_representation = "Absolute numbers"
 
@@ -129,7 +128,7 @@ def main():
         # Show the chart
         # Because it is connected to session state, it will automatically update
         # when "graph" session state updates
-        col1.plotly_chart(st.session_state.graph, use_container_width=True)
+        col1.plotly_chart(st.session_state.graph, use_container_width=True, theme="streamlit")
 
     # Display the graph history checkboxes
     gl.display_graph_checkboxes()

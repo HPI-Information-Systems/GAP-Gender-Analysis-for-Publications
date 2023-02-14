@@ -4,6 +4,7 @@ from sqlite3 import Connection
 import prototype as pt
 import plotly.figure_factory as ff
 import plotly.express as px
+import plotly.graph_objects as go
 from utils import log
 
 # Display all the filters that the user can select
@@ -47,7 +48,7 @@ def display_filters(cursor):
     with st.sidebar:
         st.subheader("Filters")
         widget_research_area = st.multiselect(
-            "Filter by Research Areas:", st.session_state.filters[4], key="research_area"
+            "Filter by Continent$\\newline$(only authors with known affiliation):", st.session_state.filters[4], key="research_area"
         )
         widget_pub_type = st.multiselect(
             "Filter by publication type:",
@@ -56,12 +57,12 @@ def display_filters(cursor):
         )
         widget_venue = st.multiselect("Filter by Conference/Journals:", st.session_state.filters[2], key="venue")
 
-        widget_cont = st.multiselect("Filter by Continent:", st.session_state.filters[0], key="cont")
+        widget_cont = st.multiselect("Filter by Continent$\\newline$(only authors with known affiliation):", st.session_state.filters[0], key="cont",)
         if widget_cont != st.session_state.widget_cont:
             st.session_state.widget_cont = widget_cont
             update_available_countries()
 
-        widget_count = st.multiselect("Filter by Country:", st.session_state.filters[1], key="country")
+        widget_count = st.multiselect("Filter by Country$\\newline$(only authors with known affiliation):", st.session_state.filters[1], key="country")
 
         widget_auth_pos = st.radio(
             "Filter by Woman Author Position:",
@@ -170,7 +171,7 @@ def update_available_countries():
 def prefill_graph():
     if st.session_state.is_first_run == True:
 
-        continents = ["Europe", "Asia", "North America", "South America", "Africa", "Oceania"]
+        continents = ["Europe", "Asia", "North America", "South America", "Africa"]
         for i in continents:
             update_graph(
                 [],
@@ -181,7 +182,7 @@ def prefill_graph():
                 [],
                 "Relative numbers",
             )
-        st.session_state["cont"] = ["Oceania"]
+        st.session_state["cont"] = [continents[-1]]
 
         st.session_state.is_first_run = False
 
@@ -342,35 +343,12 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     if not [item for item in st.session_state.y_columns if y_name in item]:
         with st.spinner("Creating graph..."):
 
-
             # If the query wasn't already requested, combine the different parts of it
             sql_query = sql_start + (sql_filter_start
                                          if newf else "") + newf + sql_end
 
-            # Run the sql query and convert it to a pandas dataframe
-            output = pd.read_sql(sql_query, st.session_state.connection)
-
-            # Drop the columns that are not needed for the specific use case
-            # And set the Year as the index
-            grouped_absolute = output.drop('Relative', axis=1).set_index('Year')
-            grouped_relative = output.drop(
-                'Absolute', axis=1).set_index('Year')
-
-            # Get all the available years that the user could have selected
-            # and check if some of them are not in the output data
-            #
-            # It is necessary to have every year, including these with 0 values
-            # inside of the list for further operation
-            available_years = list(
-                range(st.session_state.min_max[0],
-                      st.session_state.min_max[1] + 1))
-
-
-            for i in available_years:
-                if i not in grouped_absolute.index:
-                    grouped_absolute.loc[i] = {'Absolute': 0}
-                if i not in grouped_relative.index:
-                    grouped_relative.loc[i] = {'Relative': 0}
+            # Run the sql query and process it, so that it's ready for the graph
+            grouped_absolute, grouped_relative = query_and_process(sql_query)
 
             # Set the specific graph color with colors and the modulo
             # of the length of colors. This ensures, that the graph color of
@@ -407,6 +385,36 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     # Visualize the collected data
     paint_graph()
 
+@st.cache_data(max_entries=1000, show_spinner=False)
+def query_and_process(sql_query):
+    # Run the sql query and convert it to a pandas dataframe
+    output = pd.read_sql(sql_query, st.session_state.connection)
+
+    # Drop the columns that are not needed for the specific use case
+    # And set the Year as the index
+    # Remove 2023 from response as well, because the data is not relevant
+    grouped_absolute = output.drop('Relative', axis=1).set_index('Year').drop(2023, axis=0)
+    grouped_relative = output.drop(
+        'Absolute', axis=1).set_index('Year').drop(2023, axis=0)
+
+    # Get all the available years that the user could have selected
+    # and check if some of them are not in the output data
+    #
+    # It is necessary to have every year, including these with 0 values
+    # inside of the list for further operation
+    available_years = list(
+        range(st.session_state.min_max[0],
+                st.session_state.min_max[1] + 1))
+
+
+    for i in available_years:
+        if i not in grouped_absolute.index:
+            grouped_absolute.loc[i] = {'Absolute': 0}
+        if i not in grouped_relative.index:
+            grouped_relative.loc[i] = {'Relative': 0}
+
+    return grouped_absolute, grouped_relative
+
 
 # Functionality for visualizing the collected data
 def paint_graph():
@@ -441,11 +449,15 @@ def paint_graph():
     fig = px.line(
         line_graph_data,
         color_discrete_sequence=colors,
-        # markers=True,
+        #markers=True,
     )
+
+    smoothing_template = go.layout.Template()
+    smoothing_template.data.scatter = [go.Scatter(line_shape='spline', line_smoothing=0.7)]
 
     # Set legend title, y-axis to start with 0 etc.
     fig.update_layout(
+        template=smoothing_template,
         font_size=13,
         legend_title="Filters (click to toggle on/off)",
         autosize=True,
@@ -462,7 +474,6 @@ def paint_graph():
     fig.update_yaxes(automargin=True)
 
     fig.update_yaxes(rangemode="tozero"),
-    fig.layout.plot_bgcolor = "#f1f3f6"
 
     # If Relative numbers is selected, set the y-Axis title to "Percentage"
     # And add to each displayed number a % symbol
