@@ -171,7 +171,7 @@ def update_available_countries():
 def prefill_graph():
     if st.session_state.is_first_run == True:
 
-        continents = ["Europe", "Asia", "North America", "South America", "Africa"]
+        continents = ["Europe", "Asia", "North America", "South America", "Africa", "Oceania"]
         for i in continents:
             update_graph(
                 [],
