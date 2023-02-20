@@ -37,9 +37,9 @@ NA_VALUES = [
     "nan",
     "null",
 ]
-COUNTRY_VARIATIONS = pd.read_csv("country_name_variations.csv", keep_default_na=False, na_values=NA_VALUES)
-COUNTRIES = pd.read_csv("countries_unique.csv", keep_default_na=False, na_values=NA_VALUES)
-CONTINENTS = pd.read_csv("continents.csv", keep_default_na=False, na_values=NA_VALUES)
+COUNTRY_VARIATIONS = pd.read_csv("general_data/country_name_variations.csv", keep_default_na=False, na_values=NA_VALUES)
+COUNTRIES = pd.read_csv("general_data/countries_unique.csv", keep_default_na=False, na_values=NA_VALUES)
+CONTINENTS = pd.read_csv("general_data/continents.csv", keep_default_na=False, na_values=NA_VALUES)
 # The, Zu, De, Den, Der, Del, Ul, Al, Da, El, Des, Di, Ten, Ter, Van, Von, Zur, Du, Das, Le actually are first names
 NO_MIDDLE_NAMES = [
     "van",
@@ -623,8 +623,6 @@ def fill_publications(conn: Connection, to_csv=False):
     if to_csv:
         Publication.to_csv("csv/db/Publication.csv", index=False)
 
-    Publication[Publication.Type.isnull()].to_csv("noPublicationType.csv", index=False)
-
     conn.execute(
         """
         CREATE TABLE Publication(
@@ -773,7 +771,7 @@ def create_indices(conn: Connection):
 
 
 def insert_research_areas(conn: Connection):
-    research_areas = pd.read_csv("Research_area.csv")
+    research_areas = pd.read_csv("general_data/Research_area.csv")
     conn.execute(
         """
         ALTER TABLE AllTogether
