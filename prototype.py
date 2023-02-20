@@ -67,6 +67,8 @@ def main():
             st.session_state.country_continent_dataframe = pd.DataFrame()
         if "is_first_run" not in st.session_state:
             st.session_state.is_first_run = True
+        if "is_first_submit" not in st.session_state:
+            st.session_state.is_first_submit = True
 
         if "graph_years" not in st.session_state:
             st.session_state.graph_years = None

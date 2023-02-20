@@ -81,6 +81,8 @@ def display_filters(cursor):
         # graph to update if the user hasn't done all filters yet
         button = st.button("**Submit and Compare**")
         if button:
+            if st.session_state.is_first_submit:
+                st.session_state.is_first_submit = False
             update_graph(
                 widget_venue,
                 widget_count,
@@ -172,6 +174,7 @@ def prefill_graph():
     if st.session_state.is_first_run == True:
 
         continents = ["Europe", "Asia", "North America", "South America", "Africa", "Oceania"]
+        st.session_state.is_first_submit = False
         for i in continents:
             update_graph(
                 [],
@@ -182,9 +185,11 @@ def prefill_graph():
                 [],
                 "Relative numbers",
             )
-        st.session_state["cont"] = [continents[-1]]
+        #st.session_state["cont"] = [continents[-1]]
 
         st.session_state.is_first_run = False
+        st.session_state.is_first_submit = True
+
 
 
 # Insert all the data gotten by the form into the session state and populate the graph
@@ -197,29 +202,31 @@ def update_graph(
     widget_research_area,
     widget_data_representation,
 ):
-    (
-        st.session_state.widget_venue,
-        st.session_state.widget_count,
-        st.session_state.widget_cont,
-        st.session_state.widget_pub_type,
-        st.session_state.widget_auth_pos,
-        st.session_state.widget_research_area,
-        st.session_state.widget_data_representation,
-    ) = (
-        widget_venue,
-        widget_count,
-        widget_cont,
-        widget_pub_type,
-        widget_auth_pos,
-        widget_research_area,
-        widget_data_representation,
-    )
-    populate_graph(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, widget_research_area)
+        (
+            st.session_state.widget_venue,
+            st.session_state.widget_count,
+            st.session_state.widget_cont,
+            st.session_state.widget_pub_type,
+            st.session_state.widget_auth_pos,
+            st.session_state.widget_research_area,
+            st.session_state.widget_data_representation,
+        ) = (
+            widget_venue,
+            widget_count,
+            widget_cont,
+            widget_pub_type,
+            widget_auth_pos,
+            widget_research_area,
+            widget_data_representation,
+        )
+        populate_graph(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, widget_research_area)
 
 
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
 def populate_graph(venue, country, cont, publication_type, auth_pos, research_area):
+    if st.session_state.is_first_submit:
+        return
     # Basic SQL query structure
 
     # The query creates a table with Year | Absolute | Relative columns
@@ -393,9 +400,9 @@ def query_and_process(sql_query):
     # Drop the columns that are not needed for the specific use case
     # And set the Year as the index
     # Remove 2023 from response as well, because the data is not relevant
-    grouped_absolute = output.drop('Relative', axis=1).set_index('Year').drop(2023, axis=0)
+    grouped_absolute = output.drop('Relative', axis=1).set_index('Year').drop(2023, axis=0, errors='ignore')
     grouped_relative = output.drop(
-        'Absolute', axis=1).set_index('Year').drop(2023, axis=0)
+        'Absolute', axis=1).set_index('Year').drop(2023, axis=0, errors='ignore')
 
     # Get all the available years that the user could have selected
     # and check if some of them are not in the output data
