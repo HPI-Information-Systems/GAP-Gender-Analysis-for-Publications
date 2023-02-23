@@ -12,6 +12,14 @@ import general_statistics as gs
 import graph_logic as gl
 from utils import log
 
+class GraphData:
+    def __init__(self, name, isVisible, absoluteData, relativeData, color):
+        self.name = name
+        self.isVisible = isVisible
+        self.absoluteData = absoluteData
+        self.relativeData = relativeData
+        self.color = color
+
 
 def main():
     global logtxt

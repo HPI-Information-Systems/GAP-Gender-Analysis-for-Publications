@@ -347,7 +347,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
         ))
 
     # Checks if the query was already requested
-    if not [item for item in st.session_state.y_columns if y_name in item]:
+    if not [item for item in st.session_state.y_columns if y_name in item.name]:
         with st.spinner("Creating graph..."):
 
             # If the query wasn't already requested, combine the different parts of it
@@ -379,11 +379,14 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             # Add all the gotten data into the y_columns session state,
             # That provides the data for the graph history, change between
             # Relative and Absolute numbers and some other features
-            st.session_state.y_columns.append([
-                y_name, True,
-                grouped_absolute.sort_index().to_dict()['Absolute'],
-                grouped_relative.sort_index().to_dict()['Relative'], colors[color_index]
-            ])
+            st.session_state.y_columns.append(
+                pt.GraphData(
+                    y_name,
+                    True,
+                    grouped_absolute.sort_index().to_dict()['Absolute'],
+                    grouped_relative.sort_index().to_dict()['Relative'],
+                    colors[color_index],
+                ),),
 
     # The graph_years are important for displaying only the
     # Selected years on the chart
@@ -448,10 +451,10 @@ def paint_graph():
     # Select the y_columns that are also in the dataframe
     # And get the specific colors of them
     data_column_names = list(line_graph_data.columns)
-    y_column_names = [i[0] for i in st.session_state.y_columns]
+    y_column_names = [i.name for i in st.session_state.y_columns]
     for i in range(len(st.session_state.y_columns)):
-        if st.session_state.y_columns[i][0] in data_column_names:
-            colors.append(st.session_state.y_columns[i][4])
+        if st.session_state.y_columns[i].name in data_column_names:
+            colors.append(st.session_state.y_columns[i].color)
 
     fig = px.line(
         line_graph_data,
@@ -505,7 +508,7 @@ def get_selected_df():
 
         # If the user has selected the graph in Graph history,
         # Do further operations for displaying it
-        if st.session_state.y_columns[i][1] is True:
+        if st.session_state.y_columns[i].isVisible is True:
 
             # Access the different stored values.
             # If Absolute numbers is selected, get the data for absolute numbers
@@ -513,14 +516,14 @@ def get_selected_df():
             if st.session_state.widget_data_representation == "Absolute numbers":
                 true_df.insert(
                     loc=len(true_df.columns),
-                    column=st.session_state.y_columns[i][0],
-                    value=list(st.session_state.y_columns[i][2].values()),
+                    column=st.session_state.y_columns[i].name,
+                    value=list(st.session_state.y_columns[i].absoluteData.values()),
                 )
             else:
                 true_df.insert(
                     loc=len(true_df.columns),
-                    column=st.session_state.y_columns[i][0],
-                    value=list(st.session_state.y_columns[i][3].values()),
+                    column=st.session_state.y_columns[i].name,
+                    value=list(st.session_state.y_columns[i].relativeData.values()),
                 )
 
     # Insert year column
@@ -544,21 +547,21 @@ def display_graph_checkboxes():
         st.subheader("Graph history")
 
         # Sort the graph names ascending
-        st.session_state.y_columns.sort(key=lambda x: x[1], reverse=True)
+        st.session_state.y_columns.sort(key=lambda x: x.name, reverse=True)
 
         # Create dynamic variables for each graph checkbox,
         # So every checkbox can be handled individually
         for i in range(len(st.session_state.y_columns)):
             globals()["graph_checkbox_%s" % i] = st.checkbox(
-                st.session_state.y_columns[i][0],
-                value=st.session_state.y_columns[i][1],
+                st.session_state.y_columns[i].name,
+                value=st.session_state.y_columns[i].isVisible,
                 # Setting the key makes this specific value
                 # Accessible via the session state
                 key=f"graph_checkbox_{i}",
                 on_change=change_graph_checkbox,
                 args=(i,),
             )
-            st.session_state.y_columns[i][1] = globals()["graph_checkbox_%s" % i]
+            st.session_state.y_columns[i].isVisible = globals()["graph_checkbox_%s" % i]
 
             # Set the variable to it's own value due to a bug by streamlit
             # Over which we have no influence on
@@ -569,9 +572,9 @@ def display_graph_checkboxes():
 
 def change_graph_checkbox(i):
     if st.session_state[f"graph_checkbox_{i}"]:
-        st.session_state.y_columns[i][1] = True
+        st.session_state.y_columns[i].isVisible = True
     if not st.session_state[f"graph_checkbox_{i}"]:
-        st.session_state.y_columns[i][1] = False
+        st.session_state.y_columns[i].isVisible = False
 
     # After a checkbox has been changed,
     # Automatically repaint the graph
