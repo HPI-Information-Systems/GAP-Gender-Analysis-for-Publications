@@ -23,6 +23,7 @@ def display_filters(cursor):
         # Concwept applies to all the other filters as well
 
         country_continent_data = pd.read_csv("filters/Countries.csv")
+        country_continent_data = pd.concat([country_continent_data, pd.DataFrame({"Country": ["Unkown"], "Continent": ["Unkown"],},),],)
         st.session_state.country_continent_dataframe = country_continent_data
         st.session_state.filters.append(
             tuple(sorted(list(set(country_continent_data["Continent"])))),
@@ -283,8 +284,12 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
         for c in country:
             if c != country[0]:
                 f_3 = f_3 + " or "
-            f_3 = f_3 + 'Country = "' + str(c) + '"'
-            y_name = y_name + str(c) + ", "
+            if c == "Unkown":
+                f_3 = f_3 + 'Country IS NULL'
+                y_name = y_name + str(c) + " Country, "
+            else:
+                f_3 = f_3 + 'Country = "' + str(c) + '"'
+                y_name = y_name + str(c) + ", "
         f_3 = f_3 + ")"
     if cont == []:
         f_4 = ""
@@ -293,8 +298,13 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
         for C in cont:
             if C != cont[0]:
                 f_4 = f_4 + " or "
-            f_4 = f_4 + 'Continent = "' + str(C) + '"'
-            y_name = y_name + str(C) + ", "
+            if C == "Unkown":
+                f_4 = f_4 + 'Continent IS NULL'
+                y_name = y_name + str(C) + " Continent, "
+
+            else:
+                f_4 = f_4 + 'Continent = "' + str(C) + '"'
+                y_name = y_name + str(C) + ", "
         f_4 = f_4 + ")"
     if publication_type == []:
         f_6 = ""
@@ -355,6 +365,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                                          if newf else "") + newf + sql_end
 
             # Run the sql query and process it, so that it's ready for the graph
+            print(sql_query)
             grouped_absolute, grouped_relative = query_and_process(sql_query)
 
             # Set the specific graph color with colors and the modulo
@@ -395,7 +406,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     # Visualize the collected data
     paint_graph()
 
-@st.cache_data(max_entries=1000, show_spinner=False)
+@st.cache_data(max_entries=6, show_spinner=False)
 def query_and_process(sql_query):
     # Run the sql query and convert it to a pandas dataframe
     output = pd.read_sql(sql_query, st.session_state.connection)
