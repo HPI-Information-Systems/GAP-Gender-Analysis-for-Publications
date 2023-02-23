@@ -406,7 +406,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     # Visualize the collected data
     paint_graph()
 
-@st.cache_data(max_entries=6, show_spinner=False)
+@st.cache_data(max_entries=1000, show_spinner=False)
 def query_and_process(sql_query):
     # Run the sql query and convert it to a pandas dataframe
     output = pd.read_sql(sql_query, st.session_state.connection)
