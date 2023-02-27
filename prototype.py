@@ -34,7 +34,7 @@ def main():
 
     st.title("GAP: Gender Analysis for Publications")
     st.markdown(
-        "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community."
+        "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community.  \n  *Please note*: The gender-data used by this tool are based on GenderAPI, which automatically classifies authors based on their first names. Thus, we distinguish only female and male gender and cannot reflect the full gender spectrum. Further, country information is based on the currently known affiliation from DBLP. It does not reflect the nationality of the author nor necessarily the affiliation of the author at the time of publication."
     )
 
     # Connect to SQLite database
