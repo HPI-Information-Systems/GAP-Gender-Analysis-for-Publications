@@ -7,8 +7,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils import log
 
+
 # Display all the filters that the user can select
-def display_filters(cursor):
+def display_filters():
     if "filters" not in st.session_state:
         st.session_state.filters = []
     if st.session_state.filters == [] or len(st.session_state.filters) < 5:
@@ -23,60 +24,83 @@ def display_filters(cursor):
         # Concwept applies to all the other filters as well
 
         country_continent_data = pd.read_csv("filters/Countries.csv")
-        country_continent_data = pd.concat([country_continent_data, pd.DataFrame({"Country": ["Unkown"], "Continent": ["Unkown"],},),],)
+        country_continent_data = pd.concat([
+            country_continent_data,
+            pd.DataFrame({
+                "Country": ["Unkown"],
+                "Continent": ["Unkown"],
+            }, ),
+        ], )
         st.session_state.country_continent_dataframe = country_continent_data
         st.session_state.filters.append(
-            tuple(sorted(list(set(country_continent_data["Continent"])))),
-        )
+            tuple(sorted(list(set(country_continent_data["Continent"])))), )
         st.session_state.filters.append(
-            tuple(sorted(list(country_continent_data["Country"]))),
-        )
+            tuple(sorted(list(country_continent_data["Country"]))), )
 
         st.session_state.filters.append(
-            tuple(sorted(list(pd.read_csv("filters/Venues.csv")["Venue"]))),
-        )
+            tuple(sorted(list(pd.read_csv("filters/Venues.csv")["Venue"]))), )
 
         st.session_state.filters.append(
-            tuple(sorted(list(pd.read_csv("filters/PublicationTypes.csv")["PublicationType"]))),
-        )
+            tuple(
+                sorted(
+                    list(
+                        pd.read_csv("filters/PublicationTypes.csv")
+                        ["PublicationType"]))), )
 
         st.session_state.filters.append(
-            tuple(sorted(list(pd.read_csv("filters/ResearchAreas.csv")["ResearchArea"]))),
-        )
+            tuple(
+                sorted(
+                    list(
+                        pd.read_csv("filters/ResearchAreas.csv")
+                        ["ResearchArea"]))), )
 
     prefill_graph()
 
     with st.sidebar:
         st.subheader("Filters")
         widget_research_area = st.multiselect(
-            "Filter by Research Area$\\newline$(selected conferences):", st.session_state.filters[4], key="research_area"
-        )
+            "Filter by Research Area$\\newline$(selected conferences):",
+            st.session_state.filters[4],
+            key="research_area")
         widget_pub_type = st.multiselect(
             "Filter by publication type:",
             st.session_state.filters[3],
             key="publication_type",
         )
-        widget_venue = st.multiselect("Filter by Conference/Journals:", st.session_state.filters[2], key="venue")
+        widget_venue = st.multiselect("Filter by Conference/Journals:",
+                                      st.session_state.filters[2],
+                                      key="venue")
 
-        widget_cont = st.multiselect("Filter by Continent$\\newline$(only authors with known affiliation):", st.session_state.filters[0], key="cont",)
+        widget_cont = st.multiselect(
+            "Filter by Continent$\\newline$(only authors with known affiliation):",
+            st.session_state.filters[0],
+            key="cont",
+        )
         if widget_cont != st.session_state.widget_cont:
             st.session_state.widget_cont = widget_cont
             update_available_countries()
 
-        widget_count = st.multiselect("Filter by Country$\\newline$(only authors with known affiliation):", st.session_state.filters[1], key="country")
+        widget_count = st.multiselect(
+            "Filter by Country$\\newline$(only authors with known affiliation):",
+            st.session_state.filters[1],
+            key="country")
 
         widget_auth_pos = st.radio(
-            "Filter by Woman Author Position:",
+            "Filter by Gender Author Position:",
             (
                 "First author woman",
                 "Middle author woman",
                 "Last author woman",
                 "Any author woman",
+                "First author men",
+                "Middle author men",
+                "Last author men",
+                "Any author men",
             ),
-            key="author_pos",
+            key="auth_pos",
         )
 
-        clear_filters_button = st.button("Clear Filters", on_click=clear_filters)
+        st.button("Clear Filters", on_click=clear_filters)
 
         # Only submit the newest changes after the Button was clicked, prevents the
         # graph to update if the user hasn't done all filters yet
@@ -122,7 +146,8 @@ def update_year_range():
     # it will apply a range that is the selected year and the seelcted year - 5
     # If the user selects the minimum possible values twice, it will apply a range
     # with the selected year and the selected year + 5
-    if list(st.session_state.year_range)[0] == list(st.session_state.year_range)[1]:
+    if list(st.session_state.year_range)[0] == list(
+            st.session_state.year_range)[1]:
         if st.session_state.year_range[0] < st.session_state.min_max[0] + 5:
             st.session_state["year_range"] = (
                 list(st.session_state.year_range)[0],
@@ -137,12 +162,11 @@ def update_year_range():
     st.session_state.graph_years = list(
         range(
             list(st.session_state.year_range)[0],
-            # "+ 1" is to include the highest selected year. 
+            # "+ 1" is to include the highest selected year.
             # If, for example, the highest year selected is 2023, it
             # wouldn't include 2023 in the query without the + 1
             list(st.session_state.year_range)[1] + 1,
-        )
-    )
+        ))
     paint_graph()
 
 
@@ -161,8 +185,8 @@ def update_available_countries():
         # And adds them into one result tuple
         for i in range(len(st.session_state.widget_cont)):
             filtered_countries = filtered_countries + tuple(
-                list(df[df["Continent"] == st.session_state.widget_cont[i]]["Country"])
-            )
+                list(df[df["Continent"] == st.session_state.widget_cont[i]]
+                     ["Country"]))
 
     # At the end, the tuple will get sorted
     filtered_countries = sorted(filtered_countries)
@@ -174,7 +198,10 @@ def update_available_countries():
 def prefill_graph():
     if st.session_state.is_first_run == True:
 
-        continents = ["Europe", "Asia", "North America", "South America", "Africa", "Oceania"]
+        continents = [
+            "Europe", "Asia", "North America", "South America", "Africa",
+            "Oceania"
+        ]
         st.session_state.is_first_submit = False
         for i in continents:
             update_graph(
@@ -192,7 +219,6 @@ def prefill_graph():
         st.session_state.is_first_submit = True
 
 
-
 # Insert all the data gotten by the form into the session state and populate the graph
 def update_graph(
     widget_venue,
@@ -203,53 +229,33 @@ def update_graph(
     widget_research_area,
     widget_data_representation,
 ):
-        (
-            st.session_state.widget_venue,
-            st.session_state.widget_count,
-            st.session_state.widget_cont,
-            st.session_state.widget_pub_type,
-            st.session_state.widget_auth_pos,
-            st.session_state.widget_research_area,
-            st.session_state.widget_data_representation,
-        ) = (
-            widget_venue,
-            widget_count,
-            widget_cont,
-            widget_pub_type,
-            widget_auth_pos,
-            widget_research_area,
-            widget_data_representation,
-        )
-        populate_graph(widget_venue, widget_count, widget_cont, widget_pub_type, widget_auth_pos, widget_research_area)
+    (
+        st.session_state.widget_venue,
+        st.session_state.widget_count,
+        st.session_state.widget_cont,
+        st.session_state.widget_pub_type,
+        st.session_state.widget_auth_pos,
+        st.session_state.widget_research_area,
+        st.session_state.widget_data_representation,
+    ) = (
+        widget_venue,
+        widget_count,
+        widget_cont,
+        widget_pub_type,
+        widget_auth_pos,
+        widget_research_area,
+        widget_data_representation,
+    )
+    populate_graph(widget_venue, widget_count, widget_cont, widget_pub_type,
+                   widget_auth_pos, widget_research_area)
 
 
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
-def populate_graph(venue, country, cont, publication_type, auth_pos, research_area):
+def populate_graph(venue, country, cont, publication_type, auth_pos,
+                   research_area):
     if st.session_state.is_first_submit:
         return
-    # Basic SQL query structure
-
-    # The query creates a table with Year | Absolute | Relative columns
-    # It first counts all the Publications that match the WHERE conditions and where at least one woman is found
-    # The same is done for relative, but this also includes a calculation of the
-    # percentage where the publications with woman gender are divided by all the unique publications
-    sql_start = """SELECT 
-  Year, 
-  COUNT(DISTINCT 
-    CASE 
-      WHEN Gender = 'woman' THEN PublicationID 
-    END
-  ) AS Absolute, 
-  COUNT(DISTINCT 
-    CASE 
-      WHEN Gender = 'woman' THEN PublicationID 
-    END
-  ) * 100 / COUNT(DISTINCT PublicationID) AS Relative
-  FROM AllTogether
-    """
-    sql_filter_start = """\nWHERE """
-    sql_end = """\nGROUP BY Year;"""
 
     # the column/fiter names for each selection
     y_name = ""
@@ -322,18 +328,40 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
     elif auth_pos == "Any author woman":
         f_5 = ""
         y_name = y_name + "Any author woman"
+        sql_gender = 'woman'
+    elif auth_pos == "Any author men":
+        f_5 = ""
+        y_name = y_name + "Any author men"
+        sql_gender = 'men'
     else:
         f_5 = "("
         if auth_pos == "First author woman":
             f_5 = f_5 + 'Position = "1"'
             y_name = y_name + "First author woman"
+            sql_gender = 'woman'
             # If any author, everyone, including first author
         elif auth_pos == "Last author woman":
             f_5 = f_5 + "CAST(Position AS INT) = AuthorCount"
             y_name = y_name + "Last author woman"
+            sql_gender = 'woman'
         elif auth_pos == "Middle author woman":
             f_5 = f_5 + "Position > 1 AND CAST(Position AS INT) < AuthorCount"
             y_name = y_name + "Middle author woman"
+            sql_gender = 'woman'
+        elif auth_pos == "First author men":
+            f_5 = f_5 + 'Position = "1"'
+            y_name = y_name + "First author men"
+            sql_gender = 'men'
+            # If any author, everyone, including first author
+        elif auth_pos == "Last author men":
+            f_5 = f_5 + "CAST(Position AS INT) = AuthorCount"
+            y_name = y_name + "Last author men"
+            sql_gender = 'men'
+        elif auth_pos == "Middle author men":
+            f_5 = f_5 + "Position > 1 AND CAST(Position AS INT) < AuthorCount"
+            y_name = y_name + "Middle author men"
+            sql_gender = 'men'
+
         f_5 = f_5 + ")"
     sql_logic = [f_1, f_2, f_3, f_4, f_5, f_6]
     newf = ""
@@ -356,13 +384,39 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
             list(st.session_state.year_range)[1] + 1,
         ))
 
+    # Basic SQL query structure
+
+    # The query creates a table with Year | Absolute | Relative columns
+    # It first counts all the Publications that match the WHERE conditions and where at least one woman is found
+    # The same is done for relative, but this also includes a calculation of the
+    # percentage where the publications with woman gender are divided by all the unique publications
+    sql_start = f"""SELECT 
+  Year, 
+  COUNT(DISTINCT 
+    CASE 
+      WHEN Gender = '{sql_gender}' THEN PublicationID 
+    END
+  ) AS Absolute, 
+  COUNT(DISTINCT 
+    CASE 
+      WHEN Gender = '{sql_gender}' THEN PublicationID 
+    END
+  ) * 100 / COUNT(DISTINCT PublicationID) AS Relative
+  FROM AllTogether
+    """
+    sql_filter_start = """\nWHERE """
+    sql_end = """\nGROUP BY Year;"""
+
     # Checks if the query was already requested
-    if not [item for item in st.session_state.y_columns if y_name in item.name]:
+    if not [
+            item for item in st.session_state.y_columns if y_name in item.name
+    ]:
         with st.spinner("Creating graph..."):
+            print(sql_start)
 
             # If the query wasn't already requested, combine the different parts of it
             sql_query = sql_start + (sql_filter_start
-                                         if newf else "") + newf + sql_end
+                                     if newf else "") + newf + sql_end
 
             # Run the sql query and process it, so that it's ready for the graph
             print(sql_query)
@@ -397,7 +451,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
                     grouped_absolute.sort_index().to_dict()['Absolute'],
                     grouped_relative.sort_index().to_dict()['Relative'],
                     colors[color_index],
-                ),),
+                ), ),
 
     # The graph_years are important for displaying only the
     # Selected years on the chart
@@ -405,6 +459,7 @@ def populate_graph(venue, country, cont, publication_type, auth_pos, research_ar
 
     # Visualize the collected data
     paint_graph()
+
 
 @st.cache_data(max_entries=1000, show_spinner=False)
 def query_and_process(sql_query):
@@ -414,9 +469,10 @@ def query_and_process(sql_query):
     # Drop the columns that are not needed for the specific use case
     # And set the Year as the index
     # Remove 2023 from response as well, because the data is not relevant
-    grouped_absolute = output.drop('Relative', axis=1).set_index('Year').drop(2023, axis=0, errors='ignore')
-    grouped_relative = output.drop(
-        'Absolute', axis=1).set_index('Year').drop(2023, axis=0, errors='ignore')
+    grouped_absolute = output.drop('Relative', axis=1).set_index('Year').drop(
+        2023, axis=0, errors='ignore')
+    grouped_relative = output.drop('Absolute', axis=1).set_index('Year').drop(
+        2023, axis=0, errors='ignore')
 
     # Get all the available years that the user could have selected
     # and check if some of them are not in the output data
@@ -424,9 +480,7 @@ def query_and_process(sql_query):
     # It is necessary to have every year, including these with 0 values
     # inside of the list for further operation
     available_years = list(
-        range(st.session_state.min_max[0],
-                st.session_state.min_max[1] + 1))
-
+        range(st.session_state.min_max[0], st.session_state.min_max[1] + 1))
 
     for i in available_years:
         if i not in grouped_absolute.index:
@@ -451,8 +505,7 @@ def paint_graph():
     # to be displayed
     line_graph_data = line_graph_data[
         (line_graph_data["Year"] >= min(st.session_state.graph_years))
-        & (line_graph_data["Year"] <= max(st.session_state.graph_years))
-    ]
+        & (line_graph_data["Year"] <= max(st.session_state.graph_years))]
 
     line_graph_data = line_graph_data.set_index("Year")
 
@@ -474,7 +527,9 @@ def paint_graph():
     )
 
     smoothing_template = go.layout.Template()
-    smoothing_template.data.scatter = [go.Scatter(line_shape='spline', line_smoothing=0.7)]
+    smoothing_template.data.scatter = [
+        go.Scatter(line_shape='spline', line_smoothing=0.7)
+    ]
 
     # Set legend title, y-axis to start with 0 etc.
     fig.update_layout(
@@ -528,13 +583,15 @@ def get_selected_df():
                 true_df.insert(
                     loc=len(true_df.columns),
                     column=st.session_state.y_columns[i].name,
-                    value=list(st.session_state.y_columns[i].absoluteData.values()),
+                    value=list(
+                        st.session_state.y_columns[i].absoluteData.values()),
                 )
             else:
                 true_df.insert(
                     loc=len(true_df.columns),
                     column=st.session_state.y_columns[i].name,
-                    value=list(st.session_state.y_columns[i].relativeData.values()),
+                    value=list(
+                        st.session_state.y_columns[i].relativeData.values()),
                 )
 
     # Insert year column
@@ -546,8 +603,8 @@ def get_selected_df():
         loc=0,
         column="Year",
         value=list(
-            range(st.session_state.min_max[0], st.session_state.min_max[1] + 1),
-        ),
+            range(st.session_state.min_max[0],
+                  st.session_state.min_max[1] + 1), ),
     )
     return true_df
 
@@ -570,15 +627,17 @@ def display_graph_checkboxes():
                 # Accessible via the session state
                 key=f"graph_checkbox_{i}",
                 on_change=change_graph_checkbox,
-                args=(i,),
+                args=(i, ),
             )
-            st.session_state.y_columns[i].isVisible = globals()["graph_checkbox_%s" % i]
+            st.session_state.y_columns[i].isVisible = globals()[
+                "graph_checkbox_%s" % i]
 
             # Set the variable to it's own value due to a bug by streamlit
             # Over which we have no influence on
-            globals()["graph_checkbox_%s" % i] = globals()["graph_checkbox_%s" % i]
+            globals()["graph_checkbox_%s" %
+                      i] = globals()["graph_checkbox_%s" % i]
 
-        clear_history_button = st.button("Clear History", on_click=clear_history)
+        st.button("Clear History", on_click=clear_history)
 
 
 def change_graph_checkbox(i):

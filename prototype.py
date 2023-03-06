@@ -83,7 +83,7 @@ def main():
 
         # Get all the filters out of the pre-calculated filter csv files
         with st.spinner("Loading filters..."):
-            gl.display_filters(st.session_state.cursor)
+            gl.display_filters()
 
     # If there is no graph created yet, display a placeholder
     if "graph" not in st.session_state or st.session_state.graph == None or not st.session_state.graph.data:
