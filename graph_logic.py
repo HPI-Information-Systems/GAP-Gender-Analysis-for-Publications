@@ -1,19 +1,36 @@
 import streamlit as st
 import pandas as pd
-from sqlite3 import Connection
 import prototype as pt
-import plotly.figure_factory as ff
 import plotly.express as px
 import plotly.graph_objects as go
-from utils import log
+
+
+class FilterData:
+
+    def __init__(self,
+                 continents=[],
+                 countries=[],
+                 venues=[],
+                 publication_types=[],
+                 research_areas=[]):
+        self.continents = continents
+        self.countries = countries
+        self.venues = venues
+        self.publication_types = publication_types
+        self.research_areas = research_areas
+
+    def is_any_list_empty(self):
+        if not self.continents or not self.countries or not self.venues \
+                or not self.publication_types or not self.research_areas:
+            return True
+        return False
 
 
 # Display all the filters that the user can select
 def display_filters():
     if "filters" not in st.session_state:
-        st.session_state.filters = []
-    if st.session_state.filters == [] or len(st.session_state.filters) < 5:
-
+        st.session_state.filters = FilterData()
+    if st.session_state.filters.is_any_list_empty():
         # Concept for getting the filters:
         # 1. Read the csv
         # 2. Get the specific column
@@ -32,27 +49,29 @@ def display_filters():
             }, ),
         ], )
         st.session_state.country_continent_dataframe = country_continent_data
-        st.session_state.filters.append(
-            tuple(sorted(list(set(country_continent_data["Continent"])))), )
-        st.session_state.filters.append(
-            tuple(sorted(list(country_continent_data["Country"]))), )
 
-        st.session_state.filters.append(
-            tuple(sorted(list(pd.read_csv("filters/Venues.csv")["Venue"]))), )
+        venue_data = pd.read_csv("filters/Venues.csv")
+        publication_types_data = pd.read_csv("filters/PublicationTypes.csv")
+        research_areas_data = pd.read_csv("filters/ResearchAreas.csv")
 
-        st.session_state.filters.append(
-            tuple(
-                sorted(
-                    list(
-                        pd.read_csv("filters/PublicationTypes.csv")
-                        ["PublicationType"]))), )
+        continents = sorted(list(set(country_continent_data["Continent"])))
 
-        st.session_state.filters.append(
-            tuple(
-                sorted(
-                    list(
-                        pd.read_csv("filters/ResearchAreas.csv")
-                        ["ResearchArea"]))), )
+        countries = sorted(list(country_continent_data["Country"]))
+
+        venues = sorted(list(venue_data["Venue"]))
+
+        publication_types = sorted(
+            list(publication_types_data["PublicationType"]))
+
+        research_areas = sorted(list(research_areas_data["ResearchArea"]))
+
+        st.session_state.filters = FilterData(
+            continents,
+            countries,
+            venues,
+            publication_types,
+            research_areas,
+        )
 
     prefill_graph()
 
@@ -60,20 +79,20 @@ def display_filters():
         st.subheader("Filters")
         widget_research_area = st.multiselect(
             "Filter by Research Area$\\newline$(selected conferences):",
-            st.session_state.filters[4],
+            st.session_state.filters.research_areas,
             key="research_area")
         widget_pub_type = st.multiselect(
             "Filter by publication type:",
-            st.session_state.filters[3],
+            st.session_state.filters.publication_types,
             key="publication_type",
         )
         widget_venue = st.multiselect("Filter by Conference/Journals:",
-                                      st.session_state.filters[2],
+                                      st.session_state.filters.venues,
                                       key="venue")
 
         widget_cont = st.multiselect(
             "Filter by Continent$\\newline$(only authors with known affiliation):",
-            st.session_state.filters[0],
+            st.session_state.filters.continents,
             key="cont",
         )
         if widget_cont != st.session_state.widget_cont:
@@ -82,7 +101,7 @@ def display_filters():
 
         widget_count = st.multiselect(
             "Filter by Country$\\newline$(only authors with known affiliation):",
-            st.session_state.filters[1],
+            st.session_state.filters.countries,
             key="country")
 
         widget_auth_pos = st.radio(
@@ -192,7 +211,7 @@ def update_available_countries():
     filtered_countries = sorted(filtered_countries)
 
     # And gets inserted into the country filter
-    st.session_state.filters[1] = filtered_countries
+    st.session_state.filters.countries = filtered_countries
 
 
 def prefill_graph():
@@ -412,14 +431,12 @@ def populate_graph(venue, country, cont, publication_type, auth_pos,
             item for item in st.session_state.y_columns if y_name in item.name
     ]:
         with st.spinner("Creating graph..."):
-            print(sql_start)
 
             # If the query wasn't already requested, combine the different parts of it
             sql_query = sql_start + (sql_filter_start
                                      if newf else "") + newf + sql_end
 
             # Run the sql query and process it, so that it's ready for the graph
-            print(sql_query)
             grouped_absolute, grouped_relative = query_and_process(sql_query)
 
             # Set the specific graph color with colors and the modulo

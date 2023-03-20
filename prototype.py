@@ -1,16 +1,12 @@
-import os
-from datetime import datetime
-from sqlite3 import Connection, connect
+from sqlite3 import connect
 
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as stcomp
 from PIL import Image
 
 import general_statistics as gs
 import graph_logic as gl
-from utils import log
 
 class GraphData:
     def __init__(self, name, isVisible, absoluteData, relativeData, color):
