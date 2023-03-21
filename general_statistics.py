@@ -7,58 +7,18 @@ def display_general_statistics(cursor):
 
     # Load all the general statistics out of the corresponding table
     with st.spinner("Loading general statistics..."):
-        if "publication_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "PublicationCount";"""
-            cursor.execute(sql)
-            st.session_state.publication_count = seperate_integer(cursor.fetchall()[0][0])
+        for statistic_name, session_state_key in zip(statistics_to_check, session_state_keys):
+            if session_state_key not in st.session_state:
+                value = get_statistic_from_db(cursor, statistic_name)
 
-        if "author_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "AuthorCount";"""
-            cursor.execute(sql)
-            st.session_state.author_count = seperate_integer(cursor.fetchall()[0][0])
-        if "affiliation_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "AffiliationCount";"""
-            cursor.execute(sql)
-            st.session_state.affiliation_count = seperate_integer(cursor.fetchall()[0][0])
+                if value is not None:
+                    if session_state_key != "last_time_updated":
+                        value = separate_integer(value)
 
-        if "venue_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "VenueCount";"""
-            cursor.execute(sql)
-            st.session_state.venue_count = seperate_integer(cursor.fetchall()[0][0])
+                    st.session_state[session_state_key] = value
+                else:
+                    st.session_state[session_state_key] = ""
 
-        if "publication_author_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "PublicationAuthorCount";"""
-            cursor.execute(sql)
-            st.session_state.publication_author_count = seperate_integer(cursor.fetchall()[0][0])
-
-        if "female_author_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "FemaleAuthorCount";"""
-            cursor.execute(sql)
-            st.session_state.female_author_count = seperate_integer(cursor.fetchall()[0][0])
-        if "male_author_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "MaleAuthorCount";"""
-            cursor.execute(sql)
-            st.session_state.male_author_count = seperate_integer(cursor.fetchall()[0][0])
-
-        if "unknown_author_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "UnknownAuthorCount";"""
-            cursor.execute(sql)
-            st.session_state.unknown_author_count = seperate_integer(cursor.fetchall()[0][0])
-
-        if "last_time_updated" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "Date";"""
-            cursor.execute(sql)
-            st.session_state.last_time_updated = cursor.fetchall()[0][0]
-
-        if "authors_with_country" not in st.session_state:
-            sql = """SELECT Value \nFROM GeneralStatistics WHERE Name = "AuthorCountWithCountry";"""
-            cursor.execute(sql)
-            st.session_state.authors_with_country = seperate_integer(cursor.fetchall()[0][0])
-
-        if "authors_without_country" not in st.session_state:
-            sql = """SELECT Value \nFROM GeneralStatistics WHERE Name = "AuthorCountWithoutCountry";"""
-            cursor.execute(sql)
-            st.session_state.authors_without_country = seperate_integer(cursor.fetchall()[0][0])
 
     # Display the data in a formatted way
     st.subheader("General statistics")
@@ -124,5 +84,49 @@ def display_general_statistics(cursor):
     )
 
 
-def seperate_integer(string):
-    return " ".join([str(string[::-1][i : i + 3][::-1]) for i in range(0, len(string), 3)][::-1])
+def get_statistic_from_db(cursor, statistic_name):
+    sql = f"""SELECT Value\nFROM GeneralStatistics WHERE Name = "{statistic_name}";"""
+    cursor.execute(sql)
+    result = cursor.fetchall()
+
+    if not result:
+        return None
+
+    return result[0][0] if result else None
+
+
+statistics_to_check = [
+    "PublicationCount",
+    "AuthorCount",
+    "AffiliationCount",
+    "VenueCount",
+    "PublicationAuthorCount",
+    "FemaleAuthorCount",
+    "MaleAuthorCount",
+    "UnknownAuthorCount",
+    "Date",
+    "AuthorCountWithCountry",
+    "AuthorCountWithoutCountry",
+]
+
+session_state_keys = [
+    "publication_count",
+    "author_count",
+    "affiliation_count",
+    "venue_count",
+    "publication_author_count",
+    "female_author_count",
+    "male_author_count",
+    "unknown_author_count",
+    "last_time_updated",
+    "authors_with_country",
+    "authors_without_country",
+]
+
+
+def separate_integer(string):
+    number = int(string)
+    return " ".join([
+        str(number)[::-1][i:i + 3][::-1]
+        for i in range(0, len(str(number)), 3)
+    ][::-1])

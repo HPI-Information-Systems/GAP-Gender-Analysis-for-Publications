@@ -374,8 +374,6 @@ def populate_graph(venue, country, cont, publication_type, author_position,
             sql_query = sql_start + (sql_filter_start
                                      if newf else "") + newf + sql_end
 
-            print(sql_query)
-
             # Run the sql query and process it, so that it's ready for the graph
             grouped_absolutes, grouped_relatives = query_and_process(sql_query)
 
