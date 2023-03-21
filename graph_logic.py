@@ -44,8 +44,8 @@ def display_filters():
         country_continent_data = pd.concat([
             country_continent_data,
             pd.DataFrame({
-                "Country": ["Unkown"],
-                "Continent": ["Unkown"],
+                "Country": ["Unknown"],
+                "Continent": ["Unknown"],
             }, ),
         ], )
         st.session_state.country_continent_dataframe = country_continent_data

@@ -861,7 +861,7 @@ def fill_statistics(conn: Connection):
 
     returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"unknown\"""")
     result = returnVal.fetchall()[0][0]
-    conn.execute("""INSERT INTO GeneralStatistics VALUES('UnkownAuthorCount', ?)""", (result,))
+    conn.execute("""INSERT INTO GeneralStatistics VALUES('UnknownAuthorCount', ?)""", (result,))
 
     returnVal = conn.execute(
         """SELECT count(distinct AuthorID) FROM Author INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID WHERE Affiliation.CountryCode is not null;"""

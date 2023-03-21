@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from sqlite3 import Connection, connect
 from datetime import datetime
 
 # Get general statistics about the data
@@ -41,10 +40,10 @@ def display_general_statistics(cursor):
             cursor.execute(sql)
             st.session_state.male_author_count = seperate_integer(cursor.fetchall()[0][0])
 
-        if "unkown_author_count" not in st.session_state:
-            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "UnkownAuthorCount";"""
+        if "unknown_author_count" not in st.session_state:
+            sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "UnknownAuthorCount";"""
             cursor.execute(sql)
-            st.session_state.unkown_author_count = seperate_integer(cursor.fetchall()[0][0])
+            st.session_state.unknown_author_count = seperate_integer(cursor.fetchall()[0][0])
 
         if "last_time_updated" not in st.session_state:
             sql = """SELECT Value\nFROM GeneralStatistics WHERE Name = "Date";"""
@@ -78,7 +77,7 @@ def display_general_statistics(cursor):
 
     col1.markdown(f"**Number of distinct woman authors**:  \n{st.session_state.female_author_count}")
     col2.markdown(f"**Number of distinct man authors**:  \n{st.session_state.male_author_count}")
-    col3.markdown(f"**Number of distinct authors with unkown gender**:  \n{st.session_state.unkown_author_count}")
+    col3.markdown(f"**Number of distinct authors with unknown gender**:  \n{st.session_state.unknown_author_count}")
 
     col1.markdown(
         f"**Authors with affiliation that has a country assigned**:  \n{st.session_state.authors_with_country}"
