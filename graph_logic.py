@@ -87,8 +87,8 @@ def display_filters():
             key="publication_type",
         )
         widget_venues = st.multiselect("Filter by Conference/Journals:",
-                                      st.session_state.filters.venues,
-                                      key="venue")
+                                       st.session_state.filters.venues,
+                                       key="venue")
 
         widget_continents = st.multiselect(
             "Filter by Continent$\\newline$(only authors with known affiliation):",
@@ -164,26 +164,25 @@ def update_year_range():
     # it will apply a range that is the selected year and the seelcted year - 5
     # If the user selects the minimum possible values twice, it will apply a range
     # with the selected year and the selected year + 5
-    if list(st.session_state.year_range)[0] == list(
-            st.session_state.year_range)[1]:
+    if st.session_state.year_range[0] == st.session_state.year_range[1]:
         if st.session_state.year_range[0] < st.session_state.min_max[0] + 5:
             st.session_state["year_range"] = (
-                list(st.session_state.year_range)[0],
-                list(st.session_state.year_range)[1] + 5,
+                st.session_state.year_range[0],
+                st.session_state.year_range[1] + 5,
             )
         else:
             st.session_state["year_range"] = (
-                list(st.session_state.year_range)[0] - 5,
-                list(st.session_state.year_range)[1],
+                st.session_state.year_range[0] - 5,
+                st.session_state.year_range[1],
             )
 
     st.session_state.graph_years = list(
         range(
-            list(st.session_state.year_range)[0],
+            st.session_state.year_range[0],
             # "+ 1" is to include the highest selected year.
             # If, for example, the highest year selected is 2023, it
             # wouldn't include 2023 in the query without the + 1
-            list(st.session_state.year_range)[1] + 1,
+            st.session_state.year_range[1] + 1,
         ))
     paint_graph()
 
@@ -203,8 +202,8 @@ def update_available_countries():
         # And adds them into one result tuple
         for i in range(len(st.session_state.widget_continents)):
             filtered_countries = filtered_countries + tuple(
-                list(df[df["Continent"] == st.session_state.widget_continents[i]]
-                     ["Country"]))
+                list(df[df["Continent"] ==
+                        st.session_state.widget_continents[i]]["Country"]))
 
     # At the end, the tuple will get sorted
     filtered_countries = sorted(filtered_countries)
@@ -264,8 +263,9 @@ def update_graph(
         widget_research_areas,
         widget_data_representation,
     )
-    populate_graph(widget_venues, widget_countries, widget_continents, widget_publication_types,
-                   widget_author_position, widget_research_areas)
+    populate_graph(widget_venues, widget_countries, widget_continents,
+                   widget_publication_types, widget_author_position,
+                   widget_research_areas)
 
 
 # Creates Dynamic queries based on selection and
@@ -285,12 +285,10 @@ def populate_graph(venue, country, cont, publication_type, author_position,
         if not filter_list:
             return "", y_name
 
-        filter_str = "({})".format(
-            " or ".join(
-                f'{field_name} = "{item}"' if item != "Unknown" else f'{field_name} IS NULL'
-                for item in filter_list
-            )
-        )
+        filter_str = "({})".format(" or ".join(
+            f'{field_name} = "{item}"'
+            if item != "Unknown" else f'{field_name} IS NULL'
+            for item in filter_list))
         y_name += ", ".join(filter_list) + ", "
         return filter_str, y_name
 
@@ -303,10 +301,12 @@ def populate_graph(venue, country, cont, publication_type, author_position,
     author_position_filters = {
         "First author woman": ('Position = "1"', "woman"),
         "Last author woman": ("CAST(Position AS INT) = AuthorCount", "woman"),
-        "Middle author woman": ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "woman"),
+        "Middle author woman":
+        ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "woman"),
         "First author men": ('Position = "1"', "man"),
         "Last author men": ("CAST(Position AS INT) = AuthorCount", "man"),
-        "Middle author men": ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "man"),
+        "Middle author men":
+        ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "man"),
     }
 
     if author_position in {"Any author woman", "Any author men"}:
@@ -373,7 +373,7 @@ def populate_graph(venue, country, cont, publication_type, author_position,
             # If the query wasn't already requested, combine the different parts of it
             sql_query = sql_start + (sql_filter_start
                                      if newf else "") + newf + sql_end
-            
+
             print(sql_query)
 
             # Run the sql query and process it, so that it's ready for the graph
@@ -472,7 +472,6 @@ def paint_graph():
     # Select the y_columns that are also in the dataframe
     # And get the specific colors of them
     data_column_names = list(line_graph_data.columns)
-    y_column_names = [i.name for i in st.session_state.y_columns]
     for i in range(len(st.session_state.y_columns)):
         if st.session_state.y_columns[i].name in data_column_names:
             colors.append(st.session_state.y_columns[i].color)
