@@ -149,7 +149,6 @@ def clear_filters():
     st.session_state["venue"] = []
     st.session_state["country"] = []
     st.session_state["publication_type"] = []
-    # st.session_state["year_range"] = (2000, 2022)
     st.session_state["research_area"] = []
 
 
