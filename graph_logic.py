@@ -281,106 +281,45 @@ def populate_graph(venue, country, cont, publication_type, auth_pos,
     # Creates query
     # For each available filter, check if the user has filtered something there
     # If so, go through every selection and add them as a filter group (statement OR statement OR...)
-    if venue == []:
-        f_1 = ""
-    else:  # for the 'Venue' of Publication
-        f_1 = "("
-        for v in venue:
-            if v != venue[0]:
-                f_1 = f_1 + " or "
-            f_1 = f_1 + 'Venue = "' + str(v) + '"'
-            y_name = y_name + str(v) + ", "
-        f_1 = f_1 + ")"
-    if research_area == []:
-        f_2 = ""
-    else:
-        f_2 = "("
-        for ra in research_area:
-            if ra != research_area[0]:
-                f_2 = f_2 + " or "
-            f_2 = f_2 + 'ResearchArea = "' + str(ra) + '"'
-            y_name = y_name + str(ra) + ", "
-        f_2 = f_2 + ")"
-    if country == []:
-        f_3 = ""
-    else:  # for the 'Country' of Author
-        f_3 = "("
-        for c in country:
-            if c != country[0]:
-                f_3 = f_3 + " or "
-            if c == "Unkown":
-                f_3 = f_3 + 'Country IS NULL'
-                y_name = y_name + str(c) + " Country, "
-            else:
-                f_3 = f_3 + 'Country = "' + str(c) + '"'
-                y_name = y_name + str(c) + ", "
-        f_3 = f_3 + ")"
-    if cont == []:
-        f_4 = ""
-    else:  # for the 'Continent' of Author
-        f_4 = "("
-        for C in cont:
-            if C != cont[0]:
-                f_4 = f_4 + " or "
-            if C == "Unkown":
-                f_4 = f_4 + 'Continent IS NULL'
-                y_name = y_name + str(C) + " Continent, "
+    def build_filter(filter_list, field_name, y_name):
+        if not filter_list:
+            return "", y_name
 
-            else:
-                f_4 = f_4 + 'Continent = "' + str(C) + '"'
-                y_name = y_name + str(C) + ", "
-        f_4 = f_4 + ")"
-    if publication_type == []:
-        f_6 = ""
-    else:
-        f_6 = "("
-        for p in publication_type:
-            if p != publication_type[0]:
-                f_6 = f_6 + " or "
-            f_6 = f_6 + 'PublicationType = "' + str(p) + '"'
-            y_name = y_name + str(p) + ", "
-        f_6 = f_6 + ")"
+        filter_str = "({})".format(
+            " or ".join(
+                f'{field_name} = "{item}"' if item != "Unknown" else f'{field_name} IS NULL'
+                for item in filter_list
+            )
+        )
+        y_name += ", ".join(filter_list) + ", "
+        return filter_str, y_name
 
-    if auth_pos == "":
-        f_5 = ""
-    elif auth_pos == "Any author woman":
-        f_5 = ""
-        y_name = y_name + "Any author woman"
-        sql_gender = 'woman'
-    elif auth_pos == "Any author men":
-        f_5 = ""
-        y_name = y_name + "Any author men"
-        sql_gender = 'men'
-    else:
-        f_5 = "("
-        if auth_pos == "First author woman":
-            f_5 = f_5 + 'Position = "1"'
-            y_name = y_name + "First author woman"
-            sql_gender = 'woman'
-            # If any author, everyone, including first author
-        elif auth_pos == "Last author woman":
-            f_5 = f_5 + "CAST(Position AS INT) = AuthorCount"
-            y_name = y_name + "Last author woman"
-            sql_gender = 'woman'
-        elif auth_pos == "Middle author woman":
-            f_5 = f_5 + "Position > 1 AND CAST(Position AS INT) < AuthorCount"
-            y_name = y_name + "Middle author woman"
-            sql_gender = 'woman'
-        elif auth_pos == "First author men":
-            f_5 = f_5 + 'Position = "1"'
-            y_name = y_name + "First author men"
-            sql_gender = 'men'
-            # If any author, everyone, including first author
-        elif auth_pos == "Last author men":
-            f_5 = f_5 + "CAST(Position AS INT) = AuthorCount"
-            y_name = y_name + "Last author men"
-            sql_gender = 'men'
-        elif auth_pos == "Middle author men":
-            f_5 = f_5 + "Position > 1 AND CAST(Position AS INT) < AuthorCount"
-            y_name = y_name + "Middle author men"
-            sql_gender = 'men'
+    f_1, y_name = build_filter(venue, "Venue", y_name)
+    f_2, y_name = build_filter(research_area, "ResearchArea", y_name)
+    f_3, y_name = build_filter(country, "Country", y_name)
+    f_4, y_name = build_filter(cont, "Continent", y_name)
+    f_6, y_name = build_filter(publication_type, "PublicationType", y_name)
 
-        f_5 = f_5 + ")"
+    auth_pos_filters = {
+        "First author woman": ('Position = "1"', "woman"),
+        "Last author woman": ("CAST(Position AS INT) = AuthorCount", "woman"),
+        "Middle author woman": ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "woman"),
+        "First author men": ('Position = "1"', "man"),
+        "Last author men": ("CAST(Position AS INT) = AuthorCount", "man"),
+        "Middle author men": ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "man"),
+    }
+
+    if auth_pos in {"Any author woman", "Any author men"}:
+        f_5 = ""
+        y_name += auth_pos
+        sql_gender = "woman" if auth_pos == "Any author woman" else "man"
+    elif auth_pos in auth_pos_filters:
+        filter_str, sql_gender = auth_pos_filters[auth_pos]
+        f_5 = f"({filter_str})"
+        y_name += auth_pos
+    else:
+        f_5 = ""
+
     sql_logic = [f_1, f_2, f_3, f_4, f_5, f_6]
     newf = ""
     f_count = 0
@@ -434,6 +373,8 @@ def populate_graph(venue, country, cont, publication_type, auth_pos,
             # If the query wasn't already requested, combine the different parts of it
             sql_query = sql_start + (sql_filter_start
                                      if newf else "") + newf + sql_end
+            
+            print(sql_query)
 
             # Run the sql query and process it, so that it's ready for the graph
             grouped_absolute, grouped_relative = query_and_process(sql_query)
