@@ -55,18 +55,18 @@ def main():
         if "widget_data_representation" not in st.session_state:
             st.session_state.widget_data_representation = "Absolute numbers"
 
-        if "widget_venue" not in st.session_state:
-            st.session_state.widget_venue = ""
-        if "widget_count" not in st.session_state:
-            st.session_state.widget_count = ""
-        if "widget_cont" not in st.session_state:
-            st.session_state.widget_cont = []
-        if "widget_pub_type" not in st.session_state:
-            st.session_state.widget_pub_type = ""
-        if "widget_auth_pos" not in st.session_state:
-            st.session_state.widget_auth_pos = ""
-        if "widget_research_area" not in st.session_state:
-            st.session_state.widget_research_area = ""
+        if "widget_venues" not in st.session_state:
+            st.session_state.widget_venues = ""
+        if "widget_countries" not in st.session_state:
+            st.session_state.widget_countries = ""
+        if "widget_continents" not in st.session_state:
+            st.session_state.widget_continents = []
+        if "widget_publication_types" not in st.session_state:
+            st.session_state.widget_publication_types = ""
+        if "widget_author_position" not in st.session_state:
+            st.session_state.widget_author_position = ""
+        if "widget_research_areas" not in st.session_state:
+            st.session_state.widget_research_areas = ""
         if "country_continent_dataframe" not in st.session_state:
             st.session_state.country_continent_dataframe = pd.DataFrame()
         if "is_first_run" not in st.session_state:
@@ -123,12 +123,12 @@ def main():
         if widget_data_representation != st.session_state.widget_data_representation:
             st.session_state.widget_data_representation = widget_data_representation
             gl.populate_graph(
-                st.session_state.widget_venue,
-                st.session_state.widget_count,
-                st.session_state.widget_cont,
-                st.session_state.widget_pub_type,
-                st.session_state.widget_auth_pos,
-                st.session_state.widget_research_area,
+                st.session_state.widget_venues,
+                st.session_state.widget_countries,
+                st.session_state.widget_continents,
+                st.session_state.widget_publication_types,
+                st.session_state.widget_author_position,
+                st.session_state.widget_research_areas,
             )
 
         # Show the chart
