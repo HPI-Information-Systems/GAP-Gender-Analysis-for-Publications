@@ -366,7 +366,7 @@ def populate_graph(venue, country, cont, publication_type, author_position,
 
     # Checks if the query was already requested
     if not [
-            item for item in st.session_state.y_columns if y_name in item.name
+            item for item in st.session_state.y_columns if y_name is item.name
     ]:
         with st.spinner("Creating graph..."):
 

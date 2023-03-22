@@ -112,7 +112,7 @@ def main():
             index=1,
         )
         # Selector for the year range displayed in the chart
-        year_range = col2.slider(
+        col2.slider(
             "Select years range:",
             min_value=st.session_state.min_max[0],
             max_value=st.session_state.min_max[1],
@@ -121,14 +121,7 @@ def main():
         )
         if widget_data_representation != st.session_state.widget_data_representation:
             st.session_state.widget_data_representation = widget_data_representation
-            gl.populate_graph(
-                st.session_state.widget_venues,
-                st.session_state.widget_countries,
-                st.session_state.widget_continents,
-                st.session_state.widget_publication_types,
-                st.session_state.widget_author_position,
-                st.session_state.widget_research_areas,
-            )
+            gl.paint_graph()
 
         # Show the chart
         # Because it is connected to session state, it will automatically update
