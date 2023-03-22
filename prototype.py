@@ -44,37 +44,23 @@ def main():
     # Initialize all the necessary session states
     with st.spinner("Initializing..."):
 
-        if "y_columns" not in st.session_state:
-            st.session_state.y_columns = []
+        st.session_state.setdefault('y_columns', [])
         if "min_max" not in st.session_state:
             sql = """SELECT min(Year),max(Year) - 1 FROM AllTogether;"""
             st.session_state.min_max = query_action(sql, "check")[0]
-        if "year_range" not in st.session_state:
-            st.session_state.year_range = (1980, 2022)
-        if "widget_data_representation" not in st.session_state:
-            st.session_state.widget_data_representation = "Absolute numbers"
+        st.session_state.setdefault("year_range", (1980, 2022))
+        st.session_state.setdefault("widget_data_representation", "Absolute numbers")
+        st.session_state.setdefault("widget_venues", "")
+        st.session_state.setdefault("widget_countries", "")
+        st.session_state.setdefault("widget_continents", [])
+        st.session_state.setdefault("widget_publication_types", "")
+        st.session_state.setdefault("widget_author_position", "")
+        st.session_state.setdefault("widget_research_areas", "")
+        st.session_state.setdefault("country_continent_dataframe", pd.DataFrame())
+        st.session_state.setdefault("is_first_run", True)
+        st.session_state.setdefault("is_first_submit", True)
+        st.session_state.setdefault("graph_years", None)
 
-        if "widget_venues" not in st.session_state:
-            st.session_state.widget_venues = ""
-        if "widget_countries" not in st.session_state:
-            st.session_state.widget_countries = ""
-        if "widget_continents" not in st.session_state:
-            st.session_state.widget_continents = []
-        if "widget_publication_types" not in st.session_state:
-            st.session_state.widget_publication_types = ""
-        if "widget_author_position" not in st.session_state:
-            st.session_state.widget_author_position = ""
-        if "widget_research_areas" not in st.session_state:
-            st.session_state.widget_research_areas = ""
-        if "country_continent_dataframe" not in st.session_state:
-            st.session_state.country_continent_dataframe = pd.DataFrame()
-        if "is_first_run" not in st.session_state:
-            st.session_state.is_first_run = True
-        if "is_first_submit" not in st.session_state:
-            st.session_state.is_first_submit = True
-
-        if "graph_years" not in st.session_state:
-            st.session_state.graph_years = None
 
         # Get all the filters out of the pre-calculated filter csv files
         with st.spinner("Loading filters..."):
