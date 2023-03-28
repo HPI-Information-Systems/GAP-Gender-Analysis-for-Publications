@@ -1,16 +1,19 @@
-import os
-from datetime import datetime
-from sqlite3 import Connection, connect
+from sqlite3 import connect
 
-import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as stcomp
 from PIL import Image
 
 import general_statistics as gs
 import graph_logic as gl
-from utils import log
+
+class GraphData:
+    def __init__(self, name, isVisible, absoluteData, relativeData, color):
+        self.name = name
+        self.isVisible = isVisible
+        self.absoluteData = absoluteData
+        self.relativeData = relativeData
+        self.color = color
 
 
 def main():
@@ -26,7 +29,7 @@ def main():
 
     st.title("GAP: Gender Analysis for Publications")
     st.markdown(
-        "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community."
+        "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community.  \n  *Please note*: The gender-data used by this tool are based on GenderAPI, which automatically classifies authors based on their first names. Thus, we distinguish only female and male gender and cannot reflect the full gender spectrum. Further, country information is based on the currently known affiliation from DBLP. It does not reflect the nationality of the author nor necessarily the affiliation of the author at the time of publication."
     )
 
     # Connect to SQLite database
@@ -41,39 +44,27 @@ def main():
     # Initialize all the necessary session states
     with st.spinner("Initializing..."):
 
-        if "y_columns" not in st.session_state:
-            st.session_state.y_columns = []
+        st.session_state.setdefault('y_columns', [])
         if "min_max" not in st.session_state:
             sql = """SELECT min(Year),max(Year) - 1 FROM AllTogether;"""
             st.session_state.min_max = query_action(sql, "check")[0]
-        if "year_range" not in st.session_state:
-            st.session_state.year_range = (1980, 2022)
-        if "widget_data_representation" not in st.session_state:
-            st.session_state.widget_data_representation = "Absolute numbers"
+        st.session_state.setdefault("year_range", (1980, 2022))
+        st.session_state.setdefault("widget_data_representation", "Absolute numbers")
+        st.session_state.setdefault("widget_venues", "")
+        st.session_state.setdefault("widget_countries", "")
+        st.session_state.setdefault("widget_continents", [])
+        st.session_state.setdefault("widget_publication_types", "")
+        st.session_state.setdefault("widget_author_position", "")
+        st.session_state.setdefault("widget_research_areas", "")
+        st.session_state.setdefault("country_continent_dataframe", pd.DataFrame())
+        st.session_state.setdefault("is_first_run", True)
+        st.session_state.setdefault("is_first_submit", True)
+        st.session_state.setdefault("graph_years", None)
 
-        if "widget_venue" not in st.session_state:
-            st.session_state.widget_venue = ""
-        if "widget_count" not in st.session_state:
-            st.session_state.widget_count = ""
-        if "widget_cont" not in st.session_state:
-            st.session_state.widget_cont = []
-        if "widget_pub_type" not in st.session_state:
-            st.session_state.widget_pub_type = ""
-        if "widget_auth_pos" not in st.session_state:
-            st.session_state.widget_auth_pos = ""
-        if "widget_research_area" not in st.session_state:
-            st.session_state.widget_research_area = ""
-        if "country_continent_dataframe" not in st.session_state:
-            st.session_state.country_continent_dataframe = pd.DataFrame()
-        if "is_first_run" not in st.session_state:
-            st.session_state.is_first_run = True
-
-        if "graph_years" not in st.session_state:
-            st.session_state.graph_years = None
 
         # Get all the filters out of the pre-calculated filter csv files
         with st.spinner("Loading filters..."):
-            gl.display_filters(st.session_state.cursor)
+            gl.display_filters()
 
     # If there is no graph created yet, display a placeholder
     if "graph" not in st.session_state or st.session_state.graph == None or not st.session_state.graph.data:
@@ -107,7 +98,7 @@ def main():
             index=1,
         )
         # Selector for the year range displayed in the chart
-        year_range = col2.slider(
+        col2.slider(
             "Select years range:",
             min_value=st.session_state.min_max[0],
             max_value=st.session_state.min_max[1],
@@ -116,14 +107,7 @@ def main():
         )
         if widget_data_representation != st.session_state.widget_data_representation:
             st.session_state.widget_data_representation = widget_data_representation
-            gl.populate_graph(
-                st.session_state.widget_venue,
-                st.session_state.widget_count,
-                st.session_state.widget_cont,
-                st.session_state.widget_pub_type,
-                st.session_state.widget_auth_pos,
-                st.session_state.widget_research_area,
-            )
+            gl.paint_graph()
 
         # Show the chart
         # Because it is connected to session state, it will automatically update
