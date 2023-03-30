@@ -111,10 +111,10 @@ def display_filters():
                 "Middle author woman",
                 "Last author woman",
                 "Any author woman",
-                "First author men",
-                "Middle author men",
-                "Last author men",
-                "Any author men",
+                "First author man",
+                "Middle author man",
+                "Last author man",
+                "Any author man",
             ),
             key="author_position",
         )
@@ -303,13 +303,13 @@ def populate_graph(venue, country, cont, publication_type, author_position,
         "Last author woman": ("CAST(Position AS INT) = AuthorCount", "woman"),
         "Middle author woman":
         ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "woman"),
-        "First author men": ('Position = "1"', "man"),
-        "Last author men": ("CAST(Position AS INT) = AuthorCount", "man"),
-        "Middle author men":
+        "First author man": ('Position = "1"', "man"),
+        "Last author man": ("CAST(Position AS INT) = AuthorCount", "man"),
+        "Middle author man":
         ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "man"),
     }
 
-    if author_position in {"Any author woman", "Any author men"}:
+    if author_position in {"Any author woman", "Any author man"}:
         f_5 = ""
         y_name += author_position
         sql_gender = "woman" if author_position == "Any author woman" else "man"
