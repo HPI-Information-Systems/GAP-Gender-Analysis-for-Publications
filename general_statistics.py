@@ -57,7 +57,7 @@ def display_general_statistics(cursor):
         unsafe_allow_html=True,
     )
     col2.markdown(
-        f"""**Gender determination**:  \n[GenderAPI](https://gender-api.com/)""",
+        f"""**Gender determination**:  \n[Gender API](https://gender-api.com/)""",
         unsafe_allow_html=True,
     )
 
@@ -72,7 +72,7 @@ def display_general_statistics(cursor):
 
     st.subheader("Instructions")
     st.markdown(
-        """When clicking “Submit and Compare” you will see the number of publications where the first author, middle author (any but first or last), last author or any author is a woman author, based on their first name. In “Global Options” you can set a year range and select whether the data is shown in absolute or relative numbers. For "Relative numbers", the number of publications with women that match the criteria is compared with the global number (any gender).  \nThe continent filter and the country filter refer to the Country/Continent of the affiliation the author belongs to. Here, the data under consideration is reduced to those publications for which DBLP has affiliation information. \nFiltering by a specific venue (conference or journal) counts only the publications published in this journal. \nFiltering by Research Area groups the most important publications of each area into one graph. The choice of conferences to represent research areas is based on [csrankings.org](https://csrankings.org/)."""
+        "When clicking \"Submit and Compare\" you will see the number of publications where the first author, middle author (any but first or last), last author or any author is a woman or man author, based on their first name as automatically determined by [Gender API](https://gender-api.com/). You can set a year range and select whether the data is shown in absolute or relative numbers. For \"Relative numbers\", the number of publications with woman/man that match the criteria is compared with the global number (any gender).  \n The continent filter and the country filter refer to the country/continent of the affiliation the author belongs to. Here, the data under consideration is reduced to those publications for which DBLP provides affiliation information. Filtering by a specific venue (conference or journal) counts only the publications published in this journal. Filtering by research area groups the most important publications of each area into one graph. The choice of conferences to represent research areas is based on [csrankings.org](https://csrankings.org)."
     )
     st.markdown(
         """Acknowledgements: The initial ideas for these analyses are based on work together with Angela Bonifati, Michael Mior and Nele Noack: [SIGMOD Reference](https://sigmodrecord.org/publications/sigmodRecord/2112/pdfs/06_Research_Bonifati.pdf)"""
