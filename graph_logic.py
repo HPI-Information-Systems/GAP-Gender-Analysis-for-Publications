@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import prototype as pt
-import plotly.express as px
 import plotly.graph_objects as go
+import re
 
 
 class FilterData:
@@ -366,7 +366,7 @@ def populate_graph(venue, country, cont, publication_type, author_position,
 
     # Checks if the query was already requested
     if not [
-            item for item in st.session_state.y_columns if y_name is item.name
+            item for item in st.session_state.y_columns if y_name == item.name
     ]:
         with st.spinner("Creating graph..."):
 
@@ -445,6 +445,32 @@ def query_and_process(sql_query):
 
     return grouped_absolutes, grouped_relatives
 
+# Determines the font color of the hover
+# Based on the luminance of the background color (trace color)
+def get_hover_font_color(bg_color):
+    # Convert hex color to RGB
+    hex_color = re.search(r'^#?([A-Fa-f0-9]{6})$', bg_color)
+    if hex_color:
+        rgb_color = tuple(
+            int(hex_color.group(1)[i:i + 2], 16) for i in (0, 2, 4))
+    else:
+        raise ValueError(f"Invalid hex color: {bg_color}")
+
+    # Calculate the luminance
+    r, g, b = [x / 255.0 for x in rgb_color]
+    rgb_color = [
+        x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055)**2.4
+        for x in (r, g, b)
+    ]
+
+    luminance = 0.2126 * rgb_color[0] + 0.7152 * rgb_color[
+        1] + 0.0722 * rgb_color[2]
+
+    # Choose font color based on luminance
+    if luminance > 0.3:
+        return "black"
+    else:
+        return "white"
 
 # Functionality for visualizing the collected data
 def paint_graph():
@@ -461,33 +487,51 @@ def paint_graph():
     line_graph_data = line_graph_data[
         (line_graph_data["Year"] >= min(st.session_state.graph_years))
         & (line_graph_data["Year"] <= max(st.session_state.graph_years))]
-
     line_graph_data = line_graph_data.set_index("Year")
 
-    # --- Customizing the chart---
-    colors = []
+    fig = go.Figure()
 
-    # Select the y_columns that are also in the dataframe
-    # And get the specific colors of them
     data_column_names = list(line_graph_data.columns)
-    for i in range(len(st.session_state.y_columns)):
-        if st.session_state.y_columns[i].name in data_column_names:
-            colors.append(st.session_state.y_columns[i].color)
 
-    fig = px.line(
-        line_graph_data,
-        color_discrete_sequence=colors,
-        #markers=True,
-    )
+    for idx, column in enumerate(data_column_names):
+        if column in [
+                y_column.name for y_column in st.session_state.y_columns
+        ]:
+            index = st.session_state.y_columns[idx]
+            print(index.color)
+            value_title = "Count" if st.session_state.widget_data_representation == "Absolute numbers" else "Share of Publications"
+            fig.add_trace(
+                go.Scatter(
+                    x=line_graph_data.index,
+                    y=line_graph_data[column],
+                    mode='lines',
+                    name=column,
+                    line_shape='spline',
+                    line_smoothing=0.7,
+                    meta=[column, value_title],
+                    # The list to display the value alongside with the absolute numbers
+                    # if the selected data representation is "Relative numbers"
+                    customdata=[
+                        f"{v}%" if st.session_state.widget_data_representation
+                        == "Relative numbers" and
+                        (v == 0 or index.absoluteData[k] == 0) else
+                        f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
+                        if st.session_state.widget_data_representation
+                        == "Relative numbers" else index.absoluteData[k]
+                        for k, v in index.relativeData.items()
+                        if st.session_state.year_range[0] <= k <=
+                        st.session_state.year_range[1]
+                    ],
+                    hovertemplate=
+                    '<b>%{meta[0]}</b><br>Year: %{x}<br>%{meta[1]}: %{customdata}<extra></extra>',
+                    hoverlabel=dict(
+                        bgcolor=index.color,
+                        font=dict(color=get_hover_font_color(index.color),),
+                    ),
+                    marker=dict(color=st.session_state.y_columns[idx].color),
+                ), )
 
-    smoothing_template = go.layout.Template()
-    smoothing_template.data.scatter = [
-        go.Scatter(line_shape='spline', line_smoothing=0.7)
-    ]
-
-    # Set legend title, y-axis to start with 0 etc.
     fig.update_layout(
-        template=smoothing_template,
         font_size=13,
         legend_title="Filters (click to toggle on/off)",
         autosize=True,
@@ -500,16 +544,12 @@ def paint_graph():
             x=0,
         ),
     )
+    fig.update_xaxes(tickformat='d')
+    fig.update_yaxes(automargin=True, rangemode="tozero")
 
-    fig.update_yaxes(automargin=True)
-
-    fig.update_yaxes(rangemode="tozero"),
-
-    # If Relative numbers is selected, set the y-Axis title to "Percentage"
-    # And add to each displayed number a % symbol
-    # If Absolute numbers is selected, set the y-axis title to "Number of Publications"
     if st.session_state.widget_data_representation == "Relative numbers":
-        fig.update_layout(yaxis_title="Percentage", yaxis_ticksuffix="%")
+        fig.update_layout(yaxis_title="Share of Publications",
+                          yaxis_ticksuffix="%")
     else:
         fig.update_layout(yaxis_title="Number of Publications")
 
