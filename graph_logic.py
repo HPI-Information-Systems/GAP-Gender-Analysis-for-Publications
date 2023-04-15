@@ -334,7 +334,7 @@ def populate_graph(venue, country, cont, publication_type, author_position,
                 newf = newf + f
 
     # Convert the data from the range selector into a list
-    # that includes all the ears within this range
+    # that includes all the years within this range
     year = list(
         range(
             list(st.session_state.year_range)[0],
@@ -498,7 +498,6 @@ def paint_graph():
                 y_column.name for y_column in st.session_state.y_columns
         ]:
             index = st.session_state.y_columns[idx]
-            print(index.color)
             value_title = "Count" if st.session_state.widget_data_representation == "Absolute numbers" else "Share of Publications"
             fig.add_trace(
                 go.Scatter(
@@ -519,8 +518,8 @@ def paint_graph():
                         if st.session_state.widget_data_representation
                         == "Relative numbers" else index.absoluteData[k]
                         for k, v in index.relativeData.items()
-                        if st.session_state.year_range[0] <= k <=
-                        st.session_state.year_range[1]
+                        if st.session_state.graph_years[0] <= k <=
+                        st.session_state.graph_years[-1]
                     ],
                     hovertemplate=
                     '<b>%{meta[0]}</b><br>Year: %{x}<br>%{meta[1]}: %{customdata}<extra></extra>',
