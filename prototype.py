@@ -3,6 +3,7 @@ from sqlite3 import connect
 import pandas as pd
 import streamlit as st
 from PIL import Image
+import requests
 
 import general_statistics as gs
 import graph_logic as gl
@@ -31,6 +32,11 @@ def main():
     st.markdown(
         "The GAP-Tool allows users to explore the gender diversity in computer science publications. By choosing different venues, countries, research areas, one can highlight differences within the community.  \n  *Please note*: The gender-data used by this tool are based on GenderAPI, which automatically classifies authors based on their first names. Thus, we distinguish only female and male gender and cannot reflect the full gender spectrum. Further, country information is based on the currently known affiliation from DBLP. It does not reflect the nationality of the author nor necessarily the affiliation of the author at the time of publication."
     )
+
+    try:
+        requests.get('http://localhost:6502/log_visitor')
+    except requests.exceptions.RequestException as e:
+        print(f"Error logging visitor: {e}")
 
     # Connect to SQLite database
     with st.spinner("Opening datasbase connection (This can take a while)..."):
