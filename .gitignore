@@ -7,3 +7,5 @@ database/
 __pycache__/
 gap.db-journal
 .DS_Store
+queried_graphs.csv
+visitors.csv
