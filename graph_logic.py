@@ -3,6 +3,7 @@ import pandas as pd
 import prototype as pt
 import plotly.graph_objects as go
 import re
+import requests
 
 
 class FilterData:
@@ -380,6 +381,12 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
             # Run the sql query and process it, so that it's ready for the graph
             grouped_absolutes, grouped_relatives = query_and_process(sql_query)
 
+            # Write a line of code that gets the sum of grouped_absolutes over years from result 
+            # and store it in a variable called total_absolutes
+            total_absolutes = sum(grouped_absolutes['Absolute'])
+
+            y_name = y_name + f" (Total: {total_absolutes})"
+
             # Set the specific graph color with colors and the modulo
             # of the length of colors. This ensures, that the graph color of
             # one specific graph does not change if another graph is added
@@ -409,9 +416,25 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
                     grouped_absolutes.sort_index().to_dict()["Absolute"],
                     grouped_relatives.sort_index().to_dict()["Relative"],
                     COLORS[color_index],
-                ),
-            )
-
+                ), ),
+            # If statement to prevent logging the default graphs
+            if (len(cont) == 1 and cont[0] != "Unknown") and not any([
+                    research_area, publication_type, venue, country
+            ]) and author_position == "First author woman":
+                pass
+            else:
+                try:
+                    requests.get('http://localhost:6502/log_graph_creation',
+                                 params={
+                                     'research_areas': research_area,
+                                     'publication_types': publication_type,
+                                     'venues': venue,
+                                     'continents': cont,
+                                     'countries': country,
+                                     'author_position': author_position,
+                                 })
+                except requests.exceptions.RequestException as e:
+                    print(f"Error logging visitor: {e}")
     # The graph_years are important for displaying only the
     # Selected years on the chart
     st.session_state.graph_years = year
@@ -490,6 +513,11 @@ def paint_graph():
 
     fig = go.Figure()
 
+    filtered_y_columns = [
+        y_column for y_column in st.session_state.y_columns
+        if y_column.isVisible
+    ]
+
     data_column_names = list(line_graph_data.columns)
 
     # Create the figure
@@ -497,7 +525,7 @@ def paint_graph():
 
     for idx, column in enumerate(data_column_names):
         if column in [y_column.name for y_column in st.session_state.y_columns]:
-            index = st.session_state.y_columns[idx]
+            index = filtered_y_columns[idx]
             value_title = (
                 "Count"
                 if st.session_state.widget_data_representation == "Absolute numbers"
@@ -507,13 +535,20 @@ def paint_graph():
             filtered_data = [(x, y) for x, y in zip(line_graph_data.index, line_graph_data[column]) if y != 0]
             filtered_x = [x for x, y in filtered_data]
             filtered_y = [y for x, y in filtered_data]
-            customdata = [
-                f"{v}%" if (v == 0 or index.absoluteData[k] == 0) else
-                f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
-                for k, v in index.relativeData.items()
-                if st.session_state.graph_years[0] <= k <=
-                st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
-            ]
+            if(st.session_state.widget_data_representation == "Relative numbers"):
+                customdata = [
+                    f"{v}%" if (v == 0 or index.absoluteData[k] == 0) else
+                    f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
+                    for k, v in index.relativeData.items()
+                    if st.session_state.graph_years[0] <= k <=
+                    st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
+                ]
+            else:
+                customdata =[
+                    index.absoluteData[k]
+                    for k, v in index.relativeData.items()
+                    if st.session_state.graph_years[0] <= k <= st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
+                ] 
 
         else:
             filtered_data = line_graph_data
@@ -554,61 +589,10 @@ def paint_graph():
                     font=dict(
                         color=get_hover_font_color(index.color),
                     ),
-                ),
-                # We can customize the appearance of the marker using the marker attribute.
-                # The color attribute sets the color of the marker.
-                marker=dict(color=st.session_state.y_columns[idx].color),
-            ),
-        )
+                ), 
+                marker=dict(color=filtered_y_columns[idx].color),
 
-    # # Add the traces
-    # for idx, column in enumerate(data_column_names):
-    #     if column in [
-    #             y_column.name for y_column in st.session_state.y_columns
-    #     ]:
-    #         index = st.session_state.y_columns[idx]
-    #         value_title = "Count" if st.session_state.widget_data_representation == "Absolute numbers" else "Share of Publications"
-    #         fig.add_trace(
-    #             go.Scatter(
-    #                 x=line_graph_data.index,
-    #                 y=line_graph_data[column],
-    #                 mode='lines',
-    #                 name=column,
-    #                 line_shape='spline',
-    #                 line_smoothing=0.7,
-    #                 meta=[column, value_title],
-    #                 # The list to display the value alongside with the absolute numbers
-    #                 # if the selected data representation is "Relative numbers"
-    #                 customdata=[f"{v}%" if st.session_state.widget_data_representation
-    #                     == "Relative numbers" and
-    #                     (v == 0 or index.absoluteData[k] == 0) else
-    #                     f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})" if st.session_state.widget_data_representation
-    #                     == "Relative numbers" else index.absoluteData[k]
-    #                     for k, v in index.relativeData.items()
-    #                     if st.session_state.graph_years[0] <= k <=
-    #                     st.session_state.graph_years[-1]
-    #                 ],
-    #                 hovertemplate=
-
-    #                 # Plotly's hovertemplate uses %{...} syntax to access data from the plot's data
-    #                 # and customdata attributes. To access the name of the index, we use %{meta[0]}.
-    #                 # To access the x-axis value, we use %{x}, and to access the y-axis value, we use
-    #                 # %{customdata}.
-
-    #                 '<b>%{meta[0]}</b><br>Year: %{x}<br>%{meta[1]}: %{customdata}<extra></extra>',
-
-    #                 # We can customize the appearance of the hover label using the hoverlabel attribute.
-    #                 # The bgcolor attribute sets the background color, and the font attribute sets
-    #                 # the font properties.
-    #                 hoverlabel=dict(
-    #                     bgcolor=index.color,
-    #                     font=dict(color=get_hover_font_color(index.color),),
-    #                 ),
-
-    #                 # We can customize the appearance of the marker using the marker attribute.
-    #                 # The color attribute sets the color of the marker.
-    #                 marker=dict(color=st.session_state.y_columns[idx].color),
-    #             ), )
+                ))
 
     fig.update_layout(
         font_size=13,
@@ -638,7 +622,7 @@ def paint_graph():
 
 
 # Get all the graphs that the user selected in "Graph History"
-def get_selected_df():
+def get_selected_df(): 
     true_df = pd.DataFrame()
 
     # Go through every possible dataframe

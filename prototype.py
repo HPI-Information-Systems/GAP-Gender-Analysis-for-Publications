@@ -3,6 +3,7 @@ from sqlite3 import connect
 import pandas as pd
 import streamlit as st
 from PIL import Image
+import requests
 
 import general_statistics as gs
 import graph_logic as gl
@@ -51,7 +52,7 @@ def main():
         st.session_state.setdefault("year_range", (1980, 2022))
         st.session_state.setdefault("widget_data_representation", "Absolute numbers")
         st.session_state.setdefault("widget_venues", "")
-        st.session_state.setdefault("widget_countries", "")
+        st.session_state.setdefault("widget_countries",  "")
         st.session_state.setdefault("widget_continents", [])
         st.session_state.setdefault("widget_publication_types", "")
         st.session_state.setdefault("widget_author_position", "")
@@ -61,6 +62,11 @@ def main():
         st.session_state.setdefault("is_first_submit", True)
         st.session_state.setdefault("graph_years", None)
 
+        if st.session_state.is_first_run:
+            try:
+                requests.get('http://localhost:6502/log_visitor')
+            except requests.exceptions.RequestException as e:
+                print(f"Error logging visitor: {e}")
 
         # Get all the filters out of the pre-calculated filter csv files
         with st.spinner("Loading filters..."):
