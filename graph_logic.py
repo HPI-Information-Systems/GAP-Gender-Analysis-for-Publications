@@ -504,62 +504,62 @@ def paint_graph():
                 else "Share of Publications"
             )
 
-                filtered_data = [(x, y) for x, y in zip(line_graph_data.index, line_graph_data[column]) if y != 0]
-                filtered_x = [x for x, y in filtered_data]
-                filtered_y = [y for x, y in filtered_data]
-                customdata = [
-                    f"{v}%" if (v == 0 or index.absoluteData[k] == 0) else
-                    f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
-                    for k, v in index.relativeData.items()
-                    if st.session_state.graph_years[0] <= k <=
-                    st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
-                ]
+            filtered_data = [(x, y) for x, y in zip(line_graph_data.index, line_graph_data[column]) if y != 0]
+            filtered_x = [x for x, y in filtered_data]
+            filtered_y = [y for x, y in filtered_data]
+            customdata = [
+                f"{v}%" if (v == 0 or index.absoluteData[k] == 0) else
+                f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
+                for k, v in index.relativeData.items()
+                if st.session_state.graph_years[0] <= k <=
+                st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
+            ]
 
-            else:
-                filtered_data = line_graph_data
-                filtered_x = line_graph_data.index
-                filtered_y = line_graph_data[column]
-                customdata = [
-                    index.absoluteData[k]
-                    for k, v in index.relativeData.items()
-                    if st.session_state.graph_years[0] <= k <=
-                    st.session_state.graph_years[-1]
-                ]
+        else:
+            filtered_data = line_graph_data
+            filtered_x = line_graph_data.index
+            filtered_y = line_graph_data[column]
+            customdata = [
+                index.absoluteData[k]
+                for k, v in index.relativeData.items()
+                if st.session_state.graph_years[0] <= k <=
+                st.session_state.graph_years[-1]
+            ]
 
             
 
-            fig.add_trace(
-                go.Scatter(
-                    x=filtered_x,
-                    y=filtered_y,
-                    mode="lines",
-                    name=column,
-                    line_shape="spline",
-                    line_smoothing=0.7,
-                    meta=[column, value_title],
-                    # The list to display the value alongside with the absolute numbers
-                    # if the selected data representation is "Relative numbers"
-                    customdata=customdata,
-                    hovertemplate=
-                    # Plotly's hovertemplate uses %{...} syntax to access data from the plot's data
-                    # and customdata attributes. To access the name of the index, we use %{meta[0]}.
-                    # To access the x-axis value, we use %{x}, and to access the y-axis value, we use
-                    # %{customdata}.
-                    "<b>%{meta[0]}</b><br>Year: %{x}<br>%{meta[1]}: %{customdata}<extra></extra>",
-                    # We can customize the appearance of the hover label using the hoverlabel attribute.
-                    # The bgcolor attribute sets the background color, and the font attribute sets
-                    # the font properties.
-                    hoverlabel=dict(
-                        bgcolor=index.color,
-                        font=dict(
-                            color=get_hover_font_color(index.color),
-                        ),
+        fig.add_trace(
+            go.Scatter(
+                x=filtered_x,
+                y=filtered_y,
+                mode="lines",
+                name=column,
+                line_shape="spline",
+                line_smoothing=0.7,
+                meta=[column, value_title],
+                # The list to display the value alongside with the absolute numbers
+                # if the selected data representation is "Relative numbers"
+                customdata=customdata,
+                hovertemplate=
+                # Plotly's hovertemplate uses %{...} syntax to access data from the plot's data
+                # and customdata attributes. To access the name of the index, we use %{meta[0]}.
+                # To access the x-axis value, we use %{x}, and to access the y-axis value, we use
+                # %{customdata}.
+                "<b>%{meta[0]}</b><br>Year: %{x}<br>%{meta[1]}: %{customdata}<extra></extra>",
+                # We can customize the appearance of the hover label using the hoverlabel attribute.
+                # The bgcolor attribute sets the background color, and the font attribute sets
+                # the font properties.
+                hoverlabel=dict(
+                    bgcolor=index.color,
+                    font=dict(
+                        color=get_hover_font_color(index.color),
                     ),
-                    # We can customize the appearance of the marker using the marker attribute.
-                    # The color attribute sets the color of the marker.
-                    marker=dict(color=st.session_state.y_columns[idx].color),
                 ),
-            )
+                # We can customize the appearance of the marker using the marker attribute.
+                # The color attribute sets the color of the marker.
+                marker=dict(color=st.session_state.y_columns[idx].color),
+            ),
+        )
 
     # # Add the traces
     # for idx, column in enumerate(data_column_names):
