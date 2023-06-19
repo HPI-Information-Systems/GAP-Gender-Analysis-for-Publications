@@ -127,7 +127,7 @@ def main():
 
     fill_all_together(conn)
 
-    # # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
+    # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
     get_unknown_first_names(conn)
 
     create_indices(conn)
@@ -825,6 +825,8 @@ def insert_research_areas(conn: Connection):
 def fill_statistics(conn: Connection):
     log("Process of filling statistics started")
     conn.execute("""CREATE TABLE GeneralStatistics(Name TEXT, Value TEXT);""")
+
+    # Distinct publication count
     returnVal = conn.execute("""SELECT count(distinct PublicationID) as count\nFROM Publication;""")
     result = returnVal.fetchall()[0][0]
     conn.execute(
@@ -832,18 +834,22 @@ def fill_statistics(conn: Connection):
         (result,),
     )
 
+    # Distinct author count
     returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\nFROM Author;""")
     result = returnVal.fetchall()[0][0]
     conn.execute("""INSERT INTO GeneralStatistics VALUES('AuthorCount', ?);""", (result,))
 
+    # Distinct affiliation count
     returnVal = conn.execute("""SELECT count(distinct AffiliationID) as count\nFROM Affiliation;""")
     result = returnVal.fetchall()[0][0]
     conn.execute("""INSERT INTO GeneralStatistics VALUES('AffiliationCount', ?);""", (result,))
 
+    # Distinct venue count
     returnVal = conn.execute("""SELECT count(distinct VenueID) as count\nFROM Venue;""")
     result = returnVal.fetchall()[0][0]
     conn.execute("""INSERT INTO GeneralStatistics VALUES('VenueCount', ?);""", (result,))
 
+    # Distinct publication author count
     returnVal = conn.execute("""SELECT count(DBLPName) as count\nFROM PublicationAuthor;""")
     result = returnVal.fetchall()[0][0]
     conn.execute(
@@ -851,18 +857,22 @@ def fill_statistics(conn: Connection):
         (result,),
     )
 
+    # Distinct publication author count where gender is woman
     returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"woman\"""")
     result = returnVal.fetchall()[0][0]
     conn.execute("""INSERT INTO GeneralStatistics VALUES('FemaleAuthorCount', ?)""", (result,))
 
+    # Distinct publication author count where gender is man
     returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"man\"""")
     result = returnVal.fetchall()[0][0]
     conn.execute("""INSERT INTO GeneralStatistics VALUES('MaleAuthorCount', ?)""", (result,))
 
+    # Distinct publication author count where gender is unknown
     returnVal = conn.execute("""SELECT count(distinct AuthorID) as count\n FROM Author where Gender = \"unknown\"""")
     result = returnVal.fetchall()[0][0]
     conn.execute("""INSERT INTO GeneralStatistics VALUES('UnknownAuthorCount', ?)""", (result,))
 
+    # Distinct author count where country is known
     returnVal = conn.execute(
         """SELECT count(distinct AuthorID) FROM Author INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID WHERE Affiliation.CountryCode is not null;"""
     )
@@ -872,6 +882,7 @@ def fill_statistics(conn: Connection):
         (result,),
     )
 
+    # Distinct author count where country is unknown
     returnVal = conn.execute(
         """SELECT count(distinct AuthorID) FROM Author INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID WHERE Affiliation.CountryCode is null;"""
     )
@@ -881,6 +892,54 @@ def fill_statistics(conn: Connection):
         (result,),
     )
 
+    # Distinct female authors from each continent
+    returnVal = conn.execute(
+        """SELECT Country.Continent, count(distinct Author.AuthorID) as count\n 
+            FROM Author 
+            INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
+            INNER JOIN Country ON Affiliation.CountryCode = Country.CountryCode
+            WHERE Author.Gender = "woman"
+            GROUP BY Country.Continent""")
+
+    result = returnVal.fetchall()
+    for row in result:
+        continent, count = row
+        conn.execute(
+            """INSERT INTO GeneralStatistics VALUES('{}FemaleAuthorCount', ?)"""
+            .format(continent), (count, ))
+
+    # Distinct male authors from each continent
+    returnVal = conn.execute(
+        """SELECT Country.Continent, count(distinct Author.AuthorID) as count\n 
+            FROM Author 
+            INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
+            INNER JOIN Country ON Affiliation.CountryCode = Country.CountryCode
+            WHERE Author.Gender = "man"
+            GROUP BY Country.Continent""")
+    result = returnVal.fetchall()
+    for row in result:
+        continent, count = row
+        conn.execute(
+            """INSERT INTO GeneralStatistics VALUES('{}MaleAuthorCount', ?)""".
+            format(continent), (count, ))
+
+    # Distinct unknown gender authors from each continent
+    returnVal = conn.execute(
+        """SELECT Country.Continent, count(distinct Author.AuthorID) as count\n 
+            FROM Author 
+            INNER JOIN Affiliation ON Author.AffiliationID = Affiliation.AffiliationID
+            INNER JOIN Country ON Affiliation.CountryCode = Country.CountryCode
+            WHERE Author.Gender = "unknown"
+            GROUP BY Country.Continent""")
+    result = returnVal.fetchall()
+    for row in result:
+        continent, count = row
+        conn.execute(
+            """INSERT INTO GeneralStatistics VALUES('{}UnknownAuthorCount', ?)"""
+            .format(continent), (count, ))
+
+
+    # Date of last updated database
     conn.execute(
         f"""INSERT INTO GeneralStatistics(Name, Value) VALUES('Date', ?)""",
         (datetime.now().strftime("%Y-%m-%d %H:%M:%S"),),

@@ -70,6 +70,36 @@ def display_general_statistics(cursor):
         unsafe_allow_html=True,
     )
 
+    selectedContinent = st.selectbox(
+        "Select a continent to see it's statistics",
+        (
+            "Africa",
+            "Asia",
+            "Europe",
+            "North America",
+            "Oceania",
+            "South America",
+        ),
+    ),
+
+    selectedContinentInSessionStateKey = str(
+        selectedContinent[0]).lower().replace(" ", "_")
+
+    col1, col2, col3 = st.columns(3)
+    col1.markdown(
+        f"**Number of distinct woman authors in {selectedContinent[0]}**:  \n {st.session_state[f'{selectedContinentInSessionStateKey}_female_author_count']}",
+        unsafe_allow_html=True,
+    )
+    col2.markdown(
+        f"**Number of distinct man authors in {selectedContinent[0]}**: \n {st.session_state[f'{selectedContinentInSessionStateKey}_male_author_count']}",
+        unsafe_allow_html=True,
+    )
+
+    col3.markdown(
+        f"**Number of distinct authors with unknown gender in {selectedContinent[0]}**: \n {st.session_state[f'{selectedContinentInSessionStateKey}_unknown_author_count']}",
+        unsafe_allow_html=True,
+    )
+
     st.subheader("Instructions")
     st.markdown(
         "When clicking \"Submit and Compare\" you will see the number of publications where the first author, middle author (any but first or last), last author or any author is a woman or man author, based on their first name as automatically determined by [Gender API](https://gender-api.com/). The identified gender is considered valid if the gender accuracy is greater than 50%. You can set a year range and select whether the data is shown in absolute or relative numbers. For \"Relative numbers\", the number of publications with woman/man that match the criteria is compared with the global number (any gender).  \n The continent filter and the country filter refer to the country/continent of the affiliation the author belongs to. Here, the data under consideration is reduced to those publications for which DBLP provides affiliation information. Filtering by a specific venue (conference or journal) counts only the publications published in this journal. Filtering by research area groups the most important publications of each area into one graph. The choice of conferences to represent research areas is based on [csrankings.org](https://csrankings.org)."
@@ -107,6 +137,24 @@ statistics_to_check = [
     "Date",
     "AuthorCountWithCountry",
     "AuthorCountWithoutCountry",
+    "EuropeFemaleAuthorCount",
+    "EuropeMaleAuthorCount",
+    "EuropeUnknownAuthorCount",
+    "AfricaFemaleAuthorCount",
+    "AfricaMaleAuthorCount",
+    "AfricaUnknownAuthorCount",
+    "AsiaFemaleAuthorCount",
+    "AsiaMaleAuthorCount",
+    "AsiaUnknownAuthorCount",
+    "North AmericaFemaleAuthorCount",
+    "North AmericaMaleAuthorCount",
+    "North AmericaUnknownAuthorCount",
+    "OceaniaFemaleAuthorCount",
+    "OceaniaMaleAuthorCount",
+    "OceaniaUnknownAuthorCount",
+    "South AmericaFemaleAuthorCount",
+    "South AmericaMaleAuthorCount",
+    "South AmericaUnknownAuthorCount",
 ]
 
 session_state_keys = [
@@ -121,6 +169,24 @@ session_state_keys = [
     "last_time_updated",
     "authors_with_country",
     "authors_without_country",
+    "europe_female_author_count",
+    "europe_male_author_count",
+    "europe_unknown_author_count",
+    "africa_female_author_count",
+    "africa_male_author_count",
+    "africa_unknown_author_count",
+    "asia_female_author_count",
+    "asia_male_author_count",
+    "asia_unknown_author_count",
+    "north_america_female_author_count",
+    "north_america_male_author_count",
+    "north_america_unknown_author_count",
+    "oceania_female_author_count",
+    "oceania_male_author_count",
+    "oceania_unknown_author_count",
+    "south_america_female_author_count",
+    "south_america_male_author_count",
+    "south_america_unknown_author_count",
 ]
 
 
