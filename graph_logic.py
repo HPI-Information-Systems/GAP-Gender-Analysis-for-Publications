@@ -3,16 +3,11 @@ import pandas as pd
 import prototype as pt
 import plotly.graph_objects as go
 import re
+import requests
 
 
 class FilterData:
-
-    def __init__(self,
-                 continents=[],
-                 countries=[],
-                 venues=[],
-                 publication_types=[],
-                 research_areas=[]):
+    def __init__(self, continents=[], countries=[], venues=[], publication_types=[], research_areas=[]):
         self.continents = continents
         self.countries = countries
         self.venues = venues
@@ -20,8 +15,13 @@ class FilterData:
         self.research_areas = research_areas
 
     def is_any_list_empty(self):
-        if not self.continents or not self.countries or not self.venues \
-                or not self.publication_types or not self.research_areas:
+        if (
+            not self.continents
+            or not self.countries
+            or not self.venues
+            or not self.publication_types
+            or not self.research_areas
+        ):
             return True
         return False
 
@@ -41,13 +41,17 @@ def display_filters():
         # Concwept applies to all the other filters as well
 
         country_continent_data = pd.read_csv("filters/Countries.csv")
-        country_continent_data = pd.concat([
-            country_continent_data,
-            pd.DataFrame({
-                "Country": ["Unknown"],
-                "Continent": ["Unknown"],
-            }, ),
-        ], )
+        country_continent_data = pd.concat(
+            [
+                country_continent_data,
+                pd.DataFrame(
+                    {
+                        "Country": ["Unknown"],
+                        "Continent": ["Unknown"],
+                    },
+                ),
+            ],
+        )
         st.session_state.country_continent_dataframe = country_continent_data
 
         venue_data = pd.read_csv("filters/Venues.csv")
@@ -60,8 +64,7 @@ def display_filters():
 
         venues = sorted(list(venue_data["Venue"]))
 
-        publication_types = sorted(
-            list(publication_types_data["PublicationType"]))
+        publication_types = sorted(list(publication_types_data["PublicationType"]))
 
         research_areas = sorted(list(research_areas_data["ResearchArea"]))
 
@@ -80,15 +83,14 @@ def display_filters():
         widget_research_areas = st.multiselect(
             "Filter by Research Area$\\newline$(selected conferences):",
             st.session_state.filters.research_areas,
-            key="research_area")
+            key="research_area",
+        )
         widget_publication_types = st.multiselect(
             "Filter by publication type:",
             st.session_state.filters.publication_types,
             key="publication_type",
         )
-        widget_venues = st.multiselect("Filter by Conference/Journals:",
-                                       st.session_state.filters.venues,
-                                       key="venue")
+        widget_venues = st.multiselect("Filter by Conference/Journals:", st.session_state.filters.venues, key="venue")
 
         widget_continents = st.multiselect(
             "Filter by Continent$\\newline$(only authors with known affiliation):",
@@ -102,7 +104,8 @@ def display_filters():
         widget_countries = st.multiselect(
             "Filter by Country$\\newline$(only authors with known affiliation):",
             st.session_state.filters.countries,
-            key="country")
+            key="country",
+        )
 
         widget_author_position = st.radio(
             "Filter by Gender Author Position:",
@@ -183,7 +186,8 @@ def update_year_range():
             # If, for example, the highest year selected is 2023, it
             # wouldn't include 2023 in the query without the + 1
             st.session_state.year_range[1] + 1,
-        ))
+        )
+    )
     paint_graph()
 
 
@@ -202,8 +206,8 @@ def update_available_countries():
         # And adds them into one result tuple
         for i in range(len(st.session_state.widget_continents)):
             filtered_countries = filtered_countries + tuple(
-                list(df[df["Continent"] ==
-                        st.session_state.widget_continents[i]]["Country"]))
+                list(df[df["Continent"] == st.session_state.widget_continents[i]]["Country"])
+            )
 
     # At the end, the tuple will get sorted
     filtered_countries = sorted(filtered_countries)
@@ -215,10 +219,7 @@ def update_available_countries():
 def prefill_graph():
     if st.session_state.is_first_run == True:
 
-        continents = [
-            "Europe", "Asia", "North America", "South America", "Africa",
-            "Oceania"
-        ]
+        continents = ["Europe", "Asia", "North America", "South America", "Africa", "Oceania"]
         st.session_state.is_first_submit = False
         for i in continents:
             update_graph(
@@ -230,7 +231,7 @@ def prefill_graph():
                 [],
                 "Relative numbers",
             )
-        #st.session_state["cont"] = [continents[-1]]
+        # st.session_state["cont"] = [continents[-1]]
 
         st.session_state.is_first_run = False
         st.session_state.is_first_submit = True
@@ -263,15 +264,19 @@ def update_graph(
         widget_research_areas,
         widget_data_representation,
     )
-    populate_graph(widget_venues, widget_countries, widget_continents,
-                   widget_publication_types, widget_author_position,
-                   widget_research_areas)
+    populate_graph(
+        widget_venues,
+        widget_countries,
+        widget_continents,
+        widget_publication_types,
+        widget_author_position,
+        widget_research_areas,
+    )
 
 
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
-def populate_graph(venue, country, cont, publication_type, author_position,
-                   research_area):
+def populate_graph(venue, country, cont, publication_type, author_position, research_area):
     if st.session_state.is_first_submit:
         return
 
@@ -285,10 +290,11 @@ def populate_graph(venue, country, cont, publication_type, author_position,
         if not filter_list:
             return "", y_name
 
-        filter_str = "({})".format(" or ".join(
-            f'{field_name} = "{item}"'
-            if item != "Unknown" else f'{field_name} IS NULL'
-            for item in filter_list))
+        filter_str = "({})".format(
+            " or ".join(
+                f'{field_name} = "{item}"' if item != "Unknown" else f"{field_name} IS NULL" for item in filter_list
+            )
+        )
         y_name += ", ".join(filter_list) + ", "
         return filter_str, y_name
 
@@ -301,14 +307,13 @@ def populate_graph(venue, country, cont, publication_type, author_position,
     author_position_filters = {
         "First author woman": ('Position = "1"', "woman"),
         "Last author woman": ("CAST(Position AS INT) = AuthorCount", "woman"),
-        "Middle author woman":
-        ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "woman"),
+        "Middle author woman": ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "woman"),
         "First author man": ('Position = "1"', "man"),
         "Last author man": ("CAST(Position AS INT) = AuthorCount", "man"),
-        "Middle author man":
-        ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "man"),
+        "Middle author man": ("Position > 1 AND CAST(Position AS INT) < AuthorCount", "man"),
     }
 
+    sql_gender = ""
     if author_position in {"Any author woman", "Any author man"}:
         f_5 = ""
         y_name += author_position
@@ -339,7 +344,8 @@ def populate_graph(venue, country, cont, publication_type, author_position,
         range(
             list(st.session_state.year_range)[0],
             list(st.session_state.year_range)[1] + 1,
-        ))
+        )
+    )
 
     # Basic SQL query structure
 
@@ -348,34 +354,38 @@ def populate_graph(venue, country, cont, publication_type, author_position,
     # The same is done for relative, but this also includes a calculation of the
     # percentage where the publications with woman gender are divided by all the unique publications
     sql_start = f"""SELECT 
-  Year, 
-  COUNT(DISTINCT 
-    CASE 
-      WHEN Gender = '{sql_gender}' THEN PublicationID 
-    END
-  ) AS Absolute, 
-  COUNT(DISTINCT 
-    CASE 
-      WHEN Gender = '{sql_gender}' THEN PublicationID 
-    END
-  ) * 100 / COUNT(DISTINCT PublicationID) AS Relative
-  FROM AllTogether
-    """
+    Year, 
+    COUNT(DISTINCT 
+        CASE 
+        WHEN Gender = '{sql_gender}' THEN PublicationID 
+        END
+    ) AS Absolute, 
+    COUNT(DISTINCT 
+        CASE 
+        WHEN Gender = '{sql_gender}' THEN PublicationID 
+        END
+    ) * 100 / COUNT(DISTINCT PublicationID) AS Relative
+    FROM AllTogether
+        """
+
     sql_filter_start = """\nWHERE """
     sql_end = """\nGROUP BY Year;"""
 
     # Checks if the query was already requested
-    if not [
-            item for item in st.session_state.y_columns if y_name == item.name
-    ]:
+    if not [item for item in st.session_state.y_columns if y_name == item.name]:
         with st.spinner("Creating graph..."):
 
             # If the query wasn't already requested, combine the different parts of it
-            sql_query = sql_start + (sql_filter_start
-                                     if newf else "") + newf + sql_end
+            sql_query = sql_start + (sql_filter_start if newf else "") + newf + sql_end
 
             # Run the sql query and process it, so that it's ready for the graph
             grouped_absolutes, grouped_relatives = query_and_process(sql_query)
+
+            # Write a line of code that gets the sum of grouped_absolutes over years from result 
+            # and store it in a variable called total_absolutes
+            total_absolutes = sum(grouped_absolutes['Absolute'])
+
+            y_name = y_name + f" (Total: {total_absolutes})"
 
             # Set the specific graph color with colors and the modulo
             # of the length of colors. This ensures, that the graph color of
@@ -403,11 +413,28 @@ def populate_graph(venue, country, cont, publication_type, author_position,
                 pt.GraphData(
                     y_name,
                     True,
-                    grouped_absolutes.sort_index().to_dict()['Absolute'],
-                    grouped_relatives.sort_index().to_dict()['Relative'],
+                    grouped_absolutes.sort_index().to_dict()["Absolute"],
+                    grouped_relatives.sort_index().to_dict()["Relative"],
                     COLORS[color_index],
                 ), ),
-
+            # If statement to prevent logging the default graphs
+            if (len(cont) == 1 and cont[0] != "Unknown") and not any([
+                    research_area, publication_type, venue, country
+            ]) and author_position == "First author woman":
+                pass
+            else:
+                try:
+                    requests.get('http://localhost:6502/log_graph_creation',
+                                 params={
+                                     'research_areas': research_area,
+                                     'publication_types': publication_type,
+                                     'venues': venue,
+                                     'continents': cont,
+                                     'countries': country,
+                                     'author_position': author_position,
+                                 })
+                except requests.exceptions.RequestException as e:
+                    print(f"Error logging graph: {e}")
     # The graph_years are important for displaying only the
     # Selected years on the chart
     st.session_state.graph_years = year
@@ -424,53 +451,47 @@ def query_and_process(sql_query):
     # Drop the columns that are not needed for the specific use case
     # And set the Year as the index
     # Remove 2023 from response as well, because the data is not relevant
-    grouped_absolutes = output.drop('Relative', axis=1).set_index('Year').drop(
-        2023, axis=0, errors='ignore')
-    grouped_relatives = output.drop('Absolute', axis=1).set_index('Year').drop(
-        2023, axis=0, errors='ignore')
+    grouped_absolutes = output.drop("Relative", axis=1).set_index("Year").drop(2023, axis=0, errors="ignore")
+    grouped_relatives = output.drop("Absolute", axis=1).set_index("Year").drop(2023, axis=0, errors="ignore")
 
     # Get all the available years that the user could have selected
     # and check if some of them are not in the output data
     #
     # It is necessary to have every year, including these with 0 values
     # inside of the list for further operation
-    available_years = list(
-        range(st.session_state.min_max[0], st.session_state.min_max[1] + 1))
+    available_years = list(range(st.session_state.min_max[0], st.session_state.min_max[1] + 1))
 
     for i in available_years:
         if i not in grouped_absolutes.index:
-            grouped_absolutes.loc[i] = {'Absolute': 0}
+            grouped_absolutes.loc[i] = {"Absolute": 0} # type: ignore
         if i not in grouped_relatives.index:
-            grouped_relatives.loc[i] = {'Relative': 0}
+            grouped_relatives.loc[i] = {"Relative": 0} #type: ignore
 
     return grouped_absolutes, grouped_relatives
+
 
 # Determines the font color of the hover
 # Based on the luminance of the background color (trace color)
 def get_hover_font_color(bg_color):
     # Convert hex color to RGB
-    hex_color = re.search(r'^#?([A-Fa-f0-9]{6})$', bg_color)
+    hex_color = re.search(r"^#?([A-Fa-f0-9]{6})$", bg_color)
     if hex_color:
-        rgb_color = tuple(
-            int(hex_color.group(1)[i:i + 2], 16) for i in (0, 2, 4))
+        rgb_color = tuple(int(hex_color.group(1)[i : i + 2], 16) for i in (0, 2, 4))
     else:
         raise ValueError(f"Invalid hex color: {bg_color}")
 
     # Calculate the luminance
     r, g, b = [x / 255.0 for x in rgb_color]
-    rgb_color = [
-        x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055)**2.4
-        for x in (r, g, b)
-    ]
+    rgb_color = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in (r, g, b)]
 
-    luminance = 0.2126 * rgb_color[0] + 0.7152 * rgb_color[
-        1] + 0.0722 * rgb_color[2]
+    luminance = 0.2126 * rgb_color[0] + 0.7152 * rgb_color[1] + 0.0722 * rgb_color[2]
 
     # Choose font color based on luminance
     if luminance > 0.3:
         return "black"
     else:
         return "white"
+
 
 # Functionality for visualizing the collected data
 def paint_graph():
@@ -486,49 +507,92 @@ def paint_graph():
     # to be displayed
     line_graph_data = line_graph_data[
         (line_graph_data["Year"] >= min(st.session_state.graph_years))
-        & (line_graph_data["Year"] <= max(st.session_state.graph_years))]
+        & (line_graph_data["Year"] <= max(st.session_state.graph_years))
+    ]
     line_graph_data = line_graph_data.set_index("Year")
 
     fig = go.Figure()
 
+    filtered_y_columns = [
+        y_column for y_column in st.session_state.y_columns
+        if y_column.isVisible
+    ]
+
     data_column_names = list(line_graph_data.columns)
 
+    # Create the figure
+    fig = go.Figure()
+
     for idx, column in enumerate(data_column_names):
-        if column in [
-                y_column.name for y_column in st.session_state.y_columns
-        ]:
-            index = st.session_state.y_columns[idx]
-            value_title = "Count" if st.session_state.widget_data_representation == "Absolute numbers" else "Share of Publications"
-            fig.add_trace(
-                go.Scatter(
-                    x=line_graph_data.index,
-                    y=line_graph_data[column],
-                    mode='lines',
-                    name=column,
-                    line_shape='spline',
-                    line_smoothing=0.7,
-                    meta=[column, value_title],
-                    # The list to display the value alongside with the absolute numbers
-                    # if the selected data representation is "Relative numbers"
-                    customdata=[
-                        f"{v}%" if st.session_state.widget_data_representation
-                        == "Relative numbers" and
-                        (v == 0 or index.absoluteData[k] == 0) else
-                        f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
-                        if st.session_state.widget_data_representation
-                        == "Relative numbers" else index.absoluteData[k]
-                        for k, v in index.relativeData.items()
-                        if st.session_state.graph_years[0] <= k <=
-                        st.session_state.graph_years[-1]
-                    ],
-                    hovertemplate=
-                    '<b>%{meta[0]}</b><br>Year: %{x}<br>%{meta[1]}: %{customdata}<extra></extra>',
-                    hoverlabel=dict(
-                        bgcolor=index.color,
-                        font=dict(color=get_hover_font_color(index.color),),
+        if column in [y_column.name for y_column in st.session_state.y_columns]:
+            index = filtered_y_columns[idx]
+            value_title = (
+                "Count"
+                if st.session_state.widget_data_representation == "Absolute numbers"
+                else "Share of Publications"
+            )
+
+            filtered_data = [(x, y) for x, y in zip(line_graph_data.index, line_graph_data[column]) if y != 0]
+            filtered_x = [x for x, y in filtered_data]
+            filtered_y = [y for x, y in filtered_data]
+            if(st.session_state.widget_data_representation == "Relative numbers"):
+                customdata = [
+                    f"{v}%" if (v == 0 or index.absoluteData[k] == 0) else
+                    f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
+                    for k, v in index.relativeData.items()
+                    if st.session_state.graph_years[0] <= k <=
+                    st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
+                ]
+            else:
+                customdata =[
+                    index.absoluteData[k]
+                    for k, v in index.relativeData.items()
+                    if st.session_state.graph_years[0] <= k <= st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
+                ] 
+
+        else:
+            filtered_data = line_graph_data
+            filtered_x = line_graph_data.index
+            filtered_y = line_graph_data[column]
+            customdata = [
+                index.absoluteData[k]
+                for k, v in index.relativeData.items()
+                if st.session_state.graph_years[0] <= k <=
+                st.session_state.graph_years[-1]
+            ]
+
+            
+
+        fig.add_trace(
+            go.Scatter(
+                x=filtered_x,
+                y=filtered_y,
+                mode="lines",
+                name=column,
+                line_shape="spline",
+                line_smoothing=0.7,
+                meta=[column, value_title],
+                # The list to display the value alongside with the absolute numbers
+                # if the selected data representation is "Relative numbers"
+                customdata=customdata,
+                hovertemplate=
+                # Plotly's hovertemplate uses %{...} syntax to access data from the plot's data
+                # and customdata attributes. To access the name of the index, we use %{meta[0]}.
+                # To access the x-axis value, we use %{x}, and to access the y-axis value, we use
+                # %{customdata}.
+                "<b>%{meta[0]}</b><br>Year: %{x}<br>%{meta[1]}: %{customdata}<extra></extra>",
+                # We can customize the appearance of the hover label using the hoverlabel attribute.
+                # The bgcolor attribute sets the background color, and the font attribute sets
+                # the font properties.
+                hoverlabel=dict(
+                    bgcolor=index.color,
+                    font=dict(
+                        color=get_hover_font_color(index.color),
                     ),
-                    marker=dict(color=st.session_state.y_columns[idx].color),
-                ), )
+                ), 
+                marker=dict(color=filtered_y_columns[idx].color),
+
+                ))
 
     fig.update_layout(
         font_size=13,
@@ -543,12 +607,11 @@ def paint_graph():
             x=0,
         ),
     )
-    fig.update_xaxes(tickformat='d')
+    fig.update_xaxes(tickformat="d")
     fig.update_yaxes(automargin=True, rangemode="tozero")
 
     if st.session_state.widget_data_representation == "Relative numbers":
-        fig.update_layout(yaxis_title="Share of Publications",
-                          yaxis_ticksuffix="%")
+        fig.update_layout(yaxis_title="Share of Publications", yaxis_ticksuffix="%")
     else:
         fig.update_layout(yaxis_title="Number of Publications")
 
@@ -559,7 +622,7 @@ def paint_graph():
 
 
 # Get all the graphs that the user selected in "Graph History"
-def get_selected_df():
+def get_selected_df(): 
     true_df = pd.DataFrame()
 
     # Go through every possible dataframe
@@ -576,15 +639,13 @@ def get_selected_df():
                 true_df.insert(
                     loc=len(true_df.columns),
                     column=st.session_state.y_columns[i].name,
-                    value=list(
-                        st.session_state.y_columns[i].absoluteData.values()),
+                    value=list(st.session_state.y_columns[i].absoluteData.values()),
                 )
             else:
                 true_df.insert(
                     loc=len(true_df.columns),
                     column=st.session_state.y_columns[i].name,
-                    value=list(
-                        st.session_state.y_columns[i].relativeData.values()),
+                    value=list(st.session_state.y_columns[i].relativeData.values()),
                 )
 
     # Insert year column
@@ -596,8 +657,8 @@ def get_selected_df():
         loc=0,
         column="Year",
         value=list(
-            range(st.session_state.min_max[0],
-                  st.session_state.min_max[1] + 1), ),
+            range(st.session_state.min_max[0], st.session_state.min_max[1] + 1),
+        ),
     )
     return true_df
 
@@ -620,15 +681,13 @@ def display_graph_checkboxes():
                 # Accessible via the session state
                 key=f"graph_checkbox_{i}",
                 on_change=change_graph_checkbox,
-                args=(i, ),
+                args=(i,),
             )
-            st.session_state.y_columns[i].isVisible = globals()[
-                "graph_checkbox_%s" % i]
+            st.session_state.y_columns[i].isVisible = globals()["graph_checkbox_%s" % i]
 
             # Set the variable to it's own value due to a bug by streamlit
             # Over which we have no influence on
-            globals()["graph_checkbox_%s" %
-                      i] = globals()["graph_checkbox_%s" % i]
+            globals()["graph_checkbox_%s" % i] = globals()["graph_checkbox_%s" % i]
 
         st.button("Clear History", on_click=clear_history)
 

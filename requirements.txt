@@ -11,7 +11,11 @@ SQLAlchemy==1.4.32
 typing_extensions==4.1.1
 ujson==4.3.0
 zipp==3.6.0
-streamlit==1.18.1
+streamlit==1.21.0
 pillow==9.2.0
 plotly==5.11.0
 pathlib==1.0.1
+Flask==2.3.2
+requests==2.31.0
+altair==4.2.0
+waitress==2.1.2
