@@ -434,7 +434,7 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
                                      'author_position': author_position,
                                  })
                 except requests.exceptions.RequestException as e:
-                    print(f"Error logging visitor: {e}")
+                    print(f"Error logging graph: {e}")
     # The graph_years are important for displaying only the
     # Selected years on the chart
     st.session_state.graph_years = year
