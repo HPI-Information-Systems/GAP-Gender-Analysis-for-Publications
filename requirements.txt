@@ -19,3 +19,4 @@ Flask==2.3.2
 requests==2.31.0
 altair==4.2.0
 waitress==2.1.2
+matplotlib==3.8.0
