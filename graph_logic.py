@@ -4,21 +4,24 @@ import prototype as pt
 import plotly.graph_objects as go
 import re
 import requests
+from utils import log
 
 
 class FilterData:
-    def __init__(self, continents=[], countries=[], venues=[], publication_types=[], research_areas=[]):
+    def __init__(self, continents=[], countries=[], venues=[], min_publication_count=0, publication_types=[], research_areas=[]):
         self.continents = continents
         self.countries = countries
         self.venues = venues
         self.publication_types = publication_types
         self.research_areas = research_areas
+        self.min_publication_count = min_publication_count
 
     def is_any_list_empty(self):
         if (
             not self.continents
             or not self.countries
             or not self.venues
+            or not self.min_publication_count
             or not self.publication_types
             or not self.research_areas
         ):
@@ -54,7 +57,8 @@ def display_filters():
         )
         st.session_state.country_continent_dataframe = country_continent_data
 
-        venue_data = pd.read_csv("filters/Venues.csv")
+        st.session_state.min_venue_publications = 0
+        st.session_state.venue_data = pd.read_csv("filters/Venues.csv")
         publication_types_data = pd.read_csv("filters/PublicationTypes.csv")
         research_areas_data = pd.read_csv("filters/ResearchAreas.csv")
 
@@ -62,7 +66,7 @@ def display_filters():
 
         countries = sorted(list(country_continent_data["Country"]))
 
-        venues = sorted(list(venue_data["Venue"]))
+        venues = update_min_venue_publications(1)
 
         publication_types = sorted(list(publication_types_data["PublicationType"]))
 
@@ -72,6 +76,7 @@ def display_filters():
             continents,
             countries,
             venues,
+            0,
             publication_types,
             research_areas,
         )
@@ -90,7 +95,19 @@ def display_filters():
             st.session_state.filters.publication_types,
             key="publication_type",
         )
-        widget_venues = st.multiselect("Filter by Conference/Journals:", st.session_state.filters.venues, key="venue")
+        widget_venues = st.multiselect(
+            "Filter by Conference/Journals:", 
+            st.session_state.filters.venues,
+            format_func=format_function,
+            key="venue"
+        )
+
+        widget_min_publication_count = st.number_input(
+            "Minimum number of publications per venue:", 
+            min_value=0, max_value=100000, value=1, step=5,
+            on_change=update_min_venue_publications,
+            key="min_publication_count"
+        )
 
         widget_continents = st.multiselect(
             "Filter by Continent$\\newline$(only authors with known affiliation):",
@@ -132,6 +149,7 @@ def display_filters():
                 st.session_state.is_first_submit = False
             update_graph(
                 widget_venues,
+                widget_min_publication_count,
                 widget_countries,
                 widget_continents,
                 widget_publication_types,
@@ -139,6 +157,37 @@ def display_filters():
                 widget_research_areas,
                 st.session_state.widget_data_representation,
             )
+
+def format_function(name):
+    """
+    formats the venue options, to display their number of publications
+    """
+    return f"{st.session_state.pub_counts[st.session_state.filters.venues.index(name)]} | {name}"
+
+def update_min_venue_publications(minimum=None):
+    """
+    Gets called by on_change attribute of the number input.
+    Updates the list of available venues according to their number of publications
+    """
+    venues = []
+    st.session_state.pub_counts = []
+    # iterates over all venues and filters out the ones with less publications than min_publication_count
+    try:
+        for venue in st.session_state.venue_data.iterrows():
+            # df.iterrows returns (Index, Series(data)) so we have to get rid of the index using [1]
+            if venue[1]["NumOfPublications"] >= st.session_state.min_publication_count:
+                venues.append(venue[1]["Name"])
+                st.session_state.pub_counts.append(venue[1]["NumOfPublications"])
+    except AttributeError:
+        for venue in st.session_state.venue_data.iterrows():
+            # df.iterrows returns (Index, Series(data)) so we have to get rid of the index using [1]
+            if venue[1]["NumOfPublications"] >= minimum:
+                venues.append(venue[1]["Name"])
+                st.session_state.pub_counts.append(venue[1]["NumOfPublications"])
+    # removes the few conferences, that include a " char
+    venues = [x for x in venues if '"' not in x]
+    st.session_state.filters.venues = venues
+    return venues
 
 
 def clear_history():
@@ -224,6 +273,7 @@ def prefill_graph():
         for i in continents:
             update_graph(
                 [],
+                0,
                 [],
                 [i],
                 [],
@@ -240,6 +290,7 @@ def prefill_graph():
 # Insert all the data gotten by the form into the session state and populate the graph
 def update_graph(
     widget_venues,
+    widget_min_publication_count,
     widget_countries,
     widget_continents,
     widget_publication_types,
@@ -249,6 +300,7 @@ def update_graph(
 ):
     (
         st.session_state.widget_venues,
+        st.session_state.widget_min_publication_count,
         st.session_state.widget_countries,
         st.session_state.widget_continents,
         st.session_state.widget_publication_types,
@@ -257,6 +309,7 @@ def update_graph(
         st.session_state.widget_data_representation,
     ) = (
         widget_venues,
+        widget_min_publication_count,
         widget_countries,
         widget_continents,
         widget_publication_types,
@@ -266,6 +319,7 @@ def update_graph(
     )
     populate_graph(
         widget_venues,
+        widget_min_publication_count,
         widget_countries,
         widget_continents,
         widget_publication_types,
@@ -276,7 +330,7 @@ def update_graph(
 
 # Creates Dynamic queries based on selection and
 # runs the query to generate the count to populate the line graphs
-def populate_graph(venue, country, cont, publication_type, author_position, research_area):
+def populate_graph(venue, min_publication_count, country, cont, publication_type, author_position, research_area):
     if st.session_state.is_first_submit:
         return
 
@@ -292,7 +346,7 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
 
         filter_str = "({})".format(
             " or ".join(
-                f'{field_name} = "{item}"' if item != "Unknown" else f"{field_name} IS NULL" for item in filter_list
+                f'alto.{field_name} = "{item}"' if item != "Unknown" else f"{field_name} IS NULL" for item in filter_list
             )
         )
         y_name += ", ".join(filter_list) + ", "
@@ -303,6 +357,10 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
     f_3, y_name = build_filter(country, "Country", y_name)
     f_4, y_name = build_filter(cont, "Continent", y_name)
     f_6, y_name = build_filter(publication_type, "PublicationType", y_name)
+    f_7 = f"v.NumOfPublications >= {min_publication_count}"
+    # if there is already a venue in the filter it doesnt make sense to communikate the min pub count
+    if min_publication_count > 1 and venue == []:
+        y_name += f"min. pub. count: {min_publication_count} "
 
     author_position_filters = {
         "First author woman": ('Position = "1"', "woman"),
@@ -325,7 +383,7 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
     else:
         f_5 = ""
 
-    sql_logic = [f_1, f_2, f_3, f_4, f_5, f_6]
+    sql_logic = [f_1, f_2, f_3, f_4, f_5, f_6, f_7]
     newf = ""
     f_count = 0
 
@@ -354,25 +412,26 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
     # The same is done for relative, but this also includes a calculation of the
     # percentage where the publications with woman gender are divided by all the unique publications
     sql_start = f"""SELECT 
-    Year, 
+    alto.Year, 
     COUNT(DISTINCT 
         CASE 
-        WHEN Gender = '{sql_gender}' THEN PublicationID 
+        WHEN alto.Gender = '{sql_gender}' THEN alto.PublicationID 
         END
     ) AS Absolute, 
     COUNT(DISTINCT 
         CASE 
-        WHEN Gender = '{sql_gender}' THEN PublicationID 
+        WHEN alto.Gender = '{sql_gender}' THEN alto.PublicationID 
         END
-    ) * 100 / COUNT(DISTINCT PublicationID) AS Relative
-    FROM AllTogether
+    ) * 100 / COUNT(DISTINCT alto.PublicationID) AS Relative
+    FROM AllTogether alto
+    INNER JOIN Venue v ON alto.Venue = v.Name
         """
-
     sql_filter_start = """\nWHERE """
-    sql_end = """\nGROUP BY Year;"""
+    sql_end = """\nGROUP BY alto.Year;"""
 
     # Checks if the query was already requested
-    if not [item for item in st.session_state.y_columns if y_name == item.name]:
+    # .startswith() is used, because item.name has a "(total:...) at the end"
+    if not [item for item in st.session_state.y_columns if item.name.startswith(y_name)]:
         with st.spinner("Creating graph..."):
 
             # If the query wasn't already requested, combine the different parts of it
@@ -380,6 +439,10 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
 
             # Run the sql query and process it, so that it's ready for the graph
             grouped_absolutes, grouped_relatives = query_and_process(sql_query)
+            
+            # saves the absolutes in session_state for later use
+            # .split(",")[0] is used to obtain the continent, from the name "Europe, First author Women" for example
+            st.session_state.grouped_absolutes[y_name.split(",")[0]] = sum(grouped_absolutes["Absolute"])
 
             # Write a line of code that gets the sum of grouped_absolutes over years from result 
             # and store it in a variable called total_absolutes
@@ -435,6 +498,8 @@ def populate_graph(venue, country, cont, publication_type, author_position, rese
                                  })
                 except requests.exceptions.RequestException as e:
                     print(f"Error logging graph: {e}")
+    else:# if graph was already requested, do nothing
+        return
     # The graph_years are important for displaying only the
     # Selected years on the chart
     st.session_state.graph_years = year
@@ -450,9 +515,9 @@ def query_and_process(sql_query):
 
     # Drop the columns that are not needed for the specific use case
     # And set the Year as the index
-    # Remove 2023 from response as well, because the data is not relevant
-    grouped_absolutes = output.drop("Relative", axis=1).set_index("Year").drop(2023, axis=0, errors="ignore")
-    grouped_relatives = output.drop("Absolute", axis=1).set_index("Year").drop(2023, axis=0, errors="ignore")
+    # Remove 2024 from response as well, because the data is not relevant
+    grouped_absolutes = output.drop("Relative", axis=1).set_index("Year").drop(2024, axis=0, errors="ignore")
+    grouped_relatives = output.drop("Absolute", axis=1).set_index("Year").drop(2024, axis=0, errors="ignore")
 
     # Get all the available years that the user could have selected
     # and check if some of them are not in the output data
@@ -531,14 +596,15 @@ def paint_graph():
                 if st.session_state.widget_data_representation == "Absolute numbers"
                 else "Share of Publications"
             )
-
+            # filters out zeros
             filtered_data = [(x, y) for x, y in zip(line_graph_data.index, line_graph_data[column]) if y != 0]
+            # splits data into seperate lists
             filtered_x = [x for x, y in filtered_data]
             filtered_y = [y for x, y in filtered_data]
             if(st.session_state.widget_data_representation == "Relative numbers"):
                 customdata = [
                     f"{v}%" if (v == 0 or index.absoluteData[k] == 0) else
-                    f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"
+                    f"{v}% ({index.absoluteData[k]}/{int(index.absoluteData[k] / (v / 100))})"# calculates %
                     for k, v in index.relativeData.items()
                     if st.session_state.graph_years[0] <= k <=
                     st.session_state.graph_years[-1] and line_graph_data[column][k] != 0
@@ -639,13 +705,13 @@ def get_selected_df():
                 true_df.insert(
                     loc=len(true_df.columns),
                     column=st.session_state.y_columns[i].name,
-                    value=list(st.session_state.y_columns[i].absoluteData.values()),
+                    value=pd.Series(list(st.session_state.y_columns[i].absoluteData.values())),
                 )
             else:
                 true_df.insert(
                     loc=len(true_df.columns),
                     column=st.session_state.y_columns[i].name,
-                    value=list(st.session_state.y_columns[i].relativeData.values()),
+                    value=pd.Series(list(st.session_state.y_columns[i].relativeData.values())),
                 )
 
     # Insert year column
@@ -656,9 +722,9 @@ def get_selected_df():
     true_df.insert(
         loc=0,
         column="Year",
-        value=list(
+        value=pd.Series(list(
             range(st.session_state.min_max[0], st.session_state.min_max[1] + 1),
-        ),
+        )),
     )
     return true_df
 

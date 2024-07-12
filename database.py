@@ -122,10 +122,12 @@ def main():
     fill_affiliations(conn, to_csv=True)
     fill_gender_api_results(conn)
     fill_authors(conn, to_csv=True)  # Internally triggers fill_author_names()
-    fill_venues(conn, to_csv=True)
+    venue = fill_venues(conn, to_csv=True)
     fill_publications(conn, to_csv=True)  # Internally triggers fill_publication_author_relationships()
+    count_publications_per_venue(conn)
 
     fill_all_together(conn)
+    clean_up_venues(conn, venue)
 
     # Generate a csv file of first names with unknown gender that can be passed to the GenderAPI
     get_unknown_first_names(conn)
@@ -424,12 +426,10 @@ def fill_venues(conn: Connection, to_csv=False):
     journals["Type"] = "Journal"
     log("Journals's names extracted")
 
+
     Venue = pd.concat([conferences, journals])
     Venue.reset_index(drop=True, inplace=True)
     Venue = Venue[~Venue.Name.isnull()]
-
-    if to_csv:
-        Venue.to_csv("csv/db/Venue.csv", index=False)
 
     conn.execute(
         """
@@ -437,12 +437,19 @@ def fill_venues(conn: Connection, to_csv=False):
             VenueID INT NOT NULL PRIMARY KEY,
             Name TEXT NOT NULL,
             Type TEXT NOT NULL,
-            ResearchArea TEXT
+            ResearchArea TEXT,
+            NumOfPublications INT
         );
     """
     )
+
     Venue.to_sql("Venue", con=conn, if_exists="append", index_label="VenueID")
     log("Venues written to database")
+
+    if to_csv:
+        Venue.to_csv("csv/db/Venue.csv", index=False)
+    log("Publication counts added to Database")
+    return Venue
 
 
 def fill_publications(conn: Connection, to_csv=False):
@@ -643,6 +650,11 @@ def fill_publications(conn: Connection, to_csv=False):
 
     fill_publication_author_relationships(publications_with_authors, conn=conn, to_csv=True)
 
+def count_publications_per_venue(conn):
+    log("Progress of counting publications started")
+    publictation_venue_IDs = pd.read_csv("csv/db/Publication.csv", usecols=["VenueID"])
+    
+
 
 def fill_publication_author_relationships(publications: pd.DataFrame, conn: Connection, to_csv=False):
     """
@@ -758,6 +770,54 @@ def fill_all_together(conn: Connection):
     """
     )
     log("All together written to database")
+
+def clean_up_venues(conn: Connection, Venue):
+    # counts how many publiactions were published per venue
+    SqlResponse = conn.execute(
+        """
+        SELECT p.VenueID, v.Name, COUNT(PublicationID) AS COUNT
+        FROM Publication p, Venue v
+        WHERE p.VenueID = v.VenueID
+        GROUP BY p.VenueID
+        ORDER BY v.VenueID
+        """
+    )
+    NumOfPublications = SqlResponse.fetchall()
+    NumOfPublications = list(NumOfPublications[i][2] for i in range(len(NumOfPublications)))
+    log("Counted the Number of Publications per Venue")
+    # updates database with finished counts
+    for i in range(len(Venue)):
+        conn.execute(
+            f"""
+            UPDATE Venue
+            SET NumOfPublications = {NumOfPublications[i]}
+            WHERE VenueID = {i}
+            """
+        )
+    conn.commit()
+    # appends the counts to Venue and writes it to a csv
+    Venue["NumOfPubliactions"] = NumOfPublications
+    log("process of removing unplotable venues started")
+    # deletes the venues, that have publications in only one year, i.e. that can't be plotted by graph_logic.py
+    conn.execute(
+        """
+        WITH venue_publications AS (
+        SELECT Venue, Year  AS publication_year
+        FROM AllTogether
+        ),
+        venues_to_keep AS (
+            SELECT Venue
+            FROM venue_publications
+            GROUP BY Venue
+            HAVING COUNT(DISTINCT publication_year) > 1
+        )
+        DELETE FROM Venue
+        WHERE Name NOT IN (SELECT Venue FROM venues_to_keep)
+        """
+    )
+    log("unplotable venues removed")
+
+
 
 
 def create_indices(conn: Connection):
@@ -962,21 +1022,21 @@ def fill_filters(conn: Connection):
     returnPubType.to_csv("filters/PublicationTypes.csv", index=False)
 
     returnVenue = pd.read_sql_query(
-        """SELECT distinct Venue\nFROM AllTogether;""",
+        """SELECT distinct Name, NumOfPublications\nFROM Venue;""",
         conn,
     )
 
     returnVenue.to_csv("filters/Venues.csv", index=False)
 
     returnContCount = pd.read_sql_query(
-        """SELECT distinct Country, Continent\nFROM AllTogether""",
+        """SELECT distinct Country, Continent\nFROM AllTogether\nWHERE Country IS NOT NULL""",
         conn,
     )
 
     returnContCount.to_csv("filters/Countries.csv", index=False)
 
     returnResAreas = pd.read_sql_query(
-        """SELECT distinct ResearchArea\nFROM AllTogether""",
+        """SELECT distinct ResearchArea\nFROM AllTogether\nWHERE ResearchArea IS NOT NULL""",
         conn,
     )
 
