@@ -117,7 +117,7 @@ def display_general_statistics(cursor):
     # calculates the percentage of papers that were written in the selected continent
     continent_percentage = st.session_state.grouped_absolutes[selectedContinent[0]] / sum(st.session_state.grouped_absolutes.values())
     col3.markdown(
-        f"**Percentage of papers published in {selectedContinent[0]}**: {f"{continent_percentage:.2%}"}",
+        f"**Percentage of papers published in {selectedContinent[0]}**: {continent_percentage:.2%}",
         unsafe_allow_html=True
     )
 
