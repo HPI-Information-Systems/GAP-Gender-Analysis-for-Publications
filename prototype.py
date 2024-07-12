@@ -49,7 +49,7 @@ def main():
         if "min_max" not in st.session_state:
             sql = """SELECT min(Year),max(Year) - 1 FROM AllTogether;"""
             st.session_state.min_max = query_action(sql, "check")[0]
-        st.session_state.setdefault("year_range", (1980, 2022))
+        st.session_state.setdefault("year_range", (1980, 2023))
         st.session_state.setdefault("widget_data_representation", "Absolute numbers")
         st.session_state.setdefault("widget_venues", "")
         st.session_state.setdefault("widget_countries",  "")
@@ -61,6 +61,7 @@ def main():
         st.session_state.setdefault("is_first_run", True)
         st.session_state.setdefault("is_first_submit", True)
         st.session_state.setdefault("graph_years", None)
+        st.session_state.setdefault("grouped_absolutes", {})
 
         if st.session_state.is_first_run:
             try:
